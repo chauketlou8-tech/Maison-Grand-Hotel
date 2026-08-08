@@ -1,179 +1,77 @@
-# Mason Hotel
+# Desktop Application
 
-A full-stack hotel management ecosystem featuring a customer-facing web application, a standalone Java desktop management system, and Python-based analytics. This project demonstrates modern web development, REST API design, relational database architecture, desktop application development, and data analytics within a single integrated ecosystem.
+The desktop application is the internal hotel management system used by hotel staff. Built with Java and JavaFX, it provides a comprehensive interface for managing daily hotel operations.
 
 ---
 
 ## Table of Contents
 
 - [Overview](#overview)
-- [Project Structure](#project-structure)
-- [Components](#components)
-- [Technology Stack](#technology-stack)
 - [Features](#features)
+- [Technology Stack](#technology-stack)
+- [Architecture](#architecture)
+- [Project Structure](#project-structure)
+- [Database Integration](#database-integration)
 - [License](#license)
 
 ---
 
 ## Overview
 
-Mason Hotel is a comprehensive hotel management solution built as a learning project to showcase full-stack development capabilities. The system consists of three primary interfaces:
+This desktop application serves as the primary tool for hotel staff to manage all aspects of hotel operations. It connects directly to the shared PostgreSQL database, providing real-time access to guest information, room status, reservations, and financial data.
 
-- **Customer Website** – A modern, responsive web application for guests to browse rooms, make reservations, and manage bookings
-- **Staff Desktop Application** – A JavaFX-based internal system for hotel employees to manage operations
-- **Analytics Module** – Python-based data analysis for business intelligence and insights
-
-All components communicate with a shared PostgreSQL database, ensuring data consistency across the entire platform.
+The application is designed with an intuitive user interface using JavaFX, making it easy for staff to perform daily tasks efficiently.
 
 ---
 
-## Project Structure
+## Features
 
-```
-mason-hotel/
-│
-├── frontend/
-│   ├── public/
-│   ├── src/
-│   ├── .env
-│   ├── .gitignore
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── vite.config.ts
-│   └── README.md
-│
-├── backend/
-│   ├── src/
-│   ├── .env
-│   ├── .gitignore
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── README.md
-│
-├── desktop/
-│   ├── src/
-│   ├── resources/
-│   ├── .gitignore
-│   ├── pom.xml
-│   └── README.md
-│
-├── analytics/
-│   ├── data/
-│   ├── notebooks/
-│   ├── reports/
-│   ├── scripts/
-│   ├── visualizations/
-│   ├── requirements.txt
-│   ├── .gitignore
-│   └── README.md
-│
-├── database/
-│   ├── backups/
-│   ├── schema.sql
-│   ├── seed.sql
-│   └── README.md
-│
-├── docs/
-│   ├── api/
-│   ├── architecture/
-│   ├── diagrams/
-│   ├── screenshots/
-│   └── README.md
-│
-├── .gitignore
-├── LICENSE
-└── README.md
-```
+### Guest Management
+- Add, edit, and view guest profiles
+- Search and filter guest records
+- View guest history and preferences
+- Manage guest communications
 
----
+### Reservations
+- Create and manage reservations
+- Check availability in real-time
+- Modify or cancel existing reservations
+- View reservation calendar
+- Process walk-in bookings
 
-## Components
+### Room Management
+- View room status (available, occupied, maintenance)
+- Assign rooms to guests
+- Track room inventory and features
+- Manage room rates
+- Schedule maintenance
 
-### Frontend (Customer Website)
+### Check-in / Check-out
+- Streamlined check-in process
+- Verify guest identity and reservation
+- Process payments at check-in
+- Simplified check-out with final billing
+- Generate invoices
 
-A responsive, modern web application built for hotel guests.
+### Billing and Payments
+- Generate and print invoices
+- Process payments (cash, credit card, etc.)
+- View payment history
+- Handle refunds and adjustments
 
-**Pages:**
-- Home
-- About
-- Rooms & Room Details
-- Restaurant
-- Gallery
-- Booking
-- Contact
-- Frequently Asked Questions
+### Reports
+- Occupancy reports
+- Revenue reports
+- Guest statistics
+- Reservation trends
+- Financial summaries
+- Export reports to PDF or CSV
 
----
-
-### Backend (REST API)
-
-A robust API server handling all business logic and data operations.
-
-**Responsibilities:**
-- Authentication & Authorization
-- Room management
-- Booking management
-- Customer management
-- Payment processing
-- Business logic
-- Database communication
-
----
-
-### Desktop Application (Staff System)
-
-An internal management system built with JavaFX for hotel staff.
-
-**Features:**
-- Guest management
-- Reservations
-- Room management
-- Check-in / Check-out
-- Billing
-- Reports
-- Employee management
-
----
-
-### Analytics (Python)
-
-Data analysis and business intelligence components for hotel operations.
-
-**Features:**
-- Business performance dashboards
-- Occupancy trend analysis
-- Revenue forecasting
-- Customer behavior insights
-- Data visualization
-- Automated reporting
-- KPI tracking
-- Predictive analytics
-
----
-
-### Database
-
-Shared PostgreSQL database serving all system components.
-
-**Tables:**
-- Guests
-- Employees
-- Rooms
-- Reservations
-- Payments
-- Invoices
-
----
-
-### Documentation
-
-Comprehensive project documentation.
-
-**Contents:**
-- API documentation
-- Architecture design
-- System diagrams
-- Screenshots
+### Employee Management
+- Staff accounts and permissions
+- Role-based access control
+- Employee scheduling
+- Activity logs
 
 ---
 
@@ -181,66 +79,199 @@ Comprehensive project documentation.
 
 | Component | Technology |
 |-----------|------------|
-| Frontend | React, TypeScript, Tailwind CSS, Vite |
-| Backend | Node.js, Express, native PostgreSQL driver |
-| Desktop | Java, JavaFX, JDBC, Maven |
-| Analytics | Python, Pandas, NumPy, Matplotlib, Seaborn, Jupyter |
-| Database | PostgreSQL |
-| Documentation | Markdown, Diagrams |
+| Language | Java (JDK 17+) |
+| UI Framework | JavaFX |
+| Database Connectivity | JDBC |
+| Build Tool | Maven |
+| Reporting | JasperReports |
+| Version Control | Git |
 
 ---
 
-## Features
+## Architecture
 
-### Customer Website
-- Responsive design for all devices
-- Room browsing with filters and search
-- Online booking with availability checks
-- Secure payment processing
-- Booking management (view, modify, cancel)
-- Photo gallery of hotel and rooms
+The desktop application follows a layered architecture pattern:
 
-### Staff Desktop Application
-- Intuitive JavaFX interface
-- Real-time room availability overview
-- Guest check-in and check-out workflow
-- Billing and invoice generation
-- Employee management and permissions
-- Comprehensive reporting (occupancy, revenue, etc.)
-- Quick reservation management
+### Presentation Layer (UI)
+- JavaFX components
+- FXML for layout
+- CSS for styling
+- Event handling
 
-### Analytics Module
-- Business performance dashboards
-- Occupancy trend analysis
-- Revenue forecasting
-- Customer behavior insights
-- Data visualization
-- Automated report generation
-- KPI tracking
-- Predictive analytics
+### Service Layer
+- Business logic implementation
+- Transaction management
+- Validation and authorization
 
-### Shared Features
-- Real-time data synchronization
-- Consistent business logic
-- Centralized database
-- Role-based access control
+### Repository Layer
+- Data access operations
+- CRUD operations
+- Query execution
+
+### Database Layer
+- Connection management
+- Query definitions
+- Exception handling
 
 ---
 
-## Project Goals
+## Project Structure
 
-This project serves as a comprehensive practice ground for:
+```
+desktop/
+│
+├── src/
+│   │
+│   ├── main/
+│   │   │
+│   │   ├── config/
+│   │   │
+│   │   ├── database/
+│   │   │
+│   │   ├── exceptions/
+│   │   │
+│   │   ├── models/
+│   │   │
+│   │   ├── repositories/
+│   │   │
+│   │   ├── services/
+│   │   │
+│   │   ├── ui/
+│   │   │   │
+│   │   │   ├── common/
+│   │   │   ├── dashboard/
+│   │   │   ├── employees/
+│   │   │   ├── guests/
+│   │   │   ├── payments/
+│   │   │   ├── reports/
+│   │   │   ├── reservations/
+│   │   │   └── rooms/
+│   │   │
+│   │   └── utils/
+│   │
+│   └── resources/
+│       │
+│       ├── css/
+│       ├── fxml/
+│       ├── icons/
+│       ├── images/
+│       └── sql/
+│
+├── lib/
+│
+├── .gitignore
+├── pom.xml
+└── README.md
+```
 
-- Modern frontend development with React and TypeScript
-- RESTful API design and implementation
-- Object-Oriented Programming in Java
-- JavaFX desktop application development
-- Database design and SQL
-- Native PostgreSQL database integration
-- Data analytics with Python
-- Data visualization and reporting
-- Authentication and authorization
-- Clean project architecture and separation of concerns
+---
+
+## Database Integration
+
+The desktop application connects directly to the PostgreSQL database using JDBC. Database operations are encapsulated in repository classes.
+
+### Connection Management
+- Connection pooling for performance
+- Secure credential storage
+- Error handling and retry logic
+- Transaction support
+
+### Key Database Operations
+- CRUD operations for all entities
+- Complex queries for reporting
+- Stored procedures for business logic
+- Transaction management for check-in/check-out
+
+---
+
+## Setup and Configuration
+
+### Database Configuration
+Configuration is managed through a properties file:
+
+```
+db.host=localhost
+db.port=5432
+db.name=mason_hotel
+db.user=username
+db.password=password
+```
+
+### Running the Application
+
+**From IDE:**
+1. Open project in IntelliJ IDEA, Eclipse, or VS Code
+2. Configure database connection
+3. Run Main.java
+
+**Using Maven:**
+```
+mvn clean compile
+mvn javafx:run
+```
+
+---
+
+## Authentication and Security
+
+### Login System
+- Employee authentication with username/password
+- Session management
+- Password hashing
+- Login attempt tracking
+
+### Role-Based Access Control
+- Administrator: Full system access
+- Manager: Access to reports and employee management
+- Receptionist: Guest and reservation management
+- Housekeeping: Room status management
+
+---
+
+## Reports
+
+The application includes comprehensive reporting capabilities:
+
+- **Occupancy Report**: Daily, weekly, monthly occupancy rates
+- **Revenue Report**: Income breakdown by source
+- **Guest Report**: Guest demographics and preferences
+- **Reservation Report**: Booking trends and patterns
+- **Financial Report**: Profit and loss statements
+
+Reports can be:
+- Previewed on screen
+- Printed
+- Exported as PDF or CSV
+
+---
+
+## Build and Deployment
+
+### Packaging
+The application can be packaged as:
+- JAR file with dependencies
+- Native installer using jpackage
+- Platform-specific executable
+
+### Deployment Options
+- Local installation on hotel computers
+- Network deployment
+- Remote desktop access
+
+---
+
+## Development Notes
+
+### Coding Standards
+- Follow Java naming conventions
+- Use meaningful variable and method names
+- Comment complex logic
+- Write unit tests for critical components
+
+### Version Control
+- Feature branch workflow
+- Descriptive commit messages
+- Regular commits with atomic changes
 
 ---
 
