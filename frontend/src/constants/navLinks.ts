@@ -1,4 +1,5 @@
 const navLinks = [
+    "About",
     "Amenities",
     "Dining",
     "Book",

@@ -35,7 +35,7 @@ export default function Header() {
 
                 <nav className="hidden md:flex items-center gap-10">
                     {navLinks.map((link) => (
-                        <Link key={link} to={`/${link.toLowerCase()}`} className="text-sm tracking-[0.15em] uppercase text-neutral-300 hover:text-white transition-colors duration-200">
+                        <Link key={link} to={`/${link === "Book" ? "booking" : link.toLowerCase()}`} className="text-sm tracking-[0.15em] uppercase text-neutral-300 hover:text-white transition-colors duration-200">
                             {link}
                         </Link>
                     ))}
