@@ -1,0 +1,59 @@
+// Mason Hotel Employee ID System
+// ===============================
+// Format: EMPXXX (where XXX is a 3-digit number)
+// Range: EMP000 - EMP999
+//
+// Employee IDs are assigned dynamically at hire and are unique per employee.
+// The ID range indicates department.
+
+// ===== ID Ranges by Department =====
+
+EMP000 - Reserved for System/Founder
+EMP001-EMP099 - Management
+EMP100-EMP199 - Front Desk / Guest Services
+EMP200-EMP299 - Housekeeping
+EMP300-EMP399 - Maintenance
+EMP400-EMP499 - Security
+EMP500-EMP599 - Kitchen / Restaurant
+EMP600-EMP699 - Administrative
+EMP700-EMP799 - Temporary / Contract Staff
+EMP800-EMP899 - Management Trainees / Interns
+EMP900-EMP999 - Special / Founder / Owner
+
+// ===== How IDs Are Made =====
+// - IDs are assigned sequentially within each department range
+// - First employee in a department gets the first number in that range
+// - Example: First Front Desk employee gets EMP100, second gets EMP101
+// - Once assigned, an ID is never reused even if the employee leaves
+// - New hires get the next available number in their department's range
+
+// ===== ID Number Meaning =====
+// - The first digit (hundreds place) determines the department
+// - 0xx = Reserved (000) / Management (001-099)
+// - 1xx = Front Desk / Guest Services
+// - 2xx = Housekeeping
+// - 3xx = Maintenance
+// - 4xx = Security
+// - 5xx = Kitchen / Restaurant
+// - 6xx = Administrative
+// - 7xx = Temporary / Contract Staff
+// - 8xx = Management Trainees / Interns
+// - 9xx = Special / Founder / Owner
+//
+// - The last two digits are the sequential number within that department
+// - Example: EMP150 = Front Desk employee, 50th employee in that department
+
+// ===== Example Assignments =====
+// System/Founder: EMP000
+// First Management hire: EMP001
+// First Front Desk hire: EMP100
+// First Housekeeping hire: EMP200
+// 25th Kitchen employee: EMP524
+// 12th Administrative employee: EMP611
+
+// ===== Notes =====
+// - EMP000 is reserved for system use or founder
+// - No employee shares the same ID
+// - IDs are permanent throughout employment
+// - IDs are not reassigned after an employee leaves
+// - The first digit instantly identifies the department
