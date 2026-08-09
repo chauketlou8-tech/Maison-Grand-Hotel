@@ -1,35 +1,60 @@
 // components/booking/BookingForm.tsx
-import { ChevronDown, Check, Phone, Mail, MapPin } from "lucide-react";
+import { useState, type FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
+import { ChevronDown, Check, Phone, Mail, MapPin, AlertCircle } from "lucide-react";
 import rooms from "../../constants/rooms";
 import packages from "../../constants/packages";
+import nightsBetween from "../../utils/nightsBetween";
 
-export default function BookingForm({
-                                        selectedRoom,
-                                        setSelectedRoom,
-                                        checkIn,
-                                        setCheckIn,
-                                        checkOut,
-                                        setCheckOut,
-                                        guests,
-                                        setGuests,
-                                        selectedPackages,
-                                        firstName,
-                                        setFirstName,
-                                        lastName,
-                                        setLastName,
-                                        email,
-                                        setEmail,
-                                        phone,
-                                        setPhone,
-                                        requests,
-                                        setRequests,
-                                        handleSubmit,
-                                        togglePackage,
-                                        room,
-                                        nights,
-                                        roomTotal,
-                                        total
-                                    }) {
+export default function BookingForm() {
+    const navigate = useNavigate();
+    const [selectedRoom, setSelectedRoom] = useState(rooms[4].name);
+    const [checkIn, setCheckIn] = useState("");
+    const [checkOut, setCheckOut] = useState("");
+    const [guests, setGuests] = useState("2");
+    const [selectedPackages, setSelectedPackages] = useState<string[]>([]);
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState("");
+    const [requests, setRequests] = useState("");
+    const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+    const room = rooms.find((r) => r.name === selectedRoom) ?? rooms[4];
+    const nights = nightsBetween(checkIn, checkOut);
+    const packageTotal = packages.filter((p) => selectedPackages.includes(p.id)).reduce((s, p) => s + p.price, 0);
+    const roomTotal = room.price * Math.max(nights, 1);
+    const total = roomTotal + packageTotal * Math.max(nights, 1);
+
+    function togglePackage(id: string) {
+        setSelectedPackages((prev) => prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]);
+    }
+
+    function validateForm() {
+        const newErrors: { [key: string]: string } = {};
+        if (!firstName.trim()) newErrors.firstName = "First name is required";
+        if (!lastName.trim()) newErrors.lastName = "Last name is required";
+        if (!email.trim()) {
+            newErrors.email = "Email is required";
+        } else if (!/\S+@\S+\.\S+/.test(email)) {
+            newErrors.email = "Please enter a valid email address";
+        }
+        if (!checkIn) newErrors.checkIn = "Check-in date is required";
+        if (!checkOut) newErrors.checkOut = "Check-out date is required";
+        if (checkIn && checkOut && new Date(checkOut) <= new Date(checkIn)) {
+            newErrors.checkOut = "Check-out must be after check-in";
+        }
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    }
+
+    function handleSubmit(e: FormEvent) {
+        e.preventDefault();
+        if (validateForm()) {
+            navigate("/booking/success", { state: { firstName, email, selectedRoom, checkIn, checkOut, guests } });
+        }
+    }
+
     return (
         <section className="py-16 px-8 md:px-20 bg-[#0f0e0c]">
             <div className="max-w-6xl mx-auto">
@@ -64,11 +89,13 @@ export default function BookingForm({
                             <div className="grid sm:grid-cols-3 gap-4">
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Check-in</label>
-                                    <input type="date" value={checkIn} min={new Date().toISOString().split("T")[0]} onChange={(e) => setCheckIn(e.target.value)} className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] focus:outline-none focus:border-[#c9a84c] transition-colors" />
+                                    <input type="date" value={checkIn} min={new Date().toISOString().split("T")[0]} onChange={(e) => setCheckIn(e.target.value)} className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.checkIn ? "border-red-500" : "border-[#c9a84c]/15"}`} />
+                                    {errors.checkIn && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.checkIn}</p>}
                                 </div>
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Check-out</label>
-                                    <input type="date" value={checkOut} min={checkIn || new Date().toISOString().split("T")[0]} onChange={(e) => setCheckOut(e.target.value)} className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] focus:outline-none focus:border-[#c9a84c] transition-colors" />
+                                    <input type="date" value={checkOut} min={checkIn || new Date().toISOString().split("T")[0]} onChange={(e) => setCheckOut(e.target.value)} className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.checkOut ? "border-red-500" : "border-[#c9a84c]/15"}`} />
+                                    {errors.checkOut && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.checkOut}</p>}
                                 </div>
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Guests</label>
@@ -109,17 +136,20 @@ export default function BookingForm({
                             <div className="grid sm:grid-cols-2 gap-4 mb-4">
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">First Name</label>
-                                    <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} required placeholder="Jean" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
+                                    <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Jean" className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.firstName ? "border-red-500" : "border-[#c9a84c]/15"}`} />
+                                    {errors.firstName && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.firstName}</p>}
                                 </div>
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Last Name</label>
-                                    <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} required placeholder="Dupont" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
+                                    <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Dupont" className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.lastName ? "border-red-500" : "border-[#c9a84c]/15"}`} />
+                                    {errors.lastName && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.lastName}</p>}
                                 </div>
                             </div>
                             <div className="grid sm:grid-cols-2 gap-4 mb-4">
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Email</label>
-                                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="jean@example.com" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
+                                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="jean@example.com" className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.email ? "border-red-500" : "border-[#c9a84c]/15"}`} />
+                                    {errors.email && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.email}</p>}
                                 </div>
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Phone</label>
