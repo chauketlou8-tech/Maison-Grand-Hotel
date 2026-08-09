@@ -27,7 +27,7 @@ export default function Footer() {
                         <p className="text-[10px] tracking-[0.35em] uppercase text-neutral-400 mb-5">Navigate</p>
                         <div className="flex flex-col gap-3">
                             {navLinks.map((link) => (
-                                <Link key={link} to={`/${link.toLowerCase()}`} className="text-sm text-neutral-400 hover:text-white transition-colors font-light">
+                                <Link key={link} to={`/${link === "Book" ? "booking" : link.toLowerCase()}`} className="text-sm text-neutral-400 hover:text-white transition-colors font-light">
                                     {link}
                                 </Link>
                             ))}
