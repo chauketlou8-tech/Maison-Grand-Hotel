@@ -36,8 +36,8 @@ export default function Footer() {
                     <div>
                         <p className="text-[10px] tracking-[0.35em] uppercase text-neutral-400 mb-5">Contact</p>
                         <div className="flex flex-col gap-3 text-sm text-neutral-400 font-light">
-                            <span className="flex items-start gap-2"><MapPin size={13} className="text-white mt-0.5 flex-shrink-0" />12 Rue de la Paix, 75002 Paris, France</span>
-                            <span className="flex items-center gap-2"><Phone size={13} className="text-white flex-shrink-0" />+33 1 42 00 00 00</span>
+                            <span className="flex items-start gap-2"><MapPin size={13} className="text-white mt-0.5 flex-shrink-0" />08 Greenwood, 75002 Cape Town, South Africa</span>
+                            <span className="flex items-center gap-2"><Phone size={13} className="text-white flex-shrink-0" />+27 790 433 094</span>
                             <span className="flex items-center gap-2"><Mail size={13} className="text-white flex-shrink-0" />reservations@maisongrandhotel.com</span>
                         </div>
                     </div>
