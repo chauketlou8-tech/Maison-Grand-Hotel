@@ -9,15 +9,10 @@ export default function About() {
     return (
         <div>
             <HeroBanner />
-
             <Story />
-
             <Stats />
-
             <Values />
-
             <Location />
-
             <CTA />
         </div>
     );

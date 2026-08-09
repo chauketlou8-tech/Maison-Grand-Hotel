@@ -1,9 +1,9 @@
 const navLinks = [
     "About",
+    "Rooms",
     "Amenities",
     "Dining",
     "Book",
-    "Rooms"
 ];
 
 export default navLinks;

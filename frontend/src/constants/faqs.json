@@ -1,0 +1,8 @@
+[
+  { "q": "What is the check-in and check-out time?", "a": "Check-in from 15:00; check-out by 12:00 noon. Early check-in and late check-out are subject to availability and may be arranged through our concierge." },
+  { "q": "How does the Guest ID system work?", "a": "Each guest receives a unique ID in the format GXX-YY-ZZZ. The floor number, room type code, and a sequential number are encoded directly into the ID — allowing any staff member to identify your location and room type at a glance, without needing to look anything up." },
+  { "q": "Do you allow pets?", "a": "We welcome well-behaved dogs under 10 kg in our ground-floor rooms. A pet amenity package is provided. Please notify us in advance." },
+  { "q": "Is breakfast included?", "a": "Breakfast at The Atrium is available to add at €58 per person per day. It is not included in our standard rates but may be arranged at booking or on arrival." },
+  { "q": "Do you offer airport transfers?", "a": "Yes. Our concierge team can arrange private chauffeur transfers to and from both Charles de Gaulle and Orly airports. Please request at least 48 hours in advance." },
+  { "q": "What is your cancellation policy?", "a": "Standard reservations may be cancelled free of charge up to 48 hours before arrival. Penthouse and package reservations require 7 days' notice." }
+]
