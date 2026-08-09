@@ -10,7 +10,7 @@ export default function Bookings() {
                 <p className="text-[11px] tracking-[0.5em] uppercase mb-4 font-light" style={{ color: "#c9a84c" }}>Book Direct</p>
                 <h2 className="text-4xl md:text-5xl font-normal mb-6" style={{ fontFamily: "'Playfair Display', serif", color: "#f0ebe0" }}>Best rate guaranteed<br /><em style={{ color: "#c9a84c" }}>every time.</em></h2>
                 <p className="font-light mb-8 max-w-md" style={{ color: "rgba(240, 235, 224, 0.55)" }}>Reserve directly with us for our lowest available rate, complimentary early check-in, and a welcome amenity curated for your stay.</p>
-                <Link to="/book" className="inline-flex items-center gap-3 px-8 py-4 text-sm tracking-[0.2em] uppercase font-medium transition-colors duration-200" style={{ backgroundColor: "#c9a84c", color: "#0f0e0c" }}>Reserve Now <ArrowRight size={15} /></Link>
+                <Link to="/booking" className="inline-flex items-center gap-3 px-8 py-4 text-sm tracking-[0.2em] uppercase font-medium transition-colors duration-200" style={{ backgroundColor: "#c9a84c", color: "#0f0e0c" }}>Reserve Now <ArrowRight size={15} /></Link>
             </div>
         </section>
     )

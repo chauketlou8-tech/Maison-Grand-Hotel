@@ -6,6 +6,7 @@ import About from "../pages/About";
 import Rooms from "../pages/Rooms";
 import Amenities from "../pages/Amenities";
 import Dining from "../pages/Dining";
+import Booking from "../pages/Booking";
             
 export default function AppRoutes() {
     return (
@@ -16,6 +17,7 @@ export default function AppRoutes() {
                 <Route path="/rooms" element={ <Rooms/> } />
                 <Route path="/amenities" element={ <Amenities/> } />
                 <Route path="/dining" element={ <Dining/> } />
+                <Route path="/booking" element={ <Booking/> } />
             </Routes>
         </PageLayout>
 )
