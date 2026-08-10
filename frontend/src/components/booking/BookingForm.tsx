@@ -1,24 +1,35 @@
 // components/booking/BookingForm.tsx
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronDown, Check, Phone, Mail, MapPin, AlertCircle } from "lucide-react";
+import { ChevronDown, Check, Phone, Mail, MapPin, AlertCircle, Loader2 } from "lucide-react";
 import rooms from "../../constants/rooms";
 import packages from "../../constants/packages";
 import nightsBetween from "../../utils/nightsBetween";
+import book from "../../services/book";
 
 export default function BookingForm() {
     const navigate = useNavigate();
+
     const [selectedRoom, setSelectedRoom] = useState(rooms[4].name);
-    const [checkIn, setCheckIn] = useState("");
-    const [checkOut, setCheckOut] = useState("");
-    const [guests, setGuests] = useState("2");
+
+    const [checkIn, setCheckIn] = useState<Date>(new Date());
+    const [checkOut, setCheckOut] = useState<Date>(new Date());
+
+    const [guests, setGuests] = useState<number>(2);
     const [selectedPackages, setSelectedPackages] = useState<string[]>([]);
+
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
+
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
+
     const [requests, setRequests] = useState("");
+
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
+    const [submitError, setSubmitError] = useState("");
+
+    const [isLoading, setIsLoading] = useState(false);
 
     const room = rooms.find((r) => r.name === selectedRoom) ?? rooms[4];
     const nights = nightsBetween(checkIn, checkOut);
@@ -48,11 +59,58 @@ export default function BookingForm() {
         return Object.keys(newErrors).length === 0;
     }
 
-    function handleSubmit(e: FormEvent) {
+    async function handleSubmit(e: FormEvent) {
         e.preventDefault();
+        setSubmitError("");
+
         if (validateForm()) {
-            navigate("/booking/success", { state: { firstName, email, selectedRoom, checkIn, checkOut, guests } });
+            setIsLoading(true);
+
+            const minLoadingTime = 3500;
+            const startTime = Date.now();
+
+            try {
+                const bookingDetails = {
+                    firstName,
+                    lastName,
+                    email,
+                    phone,
+                    requests,
+                    checkIn,
+                    checkOut,
+                    guests,
+                    selectedPackages,
+                };
+                await book(bookingDetails);
+
+                const deltaTime = Date.now() - startTime;
+                const remainingTime = minLoadingTime - deltaTime;
+
+                setTimeout(() => {
+                    setIsLoading(false);
+                    navigate("/booking/payment", {
+                        state: {
+                            firstName,
+                            email,
+                            selectedRoom,
+                            checkIn,
+                            checkOut,
+                            guests,
+                            total,
+                            nights
+                        }
+                    });
+                }, remainingTime > 0 ? remainingTime : 0 );
+            }
+            catch (error: any) {
+                setIsLoading(false);
+                setSubmitError(error.message || "Something went wrong. Please try again.");
+            }
         }
+    }
+
+    function formatDate(date: Date): string {
+        return date.toISOString().split("T")[0];
     }
 
     return (
@@ -60,11 +118,17 @@ export default function BookingForm() {
             <div className="max-w-6xl mx-auto">
                 <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-10">
                     <div className="lg:col-span-2 flex flex-col gap-8">
+                        {submitError && (
+                            <div className="bg-red-500/10 border border-red-500 p-4 flex items-center gap-3">
+                                <AlertCircle size={16} className="text-red-500 flex-shrink-0" />
+                                <p className="text-red-500 text-sm font-light">{submitError}</p>
+                            </div>
+                        )}
                         <div>
                             <h2 className="text-2xl font-normal mb-5 text-[#f0ebe0] font-display">1. Choose Your Room</h2>
                             <div className="grid sm:grid-cols-2 gap-3">
                                 {rooms.map((r) => (
-                                    <button key={r.name} type="button" onClick={() => setSelectedRoom(r.name)} className={`text-left p-5 border transition-all duration-200 ${selectedRoom === r.name ? "border-[#c9a84c] bg-[#c9a84c]/5" : "border-[#c9a84c]/15 hover:border-[#c9a84c]/30"}`}>
+                                    <button key={r.name} type="button" onClick={() => setSelectedRoom(r.name)} className={`text-left p-5 border transition-all duration-200 cursor-pointer ${selectedRoom === r.name ? "border-[#c9a84c] bg-[#c9a84c]/5" : "border-[#c9a84c]/15 hover:border-[#c9a84c]/30"}`}>
                                         <div className="flex justify-between items-start gap-2">
                                             <div className="flex-1">
                                                 <div className="flex items-center gap-2 mb-0.5">
@@ -89,19 +153,19 @@ export default function BookingForm() {
                             <div className="grid sm:grid-cols-3 gap-4">
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Check-in</label>
-                                    <input type="date" value={checkIn} min={new Date().toISOString().split("T")[0]} onChange={(e) => setCheckIn(e.target.value)} className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.checkIn ? "border-red-500" : "border-[#c9a84c]/15"}`} />
+                                    <input type="date" value={formatDate(checkIn)} min={formatDate(new Date())} onChange={(e) => setCheckIn(new Date(e.target.value))} className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.checkIn ? "border-red-500" : "border-[#c9a84c]/15"}`} />
                                     {errors.checkIn && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.checkIn}</p>}
                                 </div>
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Check-out</label>
-                                    <input type="date" value={checkOut} min={checkIn || new Date().toISOString().split("T")[0]} onChange={(e) => setCheckOut(e.target.value)} className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.checkOut ? "border-red-500" : "border-[#c9a84c]/15"}`} />
+                                    <input type="date" value={formatDate(checkOut)} min={formatDate(checkIn)} onChange={(e) => setCheckOut(new Date(e.target.value))} className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.checkOut ? "border-red-500" : "border-[#c9a84c]/15"}`} />
                                     {errors.checkOut && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.checkOut}</p>}
                                 </div>
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Guests</label>
                                     <div className="relative">
-                                        <select value={guests} onChange={(e) => setGuests(e.target.value)} className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] focus:outline-none focus:border-[#c9a84c] transition-colors appearance-none">
-                                            {["1", "2", "3", "4"].map((n) => (<option key={n}>{n}</option>))}
+                                        <select value={guests} onChange={(e) => setGuests(Number(e.target.value))} className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] focus:outline-none focus:border-[#c9a84c] transition-colors appearance-none cursor-pointer">
+                                            {[1, 2, 3, 4].map((n) => (<option key={n}>{n}</option>))}
                                         </select>
                                         <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9a9080] pointer-events-none" />
                                     </div>
@@ -113,7 +177,7 @@ export default function BookingForm() {
                             <h2 className="text-2xl font-normal mb-5 text-[#f0ebe0] font-display">3. Add-ons</h2>
                             <div className="flex flex-col gap-3">
                                 {packages.map((pkg) => (
-                                    <button key={pkg.id} type="button" onClick={() => togglePackage(pkg.id)} className={`text-left p-5 border transition-all duration-200 ${selectedPackages.includes(pkg.id) ? "border-[#c9a84c] bg-[#c9a84c]/5" : "border-[#c9a84c]/15 hover:border-[#c9a84c]/30"}`}>
+                                    <button key={pkg.id} type="button" onClick={() => togglePackage(pkg.id)} className={`text-left p-5 border transition-all duration-200 cursor-pointer ${selectedPackages.includes(pkg.id) ? "border-[#c9a84c] bg-[#c9a84c]/5" : "border-[#c9a84c]/15 hover:border-[#c9a84c]/30"}`}>
                                         <div className="flex items-start justify-between gap-4">
                                             <div className="flex-1">
                                                 <div className="flex items-center gap-3 mb-2">
@@ -171,8 +235,8 @@ export default function BookingForm() {
                                     <span className="text-[#9a9080] text-xs">Room</span>
                                     <span className="text-[#f0ebe0]/80 text-right leading-tight">{selectedRoom}</span>
                                 </div>
-                                {checkIn && <div className="flex justify-between"><span className="text-[#9a9080] text-xs">Check-in</span><span className="text-[#f0ebe0]/80">{checkIn}</span></div>}
-                                {checkOut && <div className="flex justify-between"><span className="text-[#9a9080] text-xs">Check-out</span><span className="text-[#f0ebe0]/80">{checkOut}</span></div>}
+                                {checkIn && <div className="flex justify-between"><span className="text-[#9a9080] text-xs">Check-in</span><span className="text-[#f0ebe0]/80">{formatDate(checkIn)}</span></div>}
+                                {checkOut && <div className="flex justify-between"><span className="text-[#9a9080] text-xs">Check-out</span><span className="text-[#f0ebe0]/80">{formatDate(checkOut)}</span></div>}
                                 {nights > 0 && <div className="flex justify-between"><span className="text-[#9a9080] text-xs">Nights</span><span className="text-[#f0ebe0]/80">{nights}</span></div>}
                                 <div className="flex justify-between"><span className="text-[#9a9080] text-xs">Guests</span><span className="text-[#f0ebe0]/80">{guests}</span></div>
                             </div>
@@ -195,7 +259,9 @@ export default function BookingForm() {
                                 <span className="text-2xl text-[#c9a84c] font-light font-display">€{nights > 0 ? total.toLocaleString() : room.price}</span>
                             </div>
 
-                            <button type="submit" className="w-full py-4 bg-[#c9a84c] text-[#0f0e0c] text-sm tracking-[0.2em] uppercase font-medium hover:bg-[#c9a84c]/90 transition-colors mb-3">Request Reservation</button>
+                            <button type="submit" disabled={isLoading} className="w-full py-4 bg-[#c9a84c] text-[#0f0e0c] text-sm tracking-[0.2em] uppercase font-medium hover:bg-[#c9a84c]/90 transition-colors mb-3 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                                {isLoading ? <><Loader2 size={16} className="animate-spin" /> Submitting...</> : "Request Reservation"}
+                            </button>
                             <p className="text-xs text-[#9a9080] text-center font-light">No payment now. We'll confirm within 2 hours.</p>
 
                             <div className="mt-6 pt-6 border-t border-[#c9a84c]/15 flex flex-col gap-3">

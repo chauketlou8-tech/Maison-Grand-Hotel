@@ -8,6 +8,7 @@ import Amenities from "../pages/Amenities";
 import Dining from "../pages/Dining";
 import { Booking } from "../pages/Booking";
 import { Success } from "../pages/Booking";
+import { Payment } from "../pages/Booking";
             
 export default function AppRoutes() {
     return (
@@ -20,6 +21,7 @@ export default function AppRoutes() {
                 <Route path="/dining" element={ <Dining/> } />
                 <Route path="/booking" element={ <Booking/> } />
                 <Route path="/booking/success" element={ <Success/> } />
+                <Route path="/booking/payment" element={ <Payment /> } />
             </Routes>
         </PageLayout>
 )
