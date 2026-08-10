@@ -1,0 +1,1 @@
+alter table rooms alter column roomstatus set default 'available'
