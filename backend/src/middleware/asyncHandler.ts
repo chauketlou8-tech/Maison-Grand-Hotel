@@ -4,7 +4,7 @@ import type { req, res, next } from "../types/express"
 const asyncHandler = (fn) => {
     return async (req: req, res: res, next: next) => {
         try {
-            await fn(req: req, res: res, next: next);
+            await fn(req, res, next)
         }
         catch (error) {
             next(error);
