@@ -8,6 +8,8 @@ dotenv.config({
 const port = process.env.PORT || 3002;
 const node_env = process.env.NODE_ENV;
 const db_url = process.env.DATABASE_URL;
+const email_user = process.env.EMAIL_USER;
+const email_password = process.env.EMAIL_PASSWORD;
 
 if (!node_env) {
     throw new Error('Missing environment environment');
@@ -16,9 +18,19 @@ if (!node_env) {
 if (!db_url && node_env === "development") {
     throw new Error("Database URL missing");
 }
+
+if (!email_user && node_env === "development") {
+    throw new Error("Missing email user");
+}
+
+if (!email_password && node_env === "development") {
+    throw new Error("Missing email password");
+}
     
 export {
     port,
     node_env,
     db_url,
+    email_user,
+    email_password,
 }

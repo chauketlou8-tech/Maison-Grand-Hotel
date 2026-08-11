@@ -79,6 +79,7 @@ export default function BookingForm() {
                     checkIn,
                     checkOut,
                     guests,
+                    selectedRoom,
                     selectedPackages,
                 };
                 await book(bookingDetails);

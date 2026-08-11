@@ -6,4 +6,4 @@ create table if not exists Rooms(roomID serial primary key,
                                  capacity int,
                                  roomStatus text check ( roomStatus in ('available', 'occupied', 'maintenance', 'closed') ) default 'available',
                                  description text
-                                )
+                                );

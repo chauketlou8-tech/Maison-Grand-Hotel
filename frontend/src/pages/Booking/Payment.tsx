@@ -13,7 +13,9 @@ export default function Payment() {
     const [expiry, setExpiry] = useState("");
     const [cvc, setCvc] = useState("");
     const [name, setName] = useState("");
+
     const [isProcessing, setIsProcessing] = useState(false);
+
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
     const total = booking.total || 0;
@@ -137,7 +139,15 @@ export default function Payment() {
         const startTime = Date.now();
 
         try {
-            await pay();
+
+            const paymentDetails = {
+                cardNumber,
+                expiry,
+                cvc,
+                name
+            }
+
+            await pay(paymentDetails);
 
             const deltaTime = Date.now() - startTime;
             const remainingTime = minLoadingTime - deltaTime;
