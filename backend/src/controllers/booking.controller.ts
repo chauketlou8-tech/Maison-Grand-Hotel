@@ -1,9 +1,22 @@
 import asyncHandler from "../middleware/asyncHandler";
 import type { req, res } from "../types/express";
 import Response from "../utils/response";
+import type { Room } from "../types/room";
+import connect from "../config/connection";
 
 const book = asyncHandler(async (req: req, res: res) => {
-    console.log(req.body);
+    const connection = connect;
+
+    const { firstName, lastName, email, phone, requests, guests, selectedPackages } = req.body;
+    let { checkIn, checkOut, selectedRoom } = req.body;
+
+    checkIn = checkIn.split("T")[0];
+    checkOut = checkOut.split("T")[0];
+    selectedRoom = selectedRoom.split(" ")[0];
+
+
+    const result = await connection.query(`select * from rooms where roomstatus = $1 and roomtype = $2`, ["available", selectedRoom]);
+    const availableRooms = result.rows;
 
     /**
      * checkIn : "2026-08-18"

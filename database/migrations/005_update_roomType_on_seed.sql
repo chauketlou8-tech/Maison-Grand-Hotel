@@ -1,0 +1,10 @@
+update rooms set roomtype = 'Standard'  where roomtype = 'ST';
+update rooms set roomtype = 'Deluxe' where roomtype = 'DE';
+update rooms set roomtype = 'Executive' where roomtype = 'EX';
+update rooms set roomtype = 'Suite' where roomtype = 'SU';
+update rooms set roomtype = 'Penthouse' where roomtype = 'PE';
+update rooms set roomtype = 'Family' where roomtype = 'FA';
+update rooms set roomtype = 'Single' where roomtype = 'SI';
+update rooms set roomtype = 'Double' where roomtype = 'DO';
+update rooms set roomtype = 'King' where roomtype = 'KI';
+update rooms set roomtype = 'Queen' where roomtype = 'QU';
