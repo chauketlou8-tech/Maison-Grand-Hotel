@@ -1,11 +1,11 @@
-// components/booking/BookingForm.tsx
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronDown, Check, Phone, Mail, MapPin, AlertCircle, Loader2 } from "lucide-react";
 import rooms from "../../constants/rooms";
 import packages from "../../constants/packages";
 import nightsBetween from "../../utils/nightsBetween";
 import book from "../../services/book";
+import { websocket, sendMessage } from "../../services/websock";
 
 export default function BookingForm() {
     const navigate = useNavigate();
@@ -30,12 +30,40 @@ export default function BookingForm() {
     const [submitError, setSubmitError] = useState("");
 
     const [isLoading, setIsLoading] = useState(false);
+    const [availableRooms, setAvailableRooms] = useState<Record<string, any[]>>({});
 
     const room = rooms.find((r) => r.name === selectedRoom) ?? rooms[4];
     const nights = nightsBetween(checkIn, checkOut);
     const packageTotal = packages.filter((p) => selectedPackages.includes(p.id)).reduce((s, p) => s + p.price, 0);
     const roomTotal = room.price * Math.max(nights, 1);
     const total = roomTotal + packageTotal * Math.max(nights, 1);
+
+    useEffect(() => {
+        const handleMessage = (e: MessageEvent) => {
+            try {
+                const data = JSON.parse(e.data);
+                if (data.type === "availableRooms") {
+                    const sortedRooms: Record<string, any[]> = {};
+                    data.data.rooms.forEach((room: any) => {
+                        if (!sortedRooms[room.roomtype]) {
+                            sortedRooms[room.roomtype] = [];
+                        }
+                        sortedRooms[room.roomtype].push(room);
+                    });
+                    setAvailableRooms(sortedRooms);
+                }
+            } catch (error) {
+                console.error("Error parsing message:", error);
+            }
+        };
+
+        websocket.addEventListener("message", handleMessage);
+        sendMessage("getAvailableRooms", {});
+
+        return () => {
+            websocket.removeEventListener("message", handleMessage);
+        };
+    }, []);
 
     function togglePackage(id: string) {
         setSelectedPackages((prev) => prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]);
@@ -114,6 +142,12 @@ export default function BookingForm() {
         return date.toISOString().split("T")[0];
     }
 
+    // Check if a room is available
+    function isRoomAvailable(roomName: string): boolean {
+        const roomType = roomName.split(" ")[0];
+        return availableRooms[roomType]?.length > 0;
+    }
+
     return (
         <section className="py-16 px-8 md:px-20 bg-[#0f0e0c]">
             <div className="max-w-6xl mx-auto">
@@ -128,24 +162,28 @@ export default function BookingForm() {
                         <div>
                             <h2 className="text-2xl font-normal mb-5 text-[#f0ebe0] font-display">1. Choose Your Room</h2>
                             <div className="grid sm:grid-cols-2 gap-3">
-                                {rooms.map((r) => (
-                                    <button key={r.name} type="button" onClick={() => setSelectedRoom(r.name)} className={`text-left p-5 border transition-all duration-200 cursor-pointer ${selectedRoom === r.name ? "border-[#c9a84c] bg-[#c9a84c]/5" : "border-[#c9a84c]/15 hover:border-[#c9a84c]/30"}`}>
-                                        <div className="flex justify-between items-start gap-2">
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-2 mb-0.5">
-                                                    <code className="text-[10px] font-mono text-[#c9a84c]/70 border border-[#c9a84c]/25 px-1.5 py-0.5">{r.code}</code>
-                                                    <p className="text-sm text-[#f0ebe0]/85 leading-tight">{r.name}</p>
+                                {rooms.map((r) => {
+                                    const available = isRoomAvailable(r.name);
+                                    return (
+                                        <button key={r.name} type="button" onClick={() => available && setSelectedRoom(r.name)} disabled={!available} className={`text-left p-5 border transition-all duration-200 cursor-pointer ${!available ? "opacity-40 cursor-not-allowed" : ""} ${selectedRoom === r.name ? "border-[#c9a84c] bg-[#c9a84c]/5" : "border-[#c9a84c]/15 hover:border-[#c9a84c]/30"}`}>
+                                            <div className="flex justify-between items-start gap-2">
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-2 mb-0.5">
+                                                        <code className="text-[10px] font-mono text-[#c9a84c]/70 border border-[#c9a84c]/25 px-1.5 py-0.5">{r.code}</code>
+                                                        <p className="text-sm text-[#f0ebe0]/85 leading-tight">{r.name}</p>
+                                                        {!available && <span className="text-[10px] text-red-500">(Unavailable)</span>}
+                                                    </div>
+                                                    <p className="text-xs text-[#9a9080]">{r.size} · Floors {r.floors}</p>
                                                 </div>
-                                                <p className="text-xs text-[#9a9080]">{r.size} · Floors {r.floors}</p>
+                                                <div className="text-right flex-shrink-0">
+                                                    <p className="text-[#c9a84c] font-light">€{r.price}</p>
+                                                    <p className="text-xs text-[#9a9080]">/night</p>
+                                                </div>
                                             </div>
-                                            <div className="text-right flex-shrink-0">
-                                                <p className="text-[#c9a84c] font-light">€{r.price}</p>
-                                                <p className="text-xs text-[#9a9080]">/night</p>
-                                            </div>
-                                        </div>
-                                        {selectedRoom === r.name && <div className="mt-3 flex items-center gap-1.5 text-xs text-[#c9a84c]"><Check size={11} /> Selected</div>}
-                                    </button>
-                                ))}
+                                            {selectedRoom === r.name && available && <div className="mt-3 flex items-center gap-1.5 text-xs text-[#c9a84c]"><Check size={11} /> Selected</div>}
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
 

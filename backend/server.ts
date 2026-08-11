@@ -2,11 +2,13 @@ import app from "./app";
 import { db_url, port } from "./src/config/env";
 import { logger } from "./src/config/logger";
 import connectDB from "./src/config/db";
+import websocket from "./src/sockets/websock"
 
 class Server {
     public async start() {
         try {
             connectDB(db_url!);
+            void websocket;
 
             logger.info("Connected to database");
 
