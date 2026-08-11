@@ -2,11 +2,10 @@ import asyncHandler from "../middleware/asyncHandler";
 import type { req, res, next } from "../types/express";
 import Response from "../utils/response";
 import type { Room } from "../types/room";
-import connect from "../config/connection";
-import { RoomError } from "../errors"
+import connection from "../config/connection";
+import { RoomError, CapacityError } from "../errors"
 
 const book = asyncHandler(async (req: req, res: res, next: next) => {
-    const connection = connect;
 
     const { firstName, lastName, email, phone, requests, guests, selectedPackages } = req.body;
     let { checkIn, checkOut, selectedRoom } = req.body;
@@ -23,26 +22,13 @@ const book = asyncHandler(async (req: req, res: res, next: next) => {
         return next(new RoomError("Room is not available.", 404));
     }
 
-    /**
-     *     assign the first available room
-     *     const assignedRoom: Room = availableRooms[0];
-     *
-     *     or
-     *
-     *     remove it from the available rooms
-     *
-     *     await connection.query(`delete from rooms where roomid = $1`, [availableRooms[0].roomid]);
-     *
-     *     or
-     *
-     *     reserve the first one (probably this one)
-     *
-     *
-      */
+    const suitableRoom = availableRooms.find((room: Room) => room.capacity >= guests);
 
-    //console.log(availableRooms[0]);
+    if (!suitableRoom) {
+        return next(new CapacityError("Capacity exceeded: No room available for the number of guests selected.", 409));
+    }
 
-    const reservedRoom = await connection.query(`update rooms set roomStatus = $1 where roomid = $2 returning *`, ['reserved', availableRooms[0].roomid]);
+    const reservedRoom = await connection.query(`update rooms set roomStatus = $1 where roomid = $2 returning *`, ['reserved', suitableRoom.roomid]);
     console.log(reservedRoom.rows);
 
     return Response.success(res, {
