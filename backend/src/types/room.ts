@@ -6,7 +6,7 @@ enum RoomStatus {
 }
 
 export type Room = {
-    roomId: number;
+    roomid: number;
     roomNumber: number;
     floorNumber: number;
     roomType: string;

@@ -34,6 +34,8 @@ public class Booking {
     private final long numberOfGuests;
     private final BookingStatus bookingStatus;
     private final float totalCost;
+    private final String[] selectedPackages;
+    private final String requests;
 
     /**
      * Constructs a new Booking object.
@@ -47,8 +49,10 @@ public class Booking {
      * @param numberOfGuests Number of guests staying
      * @param bookingStatus  Current status of the booking
      * @param totalCost      Total cost of the booking
+     * @param selectedPackages Additional packages offered by the hotel
+     * @param requests       Additional things guest has requested
      */
-    public Booking(String bookingId, Guest guest, Room room, Date bookingDate, Date checkInDate, Date checkOutDate, long numberOfGuests, BookingStatus bookingStatus, float totalCost) {
+    public Booking(String bookingId, Guest guest, Room room, Date bookingDate, Date checkInDate, Date checkOutDate, long numberOfGuests, BookingStatus bookingStatus, float totalCost, String[] selectedPackages, String requests) {
         this.bookingId = bookingId;
         this.guest = guest;
         this.room = room;
@@ -58,6 +62,8 @@ public class Booking {
         this.numberOfGuests = numberOfGuests;
         this.bookingStatus = bookingStatus;
         this.totalCost = totalCost;
+        this.selectedPackages = selectedPackages;
+        this.requests = requests;
     }
 
     public String getBookingId() {
@@ -94,6 +100,14 @@ public class Booking {
 
     public float getTotalCost() {
         return this.totalCost;
+    }
+
+    public String[] getSelectedPackages() {
+        return this.selectedPackages;
+    }
+
+    public String getRequests() {
+        return this.requests;
     }
 
     @Override

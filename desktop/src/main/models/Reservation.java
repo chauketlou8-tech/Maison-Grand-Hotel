@@ -32,6 +32,8 @@ public class Reservation {
     private final Date checkOutDate;
     private final long numberOfGuests;
     private final ReservationStatus reservationStatus;
+    private final String requests;
+    private final String[] selectedPackages;
 
     /**
      * Constructs a new Reservation object.
@@ -44,8 +46,10 @@ public class Reservation {
      * @param checkOutDate       Date the guest will check out
      * @param numberOfGuests     Number of guests staying
      * @param reservationStatus  Current status of the reservation
+     * @param selectedPackages   Additional packages offered by the hotel
+     * @param requests           Additional things guest has requested
      */
-    public Reservation(long id, Guest guest, String requestedRoomType, Date reservationDate, Date checkInDate, Date checkOutDate, long numberOfGuests, ReservationStatus reservationStatus) {
+    public Reservation(long id, Guest guest, String requestedRoomType, Date reservationDate, Date checkInDate, Date checkOutDate, long numberOfGuests, ReservationStatus reservationStatus, String requests, String[] selectedPackages) {
         this.id = id;
         this.guest = guest;
         this.requestedRoomType = requestedRoomType;
@@ -54,6 +58,8 @@ public class Reservation {
         this.checkOutDate = checkOutDate;
         this.numberOfGuests = numberOfGuests;
         this.reservationStatus = reservationStatus;
+        this.requests = requests;
+        this.selectedPackages = selectedPackages;
     }
 
     public long getId() {
