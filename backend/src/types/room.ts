@@ -7,11 +7,11 @@ enum RoomStatus {
 
 export type Room = {
     roomid: number;
-    roomNumber: number;
-    floorNumber: number;
-    roomType: string;
+    roomnumber: number;
+    floornumber: number;
+    roomtype: string;
     price: number;
     capacity: number;
-    roomStatus: RoomStatus;
+    roomstatus: RoomStatus;
     description: string;
 }

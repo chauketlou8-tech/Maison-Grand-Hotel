@@ -37,6 +37,6 @@ server.on("connection", (ws) => {
     });
 });
 
-logger.info("Server started on port 3003");
+logger.info("Socket started on port 3003");
 
 export default server;

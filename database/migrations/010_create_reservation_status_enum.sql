@@ -1,0 +1,1 @@
+create type ReservationStatus as enum ('PENDING', 'CONFIRMED', 'CANCELLED', 'EXPIRED')

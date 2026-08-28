@@ -32,6 +32,9 @@ public class Reservation {
     private final Date checkOutDate;
     private final long numberOfGuests;
     private final ReservationStatus reservationStatus;
+    private final String[] selectedPackages;
+    private final String requests;
+    private final Room reservedRoom;
 
     /**
      * Constructs a new Reservation object.
@@ -46,8 +49,9 @@ public class Reservation {
      * @param reservationStatus  Current status of the reservation
      * @param selectedPackages   Additional packages offered by the hotel
      * @param requests           Additional things guest has requested
+     * @param reservedRoom       The room reserved for the guest
      */
-    public Reservation(long id, Guest guest, String requestedRoomType, Date reservationDate, Date checkInDate, Date checkOutDate, long numberOfGuests, ReservationStatus reservationStatus, String requests, String[] selectedPackages) {
+    public Reservation(long id, Guest guest, String requestedRoomType, Date reservationDate, Date checkInDate, Date checkOutDate, long numberOfGuests, ReservationStatus reservationStatus, String requests, String[] selectedPackages, Room reservedRoom) {
         this.id = id;
         this.guest = guest;
         this.requestedRoomType = requestedRoomType;
@@ -56,6 +60,9 @@ public class Reservation {
         this.checkOutDate = checkOutDate;
         this.numberOfGuests = numberOfGuests;
         this.reservationStatus = reservationStatus;
+        this.requests = requests;
+        this.selectedPackages = selectedPackages;
+        this.reservedRoom = reservedRoom;
     }
 
     public long getId() {
@@ -88,6 +95,18 @@ public class Reservation {
 
     public ReservationStatus getReservationStatus() {
         return this.reservationStatus;
+    }
+
+    public String[] getSelectedPackages() {
+        return this.selectedPackages;
+    }
+
+    public String getRequests() {
+        return this.requests;
+    }
+
+    public Room getReservedRoom() {
+        return this.reservedRoom;
     }
 
     @Override

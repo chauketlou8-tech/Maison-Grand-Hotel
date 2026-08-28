@@ -4,9 +4,10 @@ import Response from "../utils/response";
 import type { Room } from "../types/room";
 import type { Address } from "../types/address";
 import type { Guest } from "../types/guest";
+import type { Reservation } from "../types/reservation";
 import connection from "../config/connection";
 import { RoomError, CapacityError } from "../errors";
-import createGuestID from "../utils/createGuestID"
+import createGuestID from "../utils/createGuestID";
 
 const book = asyncHandler(async (req: req, res: res, next: next) => {
 
@@ -17,8 +18,9 @@ const book = asyncHandler(async (req: req, res: res, next: next) => {
     checkOut = checkOut.split("T")[0];
     selectedRoom = selectedRoom.split(" ")[0];
 
+    const getter = selectedRoom[0].toUpperCase() + selectedRoom[1].toUpperCase();
 
-    const result = await connection.query(`select * from rooms where roomstatus = $1 and roomtype = $2`, ["available", selectedRoom]);
+    const result = await connection.query(`select * from rooms where roomstatus = 'available' and roomtype = $1`, [getter]);
     const availableRooms: Room[] = result.rows;
 
     if (!availableRooms.length) {
@@ -31,19 +33,71 @@ const book = asyncHandler(async (req: req, res: res, next: next) => {
         return next(new CapacityError("Capacity exceeded: No room available for the number of guests selected.", 409));
     }
 
-    const reservedRoom = await connection.query(`update rooms set roomStatus = $1 where roomid = $2 returning *`, ['reserved', suitableRoom.roomid]);
+    const reservedRoomResult = await connection.query(`update rooms set roomStatus = $1 where roomid = $2 returning *`, ['reserved', suitableRoom.roomid]);
+    const reservedRoom: Room = reservedRoomResult.rows[0];
 
     const addressResults = await connection.query(`insert into address(street, city, province, country, postalcode) values($1, $2, $3, $4, $5) returning *`, ["", "", "", "", ""]);
     const userAddress: Address = addressResults.rows[0];
 
+    //creates the guest
     const guestResult = await connection.query(`insert into guests(guestid, firstname, lastname, email, phonenumber, address_id, idnumber, dateofbirth, nationality, registrationdate)
-                                                                values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-                                                                [createGuestID(selectedRoom), firstName, lastName, email, phone, userAddress.id, "", new Date(), "", new Date()]
+                                                                values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning *`,
+                                                                [createGuestID(reservedRoom), firstName, lastName, email, phone, userAddress.id, "", new Date(), "", new Date()]
         );
 
     const guest: Guest = guestResult.rows[0];
 
+    const reservationsResults = await connection.query(`
+        insert into reservations(guest_id, requestedroomtype, reservationdate, checkindate, checkoutdate, numberofguests, selectedpackages, requests, room_id)
+        values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        returning *
+    `, [guest.id, getter, new Date(), checkIn, checkOut, guests, selectedPackages, requests, reservedRoom.roomid]);
 
+    const reservation: Reservation = reservationsResults.rows[0];
+
+    const fullReservationResults = await connection.query(`
+        select json_build_object(
+            'guest', json_build_object(
+                'guestid', g.guestid,
+                'firstname', g.firstname,
+                'lastname', g.lastname,
+                'email', g.email,
+                'phonenumber', g.phonenumber,
+                'idnumber', g.idnumber,
+                'dateofbirth', g.dateofbirth,
+                'nationality', g.nationality,
+                'registrationdate', g.registrationdate,
+                'address', json_build_object (
+                    'street', a.street,
+                    'city', a.city,
+                    'province', a.province,
+                    'country', a.country,
+                    'postalcode', a.postalcode
+                )
+            ),
+            'room', json_build_object (
+                    'roomid', rm.roomid,
+                    'roomnumber', rm.roomnumber,
+                    'floornumber', rm.floornumber,
+                    'roomtype', rm.roomtype,
+                    'price', rm.price,
+                    'capacity', rm.capacity,
+                    'description', rm.description
+                    ),
+            'requestedRoomType', r.requestedroomtype,
+            'reservationDate', r.reservationdate,
+            'checkInDate', r.checkindate,
+            'checkOutDate', r.checkoutdate,
+            'numberOfGuests', r.numberOfGuests,
+            'reservationStatus', r.reservationStatus,
+            'selectedpackages', r.selectedpackages,
+            'requests', r.requests
+        ) as Reservation from reservations r join guests g on r.guest_id = g.id join address a on g.address_id = a.id join rooms rm on r.room_id = rm.roomid where g.id = $1 and r.id = $2 and rm.roomid = $3
+    `, [guest.id, reservation.id, reservedRoom.roomid]);
+
+    const fullReservation: Reservation = fullReservationResults.rows[0].reservation;
+
+    console.log("Reservation:", fullReservation);
 
     return Response.success(res, {
         message: "Booking received"

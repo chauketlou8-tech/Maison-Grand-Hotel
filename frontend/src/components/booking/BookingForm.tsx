@@ -43,13 +43,16 @@ export default function BookingForm() {
             try {
                 const data = JSON.parse(e.data);
                 if (data.type === "availableRooms") {
+                    console.log("hooray")
                     const sortedRooms: Record<string, any[]> = {};
+
                     data.data.rooms.forEach((room: any) => {
                         if (!sortedRooms[room.roomtype]) {
                             sortedRooms[room.roomtype] = [];
                         }
                         sortedRooms[room.roomtype].push(room);
                     });
+
                     setAvailableRooms(sortedRooms);
                 }
             } catch (error) {
@@ -111,6 +114,7 @@ export default function BookingForm() {
                     selectedPackages,
                 };
                 await book(bookingDetails);
+                return setIsLoading(false);
 
                 const deltaTime = Date.now() - startTime;
                 const remainingTime = minLoadingTime - deltaTime;
@@ -133,7 +137,8 @@ export default function BookingForm() {
             }
             catch (error: any) {
                 setIsLoading(false);
-                setSubmitError(error.message || "Something went wrong. Please try again.");
+                console.log(error.response.data)
+                setSubmitError(error.response.data.message || "Something went wrong. Please try again.");
             }
         }
     }
@@ -145,7 +150,8 @@ export default function BookingForm() {
     // Check if a room is available
     function isRoomAvailable(roomName: string): boolean {
         const roomType = roomName.split(" ")[0];
-        return availableRooms[roomType]?.length > 0;
+        const getter = roomType[0].toUpperCase() + roomType[1].toUpperCase();
+        return availableRooms[getter]?.length > 0;
     }
 
     return (
@@ -153,59 +159,78 @@ export default function BookingForm() {
             <div className="max-w-6xl mx-auto">
                 <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-10">
                     <div className="lg:col-span-2 flex flex-col gap-8">
-                        {submitError && (
+                        {
+                            submitError &&
+
                             <div className="bg-red-500/10 border border-red-500 p-4 flex items-center gap-3">
                                 <AlertCircle size={16} className="text-red-500 flex-shrink-0" />
                                 <p className="text-red-500 text-sm font-light">{submitError}</p>
                             </div>
-                        )}
+                        }
                         <div>
                             <h2 className="text-2xl font-normal mb-5 text-[#f0ebe0] font-display">1. Choose Your Room</h2>
+
                             <div className="grid sm:grid-cols-2 gap-3">
-                                {rooms.map((r) => {
-                                    const available = isRoomAvailable(r.name);
-                                    return (
-                                        <button key={r.name} type="button" onClick={() => available && setSelectedRoom(r.name)} disabled={!available} className={`text-left p-5 border transition-all duration-200 cursor-pointer ${!available ? "opacity-40 cursor-not-allowed" : ""} ${selectedRoom === r.name ? "border-[#c9a84c] bg-[#c9a84c]/5" : "border-[#c9a84c]/15 hover:border-[#c9a84c]/30"}`}>
-                                            <div className="flex justify-between items-start gap-2">
-                                                <div className="flex-1">
-                                                    <div className="flex items-center gap-2 mb-0.5">
-                                                        <code className="text-[10px] font-mono text-[#c9a84c]/70 border border-[#c9a84c]/25 px-1.5 py-0.5">{r.code}</code>
-                                                        <p className="text-sm text-[#f0ebe0]/85 leading-tight">{r.name}</p>
-                                                        {!available && <span className="text-[10px] text-red-500">(Unavailable)</span>}
+                                {
+                                    rooms.map((r) => {
+                                        const available = isRoomAvailable(r.name);
+
+                                        return (
+                                            <button key={r.name} type="button" onClick={() => available && setSelectedRoom(r.name)} disabled={!available} className={`text-left p-5 border transition-all duration-200 cursor-pointer ${!available ? "opacity-40 cursor-not-allowed" : ""} ${selectedRoom === r.name ? "border-[#c9a84c] bg-[#c9a84c]/5" : "border-[#c9a84c]/15 hover:border-[#c9a84c]/30"}`}>
+                                                <div className="flex justify-between items-start gap-2">
+                                                    <div className="flex-1">
+                                                        <div className="flex items-center gap-2 mb-0.5">
+                                                            <code className="text-[10px] font-mono text-[#c9a84c]/70 border border-[#c9a84c]/25 px-1.5 py-0.5">{r.code}</code>
+                                                            <p className="text-sm text-[#f0ebe0]/85 leading-tight">{r.name}</p>
+                                                            {!available && <span className="text-[10px] text-red-500">(Unavailable)</span>}
+                                                        </div>
+                                                        <p className="text-xs text-[#9a9080]">{r.size} · Floors {r.floors}</p>
                                                     </div>
-                                                    <p className="text-xs text-[#9a9080]">{r.size} · Floors {r.floors}</p>
+                                                    <div className="text-right flex-shrink-0">
+                                                        <p className="text-[#c9a84c] font-light">€{r.price}</p>
+                                                        <p className="text-xs text-[#9a9080]">/night</p>
+                                                    </div>
                                                 </div>
-                                                <div className="text-right flex-shrink-0">
-                                                    <p className="text-[#c9a84c] font-light">€{r.price}</p>
-                                                    <p className="text-xs text-[#9a9080]">/night</p>
-                                                </div>
-                                            </div>
-                                            {selectedRoom === r.name && available && <div className="mt-3 flex items-center gap-1.5 text-xs text-[#c9a84c]"><Check size={11} /> Selected</div>}
-                                        </button>
-                                    );
-                                })}
+                                                {selectedRoom === r.name && available && <div className="mt-3 flex items-center gap-1.5 text-xs text-[#c9a84c]"><Check size={11} /> Selected</div>}
+                                            </button>
+                                        );
+                                    })
+                                }
                             </div>
                         </div>
 
                         <div>
                             <h2 className="text-2xl font-normal mb-5 text-[#f0ebe0] font-display">2. Dates &amp; Guests</h2>
+
                             <div className="grid sm:grid-cols-3 gap-4">
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Check-in</label>
                                     <input type="date" value={formatDate(checkIn)} min={formatDate(new Date())} onChange={(e) => setCheckIn(new Date(e.target.value))} className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.checkIn ? "border-red-500" : "border-[#c9a84c]/15"}`} />
-                                    {errors.checkIn && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.checkIn}</p>}
+
+                                    {
+                                        errors.checkIn &&
+                                        <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.checkIn}</p>
+                                    }
                                 </div>
+
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Check-out</label>
                                     <input type="date" value={formatDate(checkOut)} min={formatDate(checkIn)} onChange={(e) => setCheckOut(new Date(e.target.value))} className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.checkOut ? "border-red-500" : "border-[#c9a84c]/15"}`} />
-                                    {errors.checkOut && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.checkOut}</p>}
+
+                                    {
+                                        errors.checkOut &&
+                                        <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.checkOut}</p>
+                                    }
                                 </div>
+
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Guests</label>
+
                                     <div className="relative">
                                         <select value={guests} onChange={(e) => setGuests(Number(e.target.value))} className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] focus:outline-none focus:border-[#c9a84c] transition-colors appearance-none cursor-pointer">
                                             {[1, 2, 3, 4].map((n) => (<option key={n}>{n}</option>))}
                                         </select>
+
                                         <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9a9080] pointer-events-none" />
                                     </div>
                                 </div>
@@ -214,46 +239,73 @@ export default function BookingForm() {
 
                         <div>
                             <h2 className="text-2xl font-normal mb-5 text-[#f0ebe0] font-display">3. Add-ons</h2>
+
                             <div className="flex flex-col gap-3">
-                                {packages.map((pkg) => (
-                                    <button key={pkg.id} type="button" onClick={() => togglePackage(pkg.id)} className={`text-left p-5 border transition-all duration-200 cursor-pointer ${selectedPackages.includes(pkg.id) ? "border-[#c9a84c] bg-[#c9a84c]/5" : "border-[#c9a84c]/15 hover:border-[#c9a84c]/30"}`}>
-                                        <div className="flex items-start justify-between gap-4">
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-3 mb-2">
-                                                    <p className="text-sm text-[#f0ebe0]/85">{pkg.label}</p>
-                                                    {selectedPackages.includes(pkg.id) && <Check size={12} className="text-[#c9a84c]" />}
+                                {
+                                    packages.map((pkg) => (
+                                        <button key={pkg.id} type="button" onClick={() => togglePackage(pkg.id)} className={`text-left p-5 border transition-all duration-200 cursor-pointer ${selectedPackages.includes(pkg.id) ? "border-[#c9a84c] bg-[#c9a84c]/5" : "border-[#c9a84c]/15 hover:border-[#c9a84c]/30"}`}>
+                                            <div className="flex items-start justify-between gap-4">
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-3 mb-2">
+                                                        <p className="text-sm text-[#f0ebe0]/85">{pkg.label}</p>
+
+                                                        {
+                                                            selectedPackages.includes(pkg.id) &&
+                                                            <Check size={12} className="text-[#c9a84c]" />
+                                                        }
+                                                    </div>
+
+                                                    <div className="flex flex-col gap-1">
+                                                        {
+                                                            pkg.includes.map((inc) => (
+                                                                <p key={inc} className="text-xs text-[#9a9080] font-light">· {inc}</p>
+                                                            ))
+                                                        }
+                                                    </div>
                                                 </div>
-                                                <div className="flex flex-col gap-1">
-                                                    {pkg.includes.map((inc) => (<p key={inc} className="text-xs text-[#9a9080] font-light">· {inc}</p>))}
-                                                </div>
+                                                <span className="text-[#c9a84c] font-light text-sm flex-shrink-0">R{pkg.price}<span className="text-xs text-[#9a9080]">/night</span></span>
                                             </div>
-                                            <span className="text-[#c9a84c] font-light text-sm flex-shrink-0">+€{pkg.price}<span className="text-xs text-[#9a9080]">/night</span></span>
-                                        </div>
-                                    </button>
-                                ))}
+                                        </button>
+                                    ))
+                                }
                             </div>
                         </div>
 
                         <div>
                             <h2 className="text-2xl font-normal mb-5 text-[#f0ebe0] font-display">4. Your Details</h2>
+
                             <div className="grid sm:grid-cols-2 gap-4 mb-4">
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">First Name</label>
                                     <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Jean" className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.firstName ? "border-red-500" : "border-[#c9a84c]/15"}`} />
-                                    {errors.firstName && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.firstName}</p>}
+
+                                    {
+                                        errors.firstName &&
+                                        <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.firstName}</p>
+                                    }
                                 </div>
+
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Last Name</label>
                                     <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Dupont" className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.lastName ? "border-red-500" : "border-[#c9a84c]/15"}`} />
-                                    {errors.lastName && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.lastName}</p>}
+
+                                    {
+                                        errors.lastName &&
+                                        <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.lastName}</p>
+                                    }
                                 </div>
                             </div>
                             <div className="grid sm:grid-cols-2 gap-4 mb-4">
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Email</label>
                                     <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="jean@example.com" className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.email ? "border-red-500" : "border-[#c9a84c]/15"}`} />
-                                    {errors.email && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.email}</p>}
+
+                                    {
+                                        errors.email &&
+                                        <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.email}</p>
+                                    }
                                 </div>
+
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Phone</label>
                                     <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+33 6 00 00 00 00" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
@@ -269,48 +321,88 @@ export default function BookingForm() {
                     <div className="lg:col-span-1">
                         <div className="sticky top-28 bg-[#1a1814] border border-[#c9a84c]/15 p-7">
                             <p className="text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-5">Reservation Summary</p>
+
                             <div className="flex flex-col gap-3 text-sm mb-6 pb-6 border-b border-[#c9a84c]/15">
                                 <div className="flex justify-between items-start gap-3">
                                     <span className="text-[#9a9080] text-xs">Room</span>
                                     <span className="text-[#f0ebe0]/80 text-right leading-tight">{selectedRoom}</span>
                                 </div>
-                                {checkIn && <div className="flex justify-between"><span className="text-[#9a9080] text-xs">Check-in</span><span className="text-[#f0ebe0]/80">{formatDate(checkIn)}</span></div>}
-                                {checkOut && <div className="flex justify-between"><span className="text-[#9a9080] text-xs">Check-out</span><span className="text-[#f0ebe0]/80">{formatDate(checkOut)}</span></div>}
-                                {nights > 0 && <div className="flex justify-between"><span className="text-[#9a9080] text-xs">Nights</span><span className="text-[#f0ebe0]/80">{nights}</span></div>}
-                                <div className="flex justify-between"><span className="text-[#9a9080] text-xs">Guests</span><span className="text-[#f0ebe0]/80">{guests}</span></div>
+
+                                {
+                                    checkIn &&
+                                    <div className="flex justify-between">
+                                        <span className="text-[#9a9080] text-xs">Check-in</span>
+                                        <span className="text-[#f0ebe0]/80">{formatDate(checkIn)}</span>
+                                    </div>
+                                }
+
+                                {
+                                    checkOut &&
+                                    <div className="flex justify-between">
+                                        <span className="text-[#9a9080] text-xs">Check-out</span>
+                                        <span className="text-[#f0ebe0]/80">{formatDate(checkOut)}</span>
+                                    </div>
+                                }
+
+                                {
+                                    nights > 0 &&
+                                    <div className="flex justify-between">
+                                        <span className="text-[#9a9080] text-xs">Nights</span>
+                                        <span className="text-[#f0ebe0]/80">{nights}</span>
+                                    </div>
+                                }
+
+                                <div className="flex justify-between">
+                                    <span className="text-[#9a9080] text-xs">Guests</span>
+                                    <span className="text-[#f0ebe0]/80">{guests}</span>
+                                </div>
                             </div>
 
                             <div className="flex flex-col gap-2 text-sm mb-6 pb-6 border-b border-[#c9a84c]/15">
                                 <div className="flex justify-between">
                                     <span className="text-[#9a9080] text-xs">{room.name.split(" ")[0]} ({nights > 0 ? `${nights}n` : "per night"})</span>
-                                    <span className="text-[#f0ebe0]/75">€{nights > 0 ? roomTotal.toLocaleString() : room.price}</span>
+                                    <span className="text-[#f0ebe0]/75">R{nights > 0 ? roomTotal.toLocaleString() : room.price}</span>
                                 </div>
-                                {packages.filter((p) => selectedPackages.includes(p.id)).map((p) => (
-                                    <div key={p.id} className="flex justify-between">
-                                        <span className="text-[#9a9080] text-xs">{p.label}</span>
-                                        <span className="text-[#f0ebe0]/75">€{nights > 0 ? (p.price * nights).toLocaleString() : p.price}</span>
-                                    </div>
-                                ))}
+
+                                {
+                                    packages.filter((p) => selectedPackages.includes(p.id)).map((p) => (
+                                        <div key={p.id} className="flex justify-between">
+                                            <span className="text-[#9a9080] text-xs">{p.label}</span>
+                                            <span className="text-[#f0ebe0]/75">R{nights > 0 ? (p.price * nights).toLocaleString() : p.price}</span>
+                                        </div>
+                                    ))
+                                }
                             </div>
 
                             <div className="flex justify-between items-baseline mb-6">
                                 <span className="text-xs tracking-[0.15em] uppercase text-[#9a9080]">{nights > 0 ? "Total Est." : "From"}</span>
-                                <span className="text-2xl text-[#c9a84c] font-light font-display">€{nights > 0 ? total.toLocaleString() : room.price}</span>
+                                <span className="text-2xl text-[#c9a84c] font-light font-display">R{nights > 0 ? total.toLocaleString() : room.price}</span>
                             </div>
 
                             <button type="submit" disabled={isLoading} className="w-full py-4 bg-[#c9a84c] text-[#0f0e0c] text-sm tracking-[0.2em] uppercase font-medium hover:bg-[#c9a84c]/90 transition-colors mb-3 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-                                {isLoading ? <><Loader2 size={16} className="animate-spin" /> Submitting...</> : "Request Reservation"}
+                                {
+                                    isLoading ?
+                                        <div className="flex gap-2">
+                                            <Loader2 size={16} className="animate-spin" />Submitting...
+                                        </div>
+                                        :
+                                        "Request Reservation"
+                                }
                             </button>
+
                             <p className="text-xs text-[#9a9080] text-center font-light">No payment now. We'll confirm within 2 hours.</p>
 
                             <div className="mt-6 pt-6 border-t border-[#c9a84c]/15 flex flex-col gap-3">
                                 <p className="text-[10px] tracking-[0.3em] uppercase text-[#9a9080]">Prefer to call?</p>
+
                                 <a href="tel:+33142000000" className="flex items-center gap-2 text-xs text-[#f0ebe0]/60 hover:text-[#c9a84c] transition-colors">
                                     <Phone size={11} className="text-[#c9a84c]" /> +33 1 42 00 00 00
                                 </a>
+
                                 <a href="mailto:reservations@maisongrandhotel.com" className="flex items-center gap-2 text-xs text-[#f0ebe0]/60 hover:text-[#c9a84c] transition-colors">
                                     <Mail size={11} className="text-[#c9a84c]" /> reservations@maison...
                                 </a>
+
                                 <span className="flex items-start gap-2 text-xs text-[#f0ebe0]/60">
                                     <MapPin size={11} className="text-[#c9a84c] flex-shrink-0 mt-0.5" /> 12 Rue de la Paix, 75002 Paris
                                 </span>
