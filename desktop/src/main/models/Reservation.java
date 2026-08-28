@@ -32,8 +32,6 @@ public class Reservation {
     private final Date checkOutDate;
     private final long numberOfGuests;
     private final ReservationStatus reservationStatus;
-    private final String requests;
-    private final String[] selectedPackages;
 
     /**
      * Constructs a new Reservation object.
@@ -58,8 +56,6 @@ public class Reservation {
         this.checkOutDate = checkOutDate;
         this.numberOfGuests = numberOfGuests;
         this.reservationStatus = reservationStatus;
-        this.requests = requests;
-        this.selectedPackages = selectedPackages;
     }
 
     public long getId() {

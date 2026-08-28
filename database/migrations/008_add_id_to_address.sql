@@ -1,0 +1,1 @@
+alter table address add column id serial primary key

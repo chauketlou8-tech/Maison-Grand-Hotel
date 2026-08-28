@@ -7,13 +7,13 @@ import java.util.Date;
 /**
  * Represents customers who stay at Mason Hotel and stores the personal information
  * needed to manage their stays and customer records.
- *
+ *\
  * This class represents all hotel guests including:
  * - New hotel guests
  * - Returning guests
  * - Individual customers
  * - Customers making reservations
- *
+ *\
  * Features:
  * - Stores guest personal information
  * - Maintains customer records
