@@ -1,0 +1,1 @@
+create type paymentStatus as enum ('created', 'started', 'processing', 'completed', 'failed', 'cancelled')

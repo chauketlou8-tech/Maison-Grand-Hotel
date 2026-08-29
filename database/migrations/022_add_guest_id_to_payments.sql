@@ -1,0 +1,1 @@
+alter table payments add column guest_id int references guests(id)

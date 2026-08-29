@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { CreditCard, Shield, ArrowRight, Lock, AlertCircle } from "lucide-react";
-import pay from "../../services/pay";
+//import pay from "../../services/pay";
 import isValidCardNumber from "../../utils/validateCard";
 
 export default function Payment() {
@@ -140,14 +140,14 @@ export default function Payment() {
 
         try {
 
-            const paymentDetails = {
-                cardNumber,
-                expiry,
-                cvc,
-                name
-            }
+            // const paymentDetails = {
+            //     cardNumber,
+            //     expiry,
+            //     cvc,
+            //     name
+            // }
 
-            await pay(paymentDetails);
+            //await pay(paymentDetails);
 
             const deltaTime = Date.now() - startTime;
             const remainingTime = minLoadingTime - deltaTime;

@@ -10,6 +10,7 @@ const node_env = process.env.NODE_ENV;
 const db_url = process.env.DATABASE_URL;
 const email_user = process.env.EMAIL_USER;
 const email_password = process.env.EMAIL_PASSWORD;
+const yoco_secret = process.env.YOCO_SECRET_KEY;
 
 if (!node_env) {
     throw new Error('Missing environment environment');
@@ -26,6 +27,10 @@ if (!email_user && node_env === "development") {
 if (!email_password && node_env === "development") {
     throw new Error("Missing email password");
 }
+
+if (!yoco_secret && node_env === "development") {
+    throw new Error("Missing yoco secret");
+}
     
 export {
     port,
@@ -33,4 +38,5 @@ export {
     db_url,
     email_user,
     email_password,
+    yoco_secret,
 }

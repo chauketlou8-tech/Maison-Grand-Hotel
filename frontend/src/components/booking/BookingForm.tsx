@@ -1,12 +1,13 @@
-import { useState, useEffect, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
-import { ChevronDown, Check, Phone, Mail, MapPin, AlertCircle, Loader2 } from "lucide-react";
+import {type FormEvent, useEffect, useState} from "react";
+import {useNavigate} from "react-router-dom";
+import {AlertCircle, Check, ChevronDown, Loader2, Mail, MapPin, Phone} from "lucide-react";
 import rooms from "../../constants/rooms";
 import packages from "../../constants/packages";
 import nightsBetween from "../../utils/nightsBetween";
 import book from "../../services/book";
-import { websocket, sendMessage } from "../../services/websock";
+import {sendMessage, websocket} from "../../services/websock";
 import extractDOB from "../../utils/extractDOB";
+import pay from "../../services/pay";
 
 export default function BookingForm() {
     const navigate = useNavigate();
@@ -127,12 +128,26 @@ export default function BookingForm() {
 
                 await book(bookingDetails);
 
+                sessionStorage.setItem("bookingState", JSON.stringify({
+                    firstName,
+                    email,
+                    selectedRoom,
+                    checkIn,
+                    checkOut,
+                    guests,
+                    total,
+                    nights,
+                    paid: true,
+                }));
+
+                window.location.href = await pay(total, idNumber);
+
                 const deltaTime = Date.now() - startTime;
                 const remainingTime = minLoadingTime - deltaTime;
 
                 setTimeout(() => {
                     setIsLoading(false);
-                    navigate("/booking/payment", {
+                    navigate("/booking/success", {
                         state: {
                             firstName,
                             email,
@@ -141,7 +156,8 @@ export default function BookingForm() {
                             checkOut,
                             guests,
                             total,
-                            nights
+                            nights,
+                            paid: true,
                         }
                     });
                 }, remainingTime > 0 ? remainingTime : 0 );

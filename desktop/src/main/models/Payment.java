@@ -21,5 +21,5 @@ import java.util.Date;
  * - Stores the payment provider's transaction reference
  * - Maintains a history of payment transactions
  */
-public record Payment(long id, float amount, Date paymentDate, String paymentMethod, String paymentStatus, String transactionReference) {
+public record Payment(long id, float amount, Date paymentDate, String paymentStatus, String transactionReference) {
 }

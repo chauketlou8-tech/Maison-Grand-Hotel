@@ -1,9 +1,8 @@
-import { useLocation, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 
 export default function Success() {
-    const location = useLocation();
-    const { firstName, email, selectedRoom, checkIn, checkOut, guests, paid } = location.state || {};
+    const { firstName, email, selectedRoom, checkIn, checkOut, guests, paid } = JSON.parse(sessionStorage.getItem("bookingState") || "{}");
 
     function formatDate(date: Date | string): string {
         if (!date) return "";

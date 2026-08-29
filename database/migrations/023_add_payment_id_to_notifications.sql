@@ -1,0 +1,1 @@
+alter table notifications add column payment_id int references payments(id)
