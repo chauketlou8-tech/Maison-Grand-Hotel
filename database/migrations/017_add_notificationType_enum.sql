@@ -1,0 +1,1 @@
+create type NotificationType as enum ('reservation_request', 'payment_confirmation', 'reservation_cancelled')

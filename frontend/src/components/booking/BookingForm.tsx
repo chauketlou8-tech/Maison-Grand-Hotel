@@ -6,6 +6,7 @@ import packages from "../../constants/packages";
 import nightsBetween from "../../utils/nightsBetween";
 import book from "../../services/book";
 import { websocket, sendMessage } from "../../services/websock";
+import extractDOB from "../../utils/extractDOB";
 
 export default function BookingForm() {
     const navigate = useNavigate();
@@ -31,6 +32,12 @@ export default function BookingForm() {
 
     const [isLoading, setIsLoading] = useState(false);
     const [availableRooms, setAvailableRooms] = useState<Record<string, any[]>>({});
+
+    const [idNumber, setIdNumber] = useState("");
+    const [nationality, setNationality] = useState("");
+
+    const [dateOfBirth, setDateOfBirth] = useState<Date | null>(null);
+    const [address, setAddress] = useState({ street: "", city: "", province: "", country: "", postalCode: "" });
 
     const room = rooms.find((r) => r.name === selectedRoom) ?? rooms[4];
     const nights = nightsBetween(checkIn, checkOut);
@@ -106,6 +113,10 @@ export default function BookingForm() {
                     lastName,
                     email,
                     phone,
+                    idNumber,
+                    nationality,
+                    dateOfBirth,
+                    address,
                     requests,
                     checkIn,
                     checkOut,
@@ -113,8 +124,8 @@ export default function BookingForm() {
                     selectedRoom,
                     selectedPackages,
                 };
+
                 await book(bookingDetails);
-                return setIsLoading(false);
 
                 const deltaTime = Date.now() - startTime;
                 const remainingTime = minLoadingTime - deltaTime;
@@ -137,7 +148,6 @@ export default function BookingForm() {
             }
             catch (error: any) {
                 setIsLoading(false);
-                console.log(error.response.data)
                 setSubmitError(error.response.data.message || "Something went wrong. Please try again.");
             }
         }
@@ -278,32 +288,21 @@ export default function BookingForm() {
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">First Name</label>
                                     <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Jean" className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.firstName ? "border-red-500" : "border-[#c9a84c]/15"}`} />
-
-                                    {
-                                        errors.firstName &&
-                                        <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.firstName}</p>
-                                    }
+                                    {errors.firstName && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.firstName}</p>}
                                 </div>
 
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Last Name</label>
                                     <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Dupont" className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.lastName ? "border-red-500" : "border-[#c9a84c]/15"}`} />
-
-                                    {
-                                        errors.lastName &&
-                                        <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.lastName}</p>
-                                    }
+                                    {errors.lastName && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.lastName}</p>}
                                 </div>
                             </div>
+
                             <div className="grid sm:grid-cols-2 gap-4 mb-4">
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Email</label>
                                     <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="jean@example.com" className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.email ? "border-red-500" : "border-[#c9a84c]/15"}`} />
-
-                                    {
-                                        errors.email &&
-                                        <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.email}</p>
-                                    }
+                                    {errors.email && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.email}</p>}
                                 </div>
 
                                 <div>
@@ -311,6 +310,48 @@ export default function BookingForm() {
                                     <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+33 6 00 00 00 00" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
                                 </div>
                             </div>
+
+                            <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">ID Number</label>
+                                    <input type="text" value={idNumber} onChange={(e) => { setIdNumber(e.target.value); const dob = extractDOB(e.target.value); if (dob) setDateOfBirth(dob); }} placeholder="ID Number" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
+                                </div>
+
+                                <div>
+                                    <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Nationality</label>
+                                    <input type="text" value={nationality} onChange={(e) => setNationality(e.target.value)} placeholder="South African" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
+                                </div>
+                            </div>
+
+                            <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Street</label>
+                                    <input type="text" value={address.street} onChange={(e) => setAddress({...address, street: e.target.value})} placeholder="123 Main St" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
+                                </div>
+
+                                <div>
+                                    <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">City</label>
+                                    <input type="text" value={address.city} onChange={(e) => setAddress({...address, city: e.target.value})} placeholder="Cape Town" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
+                                </div>
+                            </div>
+
+                            <div className="grid sm:grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Province</label>
+                                    <input type="text" value={address.province} onChange={(e) => setAddress({...address, province: e.target.value})} placeholder="Western Cape" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
+                                </div>
+
+                                <div>
+                                    <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Country</label>
+                                    <input type="text" value={address.country} onChange={(e) => setAddress({...address, country: e.target.value})} placeholder="South Africa" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
+                                </div>
+
+                                <div>
+                                    <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Postal Code</label>
+                                    <input type="text" value={address.postalCode} onChange={(e) => setAddress({...address, postalCode: e.target.value})} placeholder="75002" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
+                                </div>
+                            </div>
+
                             <div>
                                 <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Special Requests</label>
                                 <textarea rows={3} value={requests} onChange={(e) => setRequests(e.target.value)} placeholder="Dietary requirements, occasion arrangements, floor preference..." className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors resize-none" />

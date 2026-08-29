@@ -170,7 +170,7 @@ export default function Payment() {
             }, remainingTime > 0 ? remainingTime : 0);
         } catch (error: any) {
             setIsProcessing(false);
-            setErrors((prev) => ({ ...prev, submit: error.message || "Something went wrong. Please try again." }));
+            setErrors((prev) => ({ ...prev, submit: error.response.data.message || "Something went wrong. Please try again." }));
         }
     }
 

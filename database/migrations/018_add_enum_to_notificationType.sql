@@ -1,0 +1,1 @@
+alter table notifications alter column type type notificationtype using type::notificationtype

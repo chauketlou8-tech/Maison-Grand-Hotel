@@ -1,0 +1,1 @@
+create type NotificationStatus as enum ('read', 'unread')
