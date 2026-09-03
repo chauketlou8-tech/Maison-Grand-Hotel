@@ -2,6 +2,8 @@ import asyncHandler from "../middleware/asyncHandler";
 import connection from "../config/connection";
 
 import Response from "../utils/response";
+import HelperFunctions from "../utils/helpers";
+
 import createGuestID from "../utils/createGuestID";
 import { RoomError, CapacityError } from "../errors";
 
@@ -13,6 +15,8 @@ import type { Address } from "../types/address";
 import type { Guest } from "../types/guest";
 import type { Reservation } from "../types/reservation";
 import type { Notification } from "../types/notification";
+
+import sendEmail from "../services/email.service"
 
 const book = asyncHandler(async (req: req, res: res, next: next) => {
 
@@ -67,10 +71,10 @@ const book = asyncHandler(async (req: req, res: res, next: next) => {
     const guest: Guest = guestResult.rows[0];
 
     const reservationsResults = await connection.query(`
-        insert into reservations(guest_id, requestedroomtype, reservationdate, checkindate, checkoutdate, numberofguests, selectedpackages, requests, room_id)
-        values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        insert into reservations(guest_id, requestedroomtype, reservationdate, checkindate, checkoutdate, numberofguests, selectedpackages, requests, room_id, reservationid)
+        values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         returning *
-    `, [guest.id, getter, new Date(), checkIn, checkOut, guests, selectedPackages, requests, reservedRoom.roomid]);
+    `, [guest.id, getter, new Date(), checkIn, checkOut, guests, selectedPackages, requests, reservedRoom.roomid, HelperFunctions.generateRandomID()]);
 
     const reservation: Reservation = reservationsResults.rows[0];
 
@@ -133,6 +137,38 @@ const book = asyncHandler(async (req: req, res: res, next: next) => {
         insert into notifications(type, title, message, reservationid, guestid) 
         values($1, $2, $3, $4, $5)
     `, [notification.type, notification.title, notification.message, notification.reservation_id, notification.guest_id]);
+
+    const emailSubject = "Mason Hotel — Reservation Received";
+    const emailMessage = `Dear ${firstName} ${lastName},
+
+Thank you for choosing Mason Hotel.
+
+We have successfully received your reservation request.
+
+Your reservation has been recorded in our system and is currently awaiting payment. Your booking will only be confirmed once the required payment has been successfully completed.
+
+RESERVATION DETAILS
+
+Reservation ID: ${reservation.reservationid}
+Check-in: ${checkIn}
+Check-out: ${checkOut}
+Guests: ${guests}
+Room: ${getter}
+
+Please complete your payment to confirm your reservation.
+
+If payment is not completed within the allocated payment period, your reservation may be cancelled.
+
+If you have any questions regarding your reservation, please contact Mason Hotel and provide your reservation ID.
+
+Kind regards
+
+Mason Hotel
+Guest Services
+masonGrand@lequor.co.za
++223432324567`
+
+    await sendEmail(email, emailSubject, emailMessage)
 
     return Response.success(res, {
         message: "Booking received",

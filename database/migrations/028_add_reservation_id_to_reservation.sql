@@ -1,0 +1,1 @@
+alter table reservations add column reservationId uuid

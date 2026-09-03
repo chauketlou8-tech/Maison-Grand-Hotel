@@ -1,0 +1,1 @@
+create type EmploymentStatus as enum('ACTIVE','INACTIVE','SUSPENDED','ONLEAVE','NOTICE')

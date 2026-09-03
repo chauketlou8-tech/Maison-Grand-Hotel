@@ -1,0 +1,1 @@
+create type Gender as enum('MALE', 'FEMALE', 'OTHER')

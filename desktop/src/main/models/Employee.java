@@ -38,7 +38,7 @@ public class Employee {
     private final Gender gender;
     private final String jobPosition;
     private final String department;
-    private final int salary;
+    private final float salary;
     private final Date hireDate;
     private final EmploymentStatus employmentStatus;
 
@@ -60,7 +60,7 @@ public class Employee {
      * @param hireDate         Date employee was hired
      * @param employmentStatus Employee's current employment status
      */
-    public Employee(long id, String employeeId, String firstName, String lastName, String email, String phoneNumber, Address address, Date dateOfBirth, Gender gender, String jobPosition, String department, int salary, Date hireDate, EmploymentStatus employmentStatus) {
+    public Employee(long id, String employeeId, String firstName, String lastName, String email, String phoneNumber, Address address, Date dateOfBirth, Gender gender, String jobPosition, String department, float salary, Date hireDate, EmploymentStatus employmentStatus) {
         this.id = id;
         this.employeeId = employeeId;
         this.firstName = firstName;
@@ -121,7 +121,7 @@ public class Employee {
         return this.department;
     }
 
-    public int getSalary() {
+    public float getSalary() {
         return this.salary;
     }
 

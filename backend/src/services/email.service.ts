@@ -1,2 +1,23 @@
+import { email_user } from "../config/env";
 import { logger } from "../config/logger";
 import transporter from "../config/mailer";
+
+async function sendEmail(to: any, subject: string, text: string) {
+    if (!to) return;
+
+    try{
+        await transporter.sendMail({
+            from: email_user,
+            to: to.email,
+            subject: subject,
+            text: text
+        });
+
+        logger.info(`Successfully sent email to admin ${to.name}!`);
+    }
+    catch(err){
+        logger.error(`Error sending email to admin ${to.name}!`, { error: err });
+    }
+}
+
+export default sendEmail;

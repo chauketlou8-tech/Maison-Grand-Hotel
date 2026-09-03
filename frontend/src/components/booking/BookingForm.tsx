@@ -1,5 +1,4 @@
 import {type FormEvent, useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
 import {AlertCircle, Check, ChevronDown, Loader2, Mail, MapPin, Phone} from "lucide-react";
 import rooms from "../../constants/rooms";
 import packages from "../../constants/packages";
@@ -10,8 +9,6 @@ import extractDOB from "../../utils/extractDOB";
 import pay from "../../services/pay";
 
 export default function BookingForm() {
-    const navigate = useNavigate();
-
     const [selectedRoom, setSelectedRoom] = useState(rooms[4].name);
 
     const [checkIn, setCheckIn] = useState<Date>(new Date());
@@ -147,19 +144,6 @@ export default function BookingForm() {
 
                 setTimeout(() => {
                     setIsLoading(false);
-                    navigate("/booking/success", {
-                        state: {
-                            firstName,
-                            email,
-                            selectedRoom,
-                            checkIn,
-                            checkOut,
-                            guests,
-                            total,
-                            nights,
-                            paid: true,
-                        }
-                    });
                 }, remainingTime > 0 ? remainingTime : 0 );
             }
             catch (error: any) {

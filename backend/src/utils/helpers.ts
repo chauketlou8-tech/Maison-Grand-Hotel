@@ -15,13 +15,13 @@ class HelperFunctions {
     }
 
     //function to hash a password
-    public async hashPassword(password) {
+    public async hashPassword(password: string) {
         const salt = await bcrypt.genSalt(20);
         return await bcrypt.hash(password, salt);
     }
 
     //regex email validator
-    public validateEmail(email) {
+    public validateEmail(email: string) {
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         return emailRegex.test(email.trim());
     }
