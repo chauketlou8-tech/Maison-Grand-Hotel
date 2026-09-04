@@ -49,7 +49,7 @@ export default function Header() {
             {menuOpen && (
                 <div className="md:hidden border-b px-8 py-6 flex flex-col gap-5" style={{ backgroundColor: "#0f0e0c", borderColor: "#c9a84c/20" }}>
                     {navLinks.map((link) => (
-                        <Link key={link} to={`/${link.toLowerCase()}`} className="text-sm tracking-[0.2em] uppercase font-light transition-colors" style={{ color: "#fff" }} onClick={() => setMenuOpen(false)}>
+                        <Link key={link} to={`/${link === "Book" ? "booking" : link.toLowerCase()}`} className="text-sm tracking-[0.2em] uppercase font-light transition-colors" style={{ color: "#fff" }} onClick={() => setMenuOpen(false)}>
                             {link}
                         </Link>
                     ))}

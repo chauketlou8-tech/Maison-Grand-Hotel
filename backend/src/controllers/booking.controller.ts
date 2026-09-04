@@ -16,6 +16,8 @@ import type { Guest } from "../types/guest";
 import type { Reservation } from "../types/reservation";
 import type { Notification } from "../types/notification";
 
+import { base_url } from "../config/env";
+
 import sendEmail from "../services/email.service"
 
 const book = asyncHandler(async (req: req, res: res, next: next) => {
@@ -121,12 +123,14 @@ const book = asyncHandler(async (req: req, res: res, next: next) => {
         where g.id = $1 and r.id = $2 and rm.roomid = $3
     `, [guest.id, reservation.id, reservedRoom.roomid]);
 
+    const name = `${firstName} ${lastName}`;
+
     const fullReservation: Reservation = fullReservationResults.rows[0].reservation;
 
     const notification: Notification = {
         type: "reservation_request",
         title: "New Reservation Request",
-        message: `${firstName} ${lastName} has requested a reservation.`,
+        message: `${name} has requested a reservation.`,
         reservation_id: reservation.id,
         guest_id: guest.id,
         status: "unread",
@@ -139,36 +143,47 @@ const book = asyncHandler(async (req: req, res: res, next: next) => {
     `, [notification.type, notification.title, notification.message, notification.reservation_id, notification.guest_id]);
 
     const emailSubject = "Mason Hotel — Reservation Received";
-    const emailMessage = `Dear ${firstName} ${lastName},
+
+    const emailMessage = `Dear ${name},
 
 Thank you for choosing Mason Hotel.
 
-We have successfully received your reservation request.
-
-Your reservation has been recorded in our system and is currently awaiting payment. Your booking will only be confirmed once the required payment has been successfully completed.
+We have successfully received your reservation request. Your booking is currently awaiting payment confirmation and will be secured once payment is completed.
 
 RESERVATION DETAILS
-
+─────────────────
 Reservation ID: ${reservation.reservationid}
 Check-in: ${checkIn}
 Check-out: ${checkOut}
 Guests: ${guests}
 Room: ${getter}
 
-Please complete your payment to confirm your reservation.
+VIEW YOUR BOOKING
+─────────────────
+To view your booking details at any time, visit:
+${base_url}/booking/${reservation.reservationid}
 
-If payment is not completed within the allocated payment period, your reservation may be cancelled.
+PAYMENT INFORMATION
+─────────────────
+To confirm your reservation, please complete your payment within the next 30 minutes to avoid cancellation.
 
-If you have any questions regarding your reservation, please contact Mason Hotel and provide your reservation ID.
+If you have already made payment, please disregard this notice.
 
-Kind regards
+QUESTIONS?
+─────────────────
+If you have any questions regarding your reservation, please contact us and provide your Reservation ID.
+
+Kind regards,
 
 Mason Hotel
 Guest Services
-masonGrand@lequor.co.za
-+223432324567`
+stay@maisongrandhotel.co.za
++27 21 987 6543
+08 Greenwood Street, Gardens, Cape Town, 7700
+www.maisongrandhotel.co.za
+`;
 
-    await sendEmail(email, emailSubject, emailMessage)
+    await sendEmail(email, emailSubject, emailMessage, name);
 
     return Response.success(res, {
         message: "Booking received",

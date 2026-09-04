@@ -4,7 +4,7 @@ websocket.onopen = () => {
     console.log("Connected to WebSocket server");
     websocket.send(JSON.stringify({
         type: "connection",
-        message: "Hello server, I'm client"
+        message: "Starting connection to the server",
     }));
 };
 

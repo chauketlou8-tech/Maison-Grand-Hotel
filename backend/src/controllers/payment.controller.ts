@@ -6,6 +6,7 @@ import Response from "../utils/response";
 import type { Payment } from "../types/payment";
 import type { Notification } from "../types/notification";
 import sendEmail from "../services/email.service";
+import { base_url } from "../config/env"
 
 const pay = asyncHandler(async (req: req, res: res) => {
     const amount = req.body.amount;
@@ -37,6 +38,7 @@ const pay = asyncHandler(async (req: req, res: res) => {
     const guest_id = guestResult.rows[0].id;
     const firstName = guestResult.rows[0].firstname;
     const lastName = guestResult.rows[0].lastname;
+    const name = `${firstName} ${lastName}`;
 
     const reservationResults = await connection.query(`
     select r.reservationid, r.checkindate, r.checkoutdate, r.numberofguests, r.requestedroomtype, g.email
@@ -45,8 +47,10 @@ const pay = asyncHandler(async (req: req, res: res) => {
 
     const reservation = reservationResults.rows[0];
     const reservationId = reservation.reservationid;
-    const checkIn = reservation.checkindate;
-    const checkOut = reservation.checkoutdate;
+
+    const checkIn = new Date(reservation.checkindate).toLocaleString("en-ZA", { day: "2-digit", month: "long", year: "numeric" });
+    const checkOut = new Date(reservation.checkoutdate).toLocaleString("en-ZA", { day: "2-digit", month: "long", year: "numeric" });
+
     const guests = reservation.numberofguests;
     const roomName = reservation.requestedroomtype;
     const email = reservation.email;
@@ -62,7 +66,7 @@ const pay = asyncHandler(async (req: req, res: res) => {
     const notification: Notification = {
         type: "payment_confirmation",
         title: "New Payment notification",
-        message: `${firstName} ${lastName} has made a payment.`,
+        message: `${name} has made a payment.`,
         payment_id: paymentID,
         guest_id: guest_id,
         status: "unread",
@@ -75,30 +79,34 @@ const pay = asyncHandler(async (req: req, res: res) => {
     `, [notification.type, notification.title, notification.message, notification.payment_id, notification.guest_id]);
 
     const emailSubject = "Mason Hotel — Payment Confirmation";
-    const emailMessage = `Dear ${firstName} ${lastName},
+    const paymentDate = new Date(payment.paymentDate).toLocaleString("en-ZA", { day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: false });
+    const emailMessage = `Dear ${name},
 
 Thank you for your payment to Mason Hotel.
 
-We are pleased to confirm that your payment has been successfully received and processed.
+We are pleased to confirm that your payment has been successfully received and processed. Your reservation is now confirmed.
 
 PAYMENT DETAILS
-
+─────────────────
 Amount Paid: R${amount}
 Payment Status: Confirmed
 Transaction Reference: ${payment.transactionReference}
-Payment Date: ${payment.paymentDate}
+Payment Date: ${paymentDate}
 
 RESERVATION DETAILS
-
+─────────────────
 Reservation ID: ${reservationId}
 Check-in: ${checkIn}
 Check-out: ${checkOut}
 Guests: ${guests}
 Room: ${roomName}
 
-Your payment has been successfully recorded against your reservation.
+VIEW YOUR BOOKING
+─────────────────
+To view or manage your booking at any time, visit:
+${base_url}/booking/${reservationId}
 
-Please keep this email as proof of payment and confirmation of your transaction.
+Your payment has been successfully recorded against your reservation. Please keep this email as proof of payment.
 
 We look forward to welcoming you to Mason Hotel.
 
@@ -106,10 +114,12 @@ Kind regards,
 
 Mason Hotel
 Guest Services
-[masonGrand@lequor.co.za](mailto:masonGrand@lequor.co.za)
-+223432324567`
+stay@maisongrandhotel.co.za
++27 21 987 6543
+08 Greenwood Street, Gardens, Cape Town, 7700
+www.maisongrandhotel.co.za`;
 
-    await sendEmail(email, emailSubject, emailMessage);
+    await sendEmail(email, emailSubject, emailMessage, name);
     return Response.success(res,
         {
         message: "payment request",

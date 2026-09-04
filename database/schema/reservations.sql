@@ -4,7 +4,7 @@ create table if not exists Reservations (
     guest_id int references guests(id),
     room_id int references rooms(roomid),
     requestedRoomType text,
-    reservationDate date,
+    reservationDate timestamp with time zone default now(),
     checkInDate date,
     checkOutDate date,
     numberOfGuests int,

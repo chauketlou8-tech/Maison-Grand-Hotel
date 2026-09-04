@@ -1,10 +1,10 @@
 import {type FormEvent, useEffect, useState} from "react";
-import {AlertCircle, Check, ChevronDown, Loader2, Mail, MapPin, Phone} from "lucide-react";
+import { AlertCircle, Check, ChevronDown, Loader2, Mail, MapPin, Phone } from "lucide-react";
 import rooms from "../../constants/rooms";
 import packages from "../../constants/packages";
 import nightsBetween from "../../utils/nightsBetween";
 import book from "../../services/book";
-import {sendMessage, websocket} from "../../services/websock";
+import { sendMessage, websocket } from "../../services/websock";
 import extractDOB from "../../utils/extractDOB";
 import pay from "../../services/pay";
 
@@ -48,7 +48,6 @@ export default function BookingForm() {
             try {
                 const data = JSON.parse(e.data);
                 if (data.type === "availableRooms") {
-                    console.log("hooray")
                     const sortedRooms: Record<string, any[]> = {};
 
                     data.data.rooms.forEach((room: any) => {
@@ -73,6 +72,12 @@ export default function BookingForm() {
         };
     }, []);
 
+    useEffect(() => {
+        const nextDay = new Date(checkIn);
+        nextDay.setDate(checkIn.getDate() + 1);
+        setCheckOut(nextDay);
+    }, [checkIn]);
+
     function togglePackage(id: string) {
         setSelectedPackages((prev) => prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]);
     }
@@ -80,18 +85,50 @@ export default function BookingForm() {
     function validateForm() {
         const newErrors: { [key: string]: string } = {};
         if (!firstName.trim()) newErrors.firstName = "First name is required";
+
         if (!lastName.trim()) newErrors.lastName = "Last name is required";
+
         if (!email.trim()) {
             newErrors.email = "Email is required";
-        } else if (!/\S+@\S+\.\S+/.test(email)) {
+        }
+
+        else if (!/\S+@\S+\.\S+/.test(email)) {
             newErrors.email = "Please enter a valid email address";
         }
+        if (!phone.trim()) newErrors.phone = "Phone number is required";
+
+        if (!idNumber.trim()) newErrors.idNumber = "ID number is required";
+
+        if (!nationality.trim()) newErrors.nationality = "Nationality is required";
+
+        if (!address.street.trim()) newErrors.street = "Street is required";
+
+        if (!address.city.trim()) newErrors.city = "City is required";
+
+        if (!address.province.trim()) newErrors.province = "Province is required";
+
+        if (!address.country.trim()) newErrors.country = "Country is required";
+
+        if (!address.postalCode.trim()) newErrors.postalCode = "Postal code is required";
+
         if (!checkIn) newErrors.checkIn = "Check-in date is required";
+
         if (!checkOut) newErrors.checkOut = "Check-out date is required";
+
         if (checkIn && checkOut && new Date(checkOut) <= new Date(checkIn)) {
             newErrors.checkOut = "Check-out must be after check-in";
         }
         setErrors(newErrors);
+
+        if (Object.keys(newErrors).length > 0) {
+            setTimeout(() => {
+                const firstErrorField = document.querySelector('.border-red-500');
+                if (firstErrorField) {
+                    firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 100);
+        }
+
         return Object.keys(newErrors).length === 0;
     }
 
@@ -144,11 +181,17 @@ export default function BookingForm() {
 
                 setTimeout(() => {
                     setIsLoading(false);
-                }, remainingTime > 0 ? remainingTime : 0 );
-            }
-            catch (error: any) {
+                }, remainingTime > 0 ? remainingTime : 0);
+
+            } catch (error: any) {
                 setIsLoading(false);
-                setSubmitError(error.response.data.message || "Something went wrong. Please try again.");
+                setSubmitError(error.response?.data?.message || "Something went wrong. Please try again.");
+                setTimeout(() => {
+                    const errorElement = document.querySelector('.border-red-500');
+                    if (errorElement) {
+                        errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 100);
             }
         }
     }
@@ -197,7 +240,7 @@ export default function BookingForm() {
                                                         <p className="text-xs text-[#9a9080]">{r.size} · Floors {r.floors}</p>
                                                     </div>
                                                     <div className="text-right flex-shrink-0">
-                                                        <p className="text-[#c9a84c] font-light">€{r.price}</p>
+                                                        <p className="text-[#c9a84c] font-light">R{r.price}</p>
                                                         <p className="text-xs text-[#9a9080]">/night</p>
                                                     </div>
                                                 </div>
@@ -423,7 +466,7 @@ export default function BookingForm() {
                             <button type="submit" disabled={isLoading} className="w-full py-4 bg-[#c9a84c] text-[#0f0e0c] text-sm tracking-[0.2em] uppercase font-medium hover:bg-[#c9a84c]/90 transition-colors mb-3 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
                                 {
                                     isLoading ?
-                                        <div className="flex gap-2">
+                                        <div className="flex items-center gap-2">
                                             <Loader2 size={16} className="animate-spin" />Submitting...
                                         </div>
                                         :
