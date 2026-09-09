@@ -1,0 +1,1 @@
+create type role as enum ('ADMIN', 'MANAGER', 'RECEPTIONIST', 'HOUSEKEEPING', 'MAINTENANCE', 'STAFF');

@@ -244,7 +244,7 @@ Iron Watch shall determine the appropriate deployment of personnel, patrols, mon
 
 Iron Watch shall ensure that:
 
-1. At least three (3) security officers are on duty at the hotel during any shift.
+1. At least four (4) security officers are on duty at the hotel during any shift.
 2. A designated supervisor is on duty or available to oversee security operations.
 3. Security personnel are appropriately scheduled to maintain continuity of service.
 4. Security coverage is maintained during staff absences, leave, illness, or other personnel shortages.
@@ -479,20 +479,23 @@ Mason Hotel shall pay Iron Watch for the security services provided under this A
 
 ### 16.1 Service Fee
 
-The parties agree that the monthly security services fee payable by Mason Hotel to Iron Watch shall be **R300,000.00 (Three Hundred Thousand Rand) per month**, exclusive of applicable VAT.
+The parties agree that the monthly security services fee payable by Mason Hotel to Iron Watch shall be **R1,100,000.00 (One Million One Hundred Thousand Rand) per month**, exclusive of applicable VAT.
 
 This fee is based on the following standard deployment:
 
 | Personnel                | Number | Contract Rate | Monthly Total |
 | ------------------------ | -----: | ------------: | ------------: |
-| Security Officers        |      8 |       R28,000 |      R224,000 |
-| Senior Security Officers |      1 |       R35,000 |       R35,000 |
-| Security Supervisor      |      1 |       R42,000 |       R42,000 |
-| **Total**                | **10** |               |  **R301,000** |
+| Security Officers        |     12 |       R35,000 |      R420,000 |
+| Senior Security Officers |      3 |       R45,000 |      R135,000 |
+| Security Supervisors     |      3 |       R55,000 |      R165,000 |
+| Security Manager         |      1 |       R70,000 |       R70,000 |
+| CCTV Operators           |      3 |       R38,000 |      R114,000 |
+| Access Control Officers  |      3 |       R38,000 |      R114,000 |
+| **Total**                | **25** |               | **R1,018,000** |
 
-**Agreed Monthly Fee: R300,000.00**
+**Agreed Monthly Fee: R1,100,000.00**
 
-The parties acknowledge that the agreed monthly fee is **R300,000.00**, notwithstanding that the calculated personnel deployment above totals R301,000.00.
+The parties acknowledge that the agreed monthly fee is **R1,100,000.00**, which includes the personnel deployment above as well as management, supervision, equipment, insurance, and the Security Provider's operational overheads.
 
 The monthly fee is a fixed charge for the agreed security service level and covers ordinary security operations, including personnel deployment, supervision, security management, patrols, monitoring, access control, incident response, reporting, and administrative management.
 
@@ -612,7 +615,7 @@ shall be recorded in the renewal agreement or an applicable written amendment.
 
 Iron Watch shall maintain adequate insurance coverage for its operations and personnel.
 
-Iron Watch shall maintain public liability insurance with minimum coverage of **R1,000,000.00**.
+Iron Watch shall maintain public liability insurance with minimum coverage of **R5,000,000.00**.
 
 Mason Hotel shall be entitled to request reasonable proof of insurance coverage.
 
@@ -694,9 +697,9 @@ The following terms constitute the agreed commercial schedule for this Agreement
 | ----------------------------- | ---------------------------------------------------- |
 | Contract Duration             | 12 months                                            |
 | Security Coverage             | 24/7                                                 |
-| Minimum Personnel per Shift   | 3 officers                                           |
-| Standard Personnel Deployment | 10                                                   |
-| Monthly Service Fee           | **R300,000.00**                                      |
+| Minimum Personnel per Shift   | 4 officers                                           |
+| Standard Personnel Deployment | 25                                                   |
+| Monthly Service Fee           | **R1,100,000.00**                                    |
 | VAT                           | Excluded; charged where legally applicable           |
 | Billing Frequency             | Monthly                                              |
 | Payment Period                | 30 calendar days                                     |

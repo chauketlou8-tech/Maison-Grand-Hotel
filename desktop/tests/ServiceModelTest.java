@@ -1,5 +1,5 @@
 import org.junit.Test;
-import main.models.Service;
+import models.Service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

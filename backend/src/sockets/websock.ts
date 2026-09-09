@@ -1,6 +1,6 @@
 import WebSocket from "ws";
 import { logger } from "../config/logger"
-import getAvailableRooms from "../utils/getAvailableRooms";
+import HelperFunctions from "../utils/helpers";
 
 const server = new WebSocket.Server({ port: 3003 });
 
@@ -15,7 +15,7 @@ server.on("connection", (ws) => {
             logger.info("Received:", data);
 
             if (data.type === "getAvailableRooms") {
-                const availableRooms = await getAvailableRooms();
+                const availableRooms = await HelperFunctions.getAvailableRooms();
                 ws.send(JSON.stringify({
                     type: "availableRooms",
                     data: { rooms: availableRooms },

@@ -4,7 +4,6 @@ import connection from "../config/connection";
 import Response from "../utils/response";
 import HelperFunctions from "../utils/helpers";
 
-import createGuestID from "../utils/createGuestID";
 import { RoomError, CapacityError } from "../errors";
 
 import type { req, res, next } from "../types/express";
@@ -67,7 +66,7 @@ const book = asyncHandler(async (req: req, res: res, next: next) => {
             insert into guests(guestid, firstname, lastname, email, phonenumber, address_id, idnumber, dateofbirth, nationality, registrationdate)
             values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
             returning *
-            `, [createGuestID(reservedRoom), firstName, lastName, email, phone, userAddress.id, idNumber, dateOfBirth, nationality, new Date()]
+            `, [HelperFunctions.createGuestID(reservedRoom), firstName, lastName, email, phone, userAddress.id, idNumber, dateOfBirth, nationality, new Date()]
         );
 
     const guest: Guest = guestResult.rows[0];
@@ -134,7 +133,8 @@ const book = asyncHandler(async (req: req, res: res, next: next) => {
         reservation_id: reservation.id,
         guest_id: guest.id,
         status: "unread",
-        createdAt: new Date()
+        created_at: new Date(),
+        updated_at: new Date()
     }
 
     await connection.query(`
@@ -189,7 +189,8 @@ www.maisongrandhotel.co.za
         message: "Booking received",
         data: {
             reservation: fullReservation,
-            notification: notification
+            notification: notification,
+            guest_id: guest.id,
         }
     });
 });

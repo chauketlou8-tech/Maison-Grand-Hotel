@@ -1,7 +1,7 @@
 package manual;
 
-import main.models.Guest;
-import utils.types.Address;
+import models.Guest;
+import types.Address;
 
 import java.util.Calendar;
 import java.util.Date;

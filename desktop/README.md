@@ -168,7 +168,7 @@ desktop/
 
 ## Database Integration
 
-The desktop application connects directly to the PostgreSQL database using JDBC. Database operations are encapsulated in repository classes.
+The desktop application connects directly to the PostgreSQL database using JDBC. Database operations are encapsulated in repositories classes.
 
 ### Connection Management
 - Connection pooling for performance

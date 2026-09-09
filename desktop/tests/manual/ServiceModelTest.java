@@ -1,6 +1,6 @@
 package manual;
 
-import main.models.Service;
+import models.Service;
 
 public class ServiceModelTest {
 

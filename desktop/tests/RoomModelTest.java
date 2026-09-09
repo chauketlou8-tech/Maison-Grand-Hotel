@@ -1,6 +1,6 @@
 import org.junit.Test;
-import main.models.Room;
-import utils.enums.RoomStatus;
+import models.Room;
+import enums.RoomStatus;
 
 import static org.junit.Assert.assertEquals;
 

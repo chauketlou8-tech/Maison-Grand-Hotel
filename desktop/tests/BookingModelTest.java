@@ -1,10 +1,10 @@
 import org.junit.Test;
-import main.models.Booking;
-import main.models.Guest;
-import main.models.Room;
-import utils.enums.BookingStatus;
-import utils.enums.RoomStatus;
-import utils.types.Address;
+import models.Booking;
+import models.Guest;
+import models.Room;
+import enums.BookingStatus;
+import enums.RoomStatus;
+import types.Address;
 
 import java.util.Date;
 

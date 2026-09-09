@@ -1,11 +1,11 @@
 import org.junit.Test;
 import static org.junit.Assert.*;
-import main.models.User;
+import models.User;
 
 import java.util.Date;
 
-import utils.enums.Role;
-import utils.enums.AccountStatus;
+import enums.Role;
+import enums.AccountStatus;
 
 public class UserModelTest {
     @Test

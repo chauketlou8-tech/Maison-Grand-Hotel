@@ -1,0 +1,1 @@
+alter table payments add column yoco_checkout_id text

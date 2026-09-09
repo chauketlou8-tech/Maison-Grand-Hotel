@@ -1,7 +1,12 @@
 export type Payment = {
-    id?: number,
-    amount: number,
-    paymentDate: Date,
-    paymentStatus: 'created'| 'started'| 'processing'| 'completed'| 'failed'| 'cancelled',
-    transactionReference: string
-}
+    id?: number;
+    amount: number;
+    guest_id: number;
+    paymentdate: Date;
+    paymentmethod: string;
+    yoco_checkout_id: string;
+    paymentstatus: 'created' | 'started' | 'processing' | 'completed' | 'failed' | 'cancelled' | 'succeeded';
+    transactionreference: string;
+    created_at: Date;
+    updated_at: Date;
+};

@@ -12,6 +12,7 @@ const email_user = process.env.EMAIL_USER;
 const email_password = process.env.EMAIL_PASSWORD;
 const yoco_secret = process.env.YOCO_SECRET_KEY;
 const base_url = process.env.BASE_URL;
+const yoco_webhook_secret = process.env.YOCO_WEBHOOK_SECRET_KEY;
 
 if (!node_env) {
     throw new Error('Missing environment environment');
@@ -36,6 +37,10 @@ if (!yoco_secret && node_env === "development") {
 if (!base_url && node_env === "development") {
     throw new Error("Missing base_url env");
 }
+
+if (!yoco_webhook_secret && node_env === "development") {
+    throw new Error("Missing yoco webhook secret");
+}
     
 export {
     port,
@@ -45,4 +50,5 @@ export {
     email_password,
     yoco_secret,
     base_url,
+    yoco_webhook_secret,
 }

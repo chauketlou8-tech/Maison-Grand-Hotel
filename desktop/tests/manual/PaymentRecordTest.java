@@ -1,6 +1,6 @@
 package manual;
 
-import main.models.Payment;
+import models.Payment;
 
 import java.util.Date;
 

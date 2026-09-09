@@ -1,8 +1,8 @@
 package manual;
 
-import main.models.User;
-import utils.enums.AccountStatus;
-import utils.enums.Role;
+import models.User;
+import enums.AccountStatus;
+import enums.Role;
 
 import java.util.Date;
 

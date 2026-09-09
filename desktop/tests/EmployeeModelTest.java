@@ -1,9 +1,8 @@
 import org.junit.Test;
-import org.junit.Assert.*;
-import main.models.Employee;
-import utils.enums.EmploymentStatus;
-import utils.enums.Gender;
-import utils.types.Address;
+import models.Employee;
+import enums.EmploymentStatus;
+import enums.Gender;
+import types.Address;
 
 import java.util.Calendar;
 import java.util.Date;

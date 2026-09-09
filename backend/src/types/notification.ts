@@ -7,5 +7,6 @@ export type Notification = {
     reservation_id?: number;
     guest_id?: number;
     status: "unread" | "read";
-    createdAt: Date;
-}
+    created_at: Date;
+    updated_at: Date;
+};

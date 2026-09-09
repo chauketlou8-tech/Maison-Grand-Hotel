@@ -1,10 +1,9 @@
-import main.models.Guest;
+import models.Guest;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import java.util.Calendar;
 import java.util.Date;
-import utils.types.Address;
+import types.Address;
 
 public class GuestModelTest {
     @Test

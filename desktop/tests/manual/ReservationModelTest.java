@@ -1,9 +1,9 @@
 package manual;
 
-import main.models.Reservation;
-import main.models.Guest;
-import utils.enums.ReservationStatus;
-import utils.types.Address;
+import models.Reservation;
+import models.Guest;
+import enums.ReservationStatus;
+import types.Address;
 
 import java.util.Date;
 

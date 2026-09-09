@@ -1,7 +1,7 @@
 package manual;
 
-import main.models.Room;
-import utils.enums.RoomStatus;
+import models.Room;
+import enums.RoomStatus;
 
 public class RoomModelTest {
 

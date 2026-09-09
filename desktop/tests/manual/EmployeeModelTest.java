@@ -1,9 +1,9 @@
 package manual;
 
-import main.models.Employee;
-import utils.types.Address;
-import utils.enums.Gender;
-import utils.enums.EmploymentStatus;
+import models.Employee;
+import types.Address;
+import enums.Gender;
+import enums.EmploymentStatus;
 
 import java.util.Calendar;
 import java.util.Date;

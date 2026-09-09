@@ -1,0 +1,17 @@
+<VBox xmlns:fx="http://javafx.com/fxml" alignment="CENTER" style="-fx-background-color: #0f0e0c;">
+    <children>
+        <Text text="MAISON" fill="#c9a84c" textAlignment="CENTER">
+            <font>
+                <Font name="Playfair Display" size="28" weight="LIGHT" />
+            </font>
+        </Text>
+        <Text text="GRAND HÔTEL" fill="#f0ebe0" textAlignment="CENTER">
+            <VBox.margin>
+                <Insets top="2" />
+            </VBox.margin>
+            <font>
+                <Font name="Arial" size="10" weight="THIN" />
+            </font>
+        </Text>
+    </children>
+</VBox>

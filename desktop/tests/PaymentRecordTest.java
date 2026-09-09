@@ -1,5 +1,5 @@
 import org.junit.Test;
-import main.models.Payment;
+import models.Payment;
 
 import java.util.Date;
 

@@ -1,8 +1,8 @@
 enum RoomStatus {
-    AVAILABLE,
-    OCCUPIED,
-    MAINTENANCE,
-    CLOSED
+    AVAILABLE = 'available',
+    OCCUPIED = 'occupied',
+    MAINTENANCE = 'maintenance',
+    CLOSED = 'closed'
 }
 
 export type Room = {
@@ -14,4 +14,6 @@ export type Room = {
     capacity: number;
     roomstatus: RoomStatus;
     description: string;
-}
+    created_at: Date;
+    updated_at: Date;
+};

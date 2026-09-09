@@ -1,0 +1,216 @@
+/* Header styles */
+.header {
+    -fx-background-color: #0a0908;
+    -fx-border-color: rgba(201,168,76,0.2);
+    -fx-border-bottom-width: 1;
+    -fx-height: 80px;
+}
+
+.maison-label {
+    -fx-text-fill: #c9a84c;
+    -fx-font-family: 'serif';
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.grand-hotel-label {
+    -fx-text-fill: #f0ebe0;
+    -fx-font-family: 'Arial';
+    -fx-font-size: 12px;
+}
+
+.date-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6a6058;
+    -fx-font-family: 'DM Mono','Consolas','Courier New',monospace;
+}
+
+/* Body styles */
+.root-pane {
+    -fx-background-color: #0f0e0c;
+}
+
+.sign-in-label {
+    -fx-font-size: 16px;
+    -fx-text-fill: #c9a84c;
+}
+
+.description-label {
+    -fx-font-size: 18px;
+    -fx-text-fill: #9a9080;
+}
+
+.fields-container {
+    -fx-gap: 8px;
+    -fx-margin-bottom: 20px;
+}
+
+.account-label, .password-label {
+    -fx-font-size: 12px;
+    -fx-margin-bottom: 5px;
+    -fx-text-fill: #fff;
+    -fx-font-weight: bold;
+}
+
+.combo-box-style {
+    -fx-background-color: #131210;
+    -fx-border-width: 1px;
+    -fx-border-color: rgba(201,168,76,0.22);
+    -fx-text-fill: #fff;
+    -fx-font-size: 14px;
+    -fx-font-family: 'Inter','Segoe UI',system-ui,sans-serif;
+}
+
+.combo-box-style .list-cell {
+    -fx-background-color: #131210;
+    -fx-text-fill: #fff;
+    -fx-font-size: 14px;
+    -fx-font-family: 'Inter','Segoe UI',system-ui,sans-serif;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: #131210;
+    -fx-font-size: 14px;
+    -fx-font-family: 'Inter','Segoe UI',system-ui,sans-serif;
+}
+
+.combo-box-popup .list-view .list-cell {
+    -fx-background-color: #131210;
+    -fx-text-fill: #fff;
+    -fx-font-size: 14px;
+    -fx-font-family: 'Inter','Segoe UI',system-ui,sans-serif;
+}
+
+.combo-box-popup .list-view .list-cell:hover {
+    -fx-background-color: #ccc;
+    -fx-text-fill: #000;
+    -fx-font-size: 14px;
+    -fx-font-family: 'Inter','Segoe UI',system-ui,sans-serif;
+}
+
+.combo-box-popup .list-view .list-cell:selected {
+    -fx-background-color: #ccc;
+    -fx-text-fill: #000;
+    -fx-font-size: 14px;
+    -fx-font-family: 'Inter','Segoe UI',system-ui,sans-serif;
+}
+
+.combo-box-popup .scroll-bar,
+.combo-box-popup .increment-button,
+.combo-box-popup .decrement-button {
+    -fx-padding: 0;
+    -fx-opacity: 0;
+}
+
+.password-field-style {
+    -fx-background-color: #131210;
+    -fx-border-width: 1px;
+    -fx-border-color: rgba(201,168,76,0.22);
+    -fx-text-fill: #f0ebe0;
+    -fx-font-size: 14px;
+}
+
+/* Badge container */
+.badge {
+    -fx-background-color: #0f0e0c;
+    -fx-border-color: rgba(201,168,76,0.2);
+    -fx-border-width: 1px;
+    -fx-padding: 32 24 32 24;
+    -fx-spacing: 20;
+    -fx-alignment: center-left;
+}
+
+/* Initials circle */
+.initials {
+    -fx-pref-width: 56px;
+    -fx-pref-height: 56px;
+    -fx-min-width: 56px;
+    -fx-min-height: 56px;
+    -fx-max-width: 56px;
+    -fx-max-height: 56px;
+    -fx-background-color: rgba(201,168,76,0.1);
+    -fx-border-color: rgba(201,168,76,0.2);
+    -fx-border-width: 1px;
+    -fx-alignment: center;
+}
+
+.initials-label {
+    -fx-text-fill: #c9a84c;
+    -fx-font-size: 18px;
+    -fx-font-weight: 900;
+}
+
+/* Name panel */
+.name-panel {
+    -fx-alignment: center-left;
+    -fx-spacing: 20;
+}
+
+/* Text box */
+.text-box {
+    -fx-spacing: 2;
+}
+
+.name-label {
+    -fx-text-fill: #f0ebe0;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.email-label {
+    -fx-text-fill: #6a6058;
+    -fx-font-size: 13px;
+}
+
+/* Role badge */
+.role-badge {
+    -fx-alignment: center;
+    -fx-padding: 6 12 6 12;
+    -fx-border-color: rgba(201,168,76,0.2);
+    -fx-border-width: 1px;
+}
+
+.role-label {
+    -fx-text-fill: #c9a84c;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-font-family: 'DM Mono','Consolas','Courier New',monospace;
+    -fx-letter-spacing: 2px;
+}
+
+.login-button {
+    -fx-background-color: #c9a84c;
+    -fx-text-fill: #0f0e0c;
+}
+
+/* Footer styles */
+.footer {
+    -fx-background-color: #0a0908;
+    -fx-border-top-width: 1;
+    -fx-border-color: rgba(201,168,76,0.2);
+}
+
+.footer-label {
+    -fx-text-fill: #6a6058;
+    -fx-font-family: 'DM Mono','Consolas','Courier New',monospace;
+}
+
+.copyright-label {
+    -fx-text-fill: #6a6058;
+    -fx-font-family: 'DM Mono','Consolas','Courier New',monospace;
+}
+
+.error-label {
+    -fx-text-fill: #e74c3c;
+    -fx-font-size: 13px;
+    -fx-font-family: 'Inter','Segoe UI',sans-serif;
+    -fx-padding: 5 0 0 0;
+}
+
+.password-field-style.error {
+    -fx-border-color: #e74c3c;
+}
+
+.password-field-style.error:focused {
+    -fx-border-color: #e74c3c;
+}
