@@ -1,127 +1,130 @@
 package models;
 
-import java.util.Date;
+import java.io.Serializable;
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.util.UUID;
+
 import enums.BookingStatus;
 
-/**
- * Represents a confirmed stay at Mason Hotel and stores the information needed
- * to manage the guest's booking from confirmation through completion.
- *
- * This class represents all hotel bookings including:
- * - Confirmed hotel stays
- * - Upcoming stays
- * - Current stays
- * - Completed stays
- *
- * Features:
- * - Stores booking information
- * - Records which guest made the booking
- * - Records which room was booked
- * - Tracks booking dates
- * - Tracks the number of guests
- * - Tracks booking status
- * - Records the total cost
- * - Supports check-in and check-out management
- */
-public class Booking {
+public class Booking implements Serializable {
 
-    private final String bookingId;
-    private final Guest guest;
-    private final Room room;
-    private final Date bookingDate;
-    private final Date checkInDate;
-    private final Date checkOutDate;
-    private final long numberOfGuests;
-    private final BookingStatus bookingStatus;
-    private final float totalCost;
-    private final String[] selectedPackages;
+    private final String booking_id;
+    private final UUID reservation_id;
+    private final long guest_id;
+    private final long room_id;
+    private final Date booking_date;
+    private final Date check_in_date;
+    private final Date check_out_date;
+    private final long number_of_guests;
+    private final BookingStatus booking_status;
+    private final double total_cost;
+    private final String[] selected_packages;
     private final String requests;
+    private final Timestamp created_at;
+    private final Timestamp updated_at;
 
-    /**
-     * Constructs a new Booking object.
-     *
-     * @param bookingId      Booking's unique identifier
-     * @param guest          Guest who made the booking
-     * @param room           Room that was booked
-     * @param bookingDate    Date the booking was made
-     * @param checkInDate    Date the guest will check in
-     * @param checkOutDate   Date the guest will check out
-     * @param numberOfGuests Number of guests staying
-     * @param bookingStatus  Current status of the booking
-     * @param totalCost      Total cost of the booking
-     * @param selectedPackages Additional packages offered by the hotel
-     * @param requests       Additional things guest has requested
-     */
-    public Booking(String bookingId, Guest guest, Room room, Date bookingDate, Date checkInDate, Date checkOutDate, long numberOfGuests, BookingStatus bookingStatus, float totalCost, String[] selectedPackages, String requests) {
-        this.bookingId = bookingId;
-        this.guest = guest;
-        this.room = room;
-        this.bookingDate = bookingDate;
-        this.checkInDate = checkInDate;
-        this.checkOutDate = checkOutDate;
-        this.numberOfGuests = numberOfGuests;
-        this.bookingStatus = bookingStatus;
-        this.totalCost = totalCost;
-        this.selectedPackages = selectedPackages;
+    public Booking(
+            String booking_id,
+            UUID reservation_id,
+            long guest_id,
+            long room_id,
+            Date booking_date,
+            Date check_in_date,
+            Date check_out_date,
+            long number_of_guests,
+            BookingStatus booking_status,
+            double total_cost,
+            String[] selected_packages,
+            String requests,
+            Timestamp created_at,
+            Timestamp updated_at
+    ) {
+        this.booking_id = booking_id;
+        this.reservation_id = reservation_id;
+        this.guest_id = guest_id;
+        this.room_id = room_id;
+        this.booking_date = booking_date;
+        this.check_in_date = check_in_date;
+        this.check_out_date = check_out_date;
+        this.number_of_guests = number_of_guests;
+        this.booking_status = booking_status;
+        this.total_cost = total_cost;
+        this.selected_packages = selected_packages;
         this.requests = requests;
+        this.created_at = created_at;
+        this.updated_at = updated_at;
     }
 
-    public String getBookingId() {
-        return this.bookingId;
+    public String getBooking_id() {
+        return this.booking_id;
     }
 
-    public Guest getGuest() {
-        return this.guest;
+    public UUID getReservation_id() {
+        return this.reservation_id;
     }
 
-    public Room getRoom() {
-        return this.room;
+    public long getGuest_id() {
+        return this.guest_id;
     }
 
-    public Date getBookingDate() {
-        return this.bookingDate;
+    public long getRoom_id() {
+        return this.room_id;
     }
 
-    public Date getCheckInDate() {
-        return this.checkInDate;
+    public Date getBooking_date() {
+        return this.booking_date;
     }
 
-    public Date getCheckOutDate() {
-        return this.checkOutDate;
+    public Date getCheck_in_date() {
+        return this.check_in_date;
     }
 
-    public long getNumberOfGuests() {
-        return this.numberOfGuests;
+    public Date getCheck_out_date() {
+        return this.check_out_date;
     }
 
-    public BookingStatus getBookingStatus() {
-        return this.bookingStatus;
+    public long getNumber_of_guests() {
+        return this.number_of_guests;
     }
 
-    public float getTotalCost() {
-        return this.totalCost;
+    public BookingStatus getBooking_status() {
+        return this.booking_status;
     }
 
-    public String[] getSelectedPackages() {
-        return this.selectedPackages;
+    public double getTotal_cost() {
+        return this.total_cost;
+    }
+
+    public String[] getSelected_packages() {
+        return this.selected_packages;
     }
 
     public String getRequests() {
         return this.requests;
     }
 
+    public Timestamp getCreated_at() {
+        return this.created_at;
+    }
+
+    public Timestamp getUpdated_at() {
+        return this.updated_at;
+    }
+
     @Override
     public String toString() {
         return "{\n" +
-                "  \"bookingId\": \"" + bookingId + "\",\n" +
-                "  \"guest\": " + guest + ",\n" +
-                "  \"room\": " + room + ",\n" +
-                "  \"bookingDate\": \"" + bookingDate + "\",\n" +
-                "  \"checkInDate\": \"" + checkInDate + "\",\n" +
-                "  \"checkOutDate\": \"" + checkOutDate + "\",\n" +
-                "  \"numberOfGuests\": " + numberOfGuests + ",\n" +
-                "  \"bookingStatus\": \"" + bookingStatus + "\",\n" +
-                "  \"totalCost\": " + totalCost + "\n" +
+                "  \"booking_id\": \"" + booking_id + "\",\n" +
+                "  \"reservation_id\": \"" + reservation_id + "\",\n" +
+                "  \"guest_id\": " + guest_id + ",\n" +
+                "  \"room_id\": " + room_id + ",\n" +
+                "  \"booking_date\": \"" + booking_date + "\",\n" +
+                "  \"check_in_date\": \"" + check_in_date + "\",\n" +
+                "  \"check_out_date\": \"" + check_out_date + "\",\n" +
+                "  \"number_of_guests\": " + number_of_guests + ",\n" +
+                "  \"booking_status\": \"" + booking_status + "\",\n" +
+                "  \"total_cost\": " + total_cost + "\n" +
                 "}";
     }
 }

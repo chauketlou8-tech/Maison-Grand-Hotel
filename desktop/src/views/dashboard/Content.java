@@ -1,13 +1,13 @@
 package views.dashboard;
 
-import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.*;
 import javafx.scene.layout.Priority;
 import models.*;
 import records.Payment;
 import records.RoomHistory;
 import sockets.Client;
+import records.Address;
 import utils.NavItem;
 
 import java.io.IOException;
@@ -23,6 +23,9 @@ public class Content extends HBox {
     private Reservation[] reservations;
     private Payment[] payments;
     private RoomHistory[] roomHistory;
+    private Guest[] guests;
+    private Address[] addresses;
+    private Booking[] bookings;
 
     private DashBoard dashboard;
     private GuestRegistry guestRegistry;
@@ -53,7 +56,7 @@ public class Content extends HBox {
 
         this.updatePage("Dashboard");
 
-        Client client = new Client(this::setRooms, this::setNotifications, this::setReservations, this::setPayments, this::setRoomHistory);
+        Client client = new Client(this::setRooms, this::setNotifications, this::setReservations, this::setPayments, this::setRoomHistory, this::setGuests, this::setAddresses, this::setBookings);
 
         Thread clientThread = new Thread(client::listen);
         clientThread.start();
@@ -108,12 +111,34 @@ public class Content extends HBox {
         }
     }
 
+    public void setGuests(Guest[] guests) {
+        this.guests = guests;
+
+        if (guestRegistry != null) {
+            guestRegistry.setData(this.guests, this.addresses, this.payments, this.bookings);
+        }
+    }
+
+    public void setAddresses(Address[] addresses) {
+        this.addresses = addresses;
+    }
+
+    public void setBookings(Booking[] bookings) {
+        this.bookings = bookings;
+    }
+
     public void updatePage(String page) {
         this.c.getChildren().clear();
         Object newPage = this.views.get(page);
 
-        if (newPage != null) {
-            this.c.getChildren().add((Node) newPage);
+        if (newPage instanceof javafx.scene.Node node) {
+            if (node instanceof javafx.scene.layout.Region region) {
+                region.setMaxWidth(Double.MAX_VALUE);
+                region.setMaxHeight(Double.MAX_VALUE);
+            }
+            HBox.setHgrow(node, Priority.ALWAYS);
+            VBox.setVgrow(node, Priority.ALWAYS);
+            this.c.getChildren().add(node);
         }
     }
 }

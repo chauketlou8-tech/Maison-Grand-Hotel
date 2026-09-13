@@ -1,14 +1,10 @@
 package sockets;
 
-import enums.NotificationStatus;
-import enums.NotificationType;
-import enums.ReservationStatus;
-import enums.RoomStatus;
-import models.Notification;
-import models.Room;
-import models.Reservation;
+import enums.*;
+import models.*;
 import records.Payment;
 import records.RoomHistory;
+import records.Address;
 import utils.Conn;
 
 import java.io.*;
@@ -47,12 +43,18 @@ public class Server {
             Reservation[] reservations = this.getReservations().toArray(new Reservation[0]);
             Payment[] payments = this.getPayments().toArray(new Payment[0]);
             RoomHistory[] roomHistory = this.getRoomHistory().toArray(new RoomHistory[0]);
+            Guest[] guests = this.getGuests().toArray(new Guest[0]);
+            Address[] addresses = this.getAddresses().toArray(new Address[0]);
+            Booking[] bookings = this.getBookings().toArray(new Booking[0]);
 
             out.writeObject(rooms);
             out.writeObject(notifications);
             out.writeObject(reservations);
             out.writeObject(payments);
             out.writeObject(roomHistory);
+            out.writeObject(guests);
+            out.writeObject(addresses);
+            out.writeObject(bookings);
             out.flush();
             out.reset();
         }
@@ -211,5 +213,96 @@ public class Server {
         }
 
         return roomHistory;
+    }
+
+    private List<Guest> getGuests() throws IOException, SQLException {
+        List<Guest> guests = new ArrayList<>();
+
+        assert conn != null;
+        try (Statement statement = conn.createStatement()) {
+            ResultSet rs = statement.executeQuery("select * from guests");
+
+            while (rs.next()) {
+                Guest guest = new Guest(
+                        rs.getLong("id"),
+                        rs.getString("guestid"),
+                        rs.getString("firstname"),
+                        rs.getString("lastname"),
+                        rs.getString("email"),
+                        rs.getString("phonenumber"),
+                        rs.getLong("address_id"),
+                        rs.getString("idnumber"),
+                        rs.getDate("dateofbirth"),
+                        rs.getString("nationality"),
+                        rs.getDate("registrationdate"),
+                        rs.getTimestamp("created_at"),
+                        rs.getTimestamp("updated_at")
+                );
+
+                guests.add(guest);
+            }
+        }
+
+        return guests;
+    }
+
+    private List<Address> getAddresses() throws IOException, SQLException {
+        List<Address> addresses = new ArrayList<>();
+
+        assert conn != null;
+
+        try (Statement statement = conn.createStatement()) {
+            ResultSet rs = statement.executeQuery("select * from address");
+
+            while (rs.next()) {
+                Address address = new Address(
+                        rs.getLong("id"),
+                        rs.getString("street"),
+                        rs.getString("city"),
+                        rs.getString("province"),
+                        rs.getString("country"),
+                        rs.getString("postalcode"),
+                        rs.getTimestamp("created_at"),
+                        rs.getTimestamp("updated_at")
+                );
+
+                addresses.add(address);
+            }
+        }
+
+        return addresses;
+    }
+
+    private List<Booking> getBookings() throws IOException, SQLException {
+        List<Booking> bookings = new ArrayList<>();
+
+        assert conn != null;
+
+        try (Statement statement = conn.createStatement()) {
+            ResultSet rs = statement.executeQuery("select * from bookings");
+
+            while (rs.next()) {
+                Booking booking = new Booking(
+                        rs.getString("booking_id"),
+                        (java.util.UUID) rs.getObject("reservation_id"),
+                        rs.getLong("guest_id"),
+                        rs.getLong("room_id"),
+                        rs.getDate("booking_date"),
+                        rs.getDate("check_in_date"),
+                        rs.getDate("check_out_date"),
+                        rs.getLong("number_of_guests"),
+                        BookingStatus.valueOf(rs.getString("booking_status")),
+                        rs.getDouble("total_cost"),
+                        (String[]) rs.getArray("selected_packages").getArray(),
+                        rs.getString("requests"),
+                        rs.getTimestamp("created_at"),
+                        rs.getTimestamp("updated_at")
+                );
+
+                bookings.add(booking);
+            }
+        }
+
+        return bookings;
     }
 }

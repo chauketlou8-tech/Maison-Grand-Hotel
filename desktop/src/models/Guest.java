@@ -1,9 +1,10 @@
 package models;
 
-import types.Address;
-import java.util.Date;
+import java.io.Serializable;
+import java.sql.Date;
+import java.sql.Timestamp;
 
-public class Guest {
+public class Guest implements Serializable {
 
     private final long id;
     private final String guestid;
@@ -11,24 +12,42 @@ public class Guest {
     private final String lastname;
     private final String email;
     private final String phonenumber;
-    private final Address address;
+    private final long address_id;
     private final String idnumber;
     private final Date dateofbirth;
     private final String nationality;
     private final Date registrationdate;
+    private final Timestamp created_at;
+    private final Timestamp updated_at;
 
-    public Guest(long id, String guestid, String firstname, String lastname, String email, String phonenumber, Address address, String idnumber, Date dateofbirth, String nationality, Date registrationdate) {
+    public Guest(
+            long id,
+            String guestid,
+            String firstname,
+            String lastname,
+            String email,
+            String phonenumber,
+            long address_id,
+            String idnumber,
+            Date dateofbirth,
+            String nationality,
+            Date registrationdate,
+            Timestamp created_at,
+            Timestamp updated_at
+    ) {
         this.id = id;
         this.guestid = guestid;
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;
         this.phonenumber = phonenumber;
-        this.address = address;
+        this.address_id = address_id;
         this.idnumber = idnumber;
         this.dateofbirth = dateofbirth;
         this.nationality = nationality;
         this.registrationdate = registrationdate;
+        this.created_at = created_at;
+        this.updated_at = updated_at;
     }
 
     public long getId() {
@@ -55,8 +74,8 @@ public class Guest {
         return this.phonenumber;
     }
 
-    public Address getAddress() {
-        return this.address;
+    public long getAddress_id() {
+        return this.address_id;
     }
 
     public String getIdnumber() {
@@ -75,6 +94,14 @@ public class Guest {
         return this.registrationdate;
     }
 
+    public Timestamp getCreated_at() {
+        return this.created_at;
+    }
+
+    public Timestamp getUpdated_at() {
+        return this.updated_at;
+    }
+
     @Override
     public String toString() {
         return "{\n" +
@@ -84,11 +111,13 @@ public class Guest {
                 "  \"lastname\": \"" + lastname + "\",\n" +
                 "  \"email\": \"" + email + "\",\n" +
                 "  \"phonenumber\": \"" + phonenumber + "\",\n" +
-                "  \"address\": " + address + ",\n" +
+                "  \"address_id\": " + address_id + ",\n" +
                 "  \"idnumber\": \"" + idnumber + "\",\n" +
                 "  \"dateofbirth\": \"" + dateofbirth + "\",\n" +
                 "  \"nationality\": \"" + nationality + "\",\n" +
-                "  \"registrationdate\": \"" + registrationdate + "\"\n" +
+                "  \"registrationdate\": \"" + registrationdate + "\",\n" +
+                "  \"created_at\": \"" + created_at + "\",\n" +
+                "  \"updated_at\": \"" + updated_at + "\"\n" +
                 "}";
     }
 }

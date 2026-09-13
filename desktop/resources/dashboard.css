@@ -627,3 +627,193 @@
 .stat-delta-none {
     -fx-text-fill: #6a6058;
 }
+
+.guest-registry {
+    -fx-background-color: #0f0e0c;
+}
+
+.registry-button-row {
+    -fx-background-color: #0a0908;
+    -fx-border-color: transparent transparent rgba(201,168,76,0.15) transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.registry-button {
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(201,168,76,0.25);
+    -fx-border-width: 1;
+    -fx-text-fill: #9a9080;
+    -fx-font-size: 12px;
+    -fx-font-family: 'Inter','Segoe UI',sans-serif;
+    -fx-padding: 6 14 6 14;
+    -fx-cursor: hand;
+}
+
+.registry-button:hover {
+    -fx-border-color: #c9a84c;
+    -fx-text-fill: #c9a84c;
+}
+
+.registry-button-primary {
+    -fx-background-color: #c9a84c;
+    -fx-border-color: #c9a84c;
+    -fx-border-width: 1;
+    -fx-text-fill: #0a0908;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-font-family: 'Inter','Segoe UI',sans-serif;
+    -fx-padding: 6 14 6 14;
+    -fx-cursor: hand;
+}
+
+.registry-button-primary:hover {
+    -fx-background-color: #d4b85a;
+    -fx-border-color: #d4b85a;
+}
+
+.registry-divider {
+    -fx-text-fill: rgba(201,168,76,0.25);
+    -fx-font-size: 12px;
+    -fx-padding: 0 4 0 4;
+}
+
+.registry-count {
+    -fx-text-fill: #6a6058;
+    -fx-font-size: 12px;
+    -fx-font-family: 'DM Mono','Consolas','Courier New',monospace;
+    -fx-padding: 0 0 0 8;
+}
+
+.registry-filter-row {
+    -fx-background-color: #0a0908;
+    -fx-border-color: transparent transparent rgba(201,168,76,0.1) transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.registry-field-label {
+    -fx-text-fill: #6a6058;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-font-family: 'DM Mono','Consolas','Courier New',monospace;
+    -fx-letter-spacing: 2px;
+}
+
+.registry-input {
+    -fx-background-color: #131210;
+    -fx-border-color: rgba(201,168,76,0.15);
+    -fx-border-width: 1;
+    -fx-text-fill: #f0ebe0;
+    -fx-prompt-text-fill: #6a6058;
+    -fx-font-size: 12px;
+    -fx-font-family: 'Inter','Segoe UI',sans-serif;
+    -fx-padding: 6 10 6 10;
+}
+
+.registry-input:focused {
+    -fx-border-color: rgba(201,168,76,0.5);
+}
+
+.registry-combo {
+    -fx-background-color: #131210;
+    -fx-border-color: rgba(201,168,76,0.15);
+    -fx-border-width: 1;
+    -fx-text-fill: #f0ebe0;
+    -fx-font-size: 12px;
+    -fx-font-family: 'Inter','Segoe UI',sans-serif;
+    -fx-padding: 4 8 4 8;
+}
+
+.registry-combo .list-cell {
+    -fx-text-fill: #f0ebe0;
+    -fx-background-color: #131210;
+}
+
+.registry-table {
+    -fx-background-color: #0f0e0c;
+    -fx-border-color: transparent;
+    -fx-table-cell-border-color: rgba(201,168,76,0.08);
+}
+
+.registry-table .column-header-background {
+    -fx-background-color: #0a0908;
+    -fx-border-color: transparent transparent rgba(201,168,76,0.15) transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.registry-table .column-header {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-size: 40px;
+}
+
+.registry-table .column-header .label {
+    -fx-text-fill: #6a6058;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-font-family: 'DM Mono','Consolas','Courier New',monospace;
+    -fx-letter-spacing: 1.5px;
+    -fx-alignment: center-left;
+    -fx-padding: 0 0 0 12;
+}
+
+.registry-table .table-row-cell {
+    -fx-background-color: #0f0e0c;
+    -fx-border-color: transparent transparent rgba(201,168,76,0.05) transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-cell-size: 40px;
+}
+
+.registry-table .table-row-cell:odd {
+    -fx-background-color: #131210;
+}
+
+.registry-table .table-row-cell:selected {
+    -fx-background-color: rgba(201,168,76,0.08);
+    -fx-border-color: transparent transparent rgba(201,168,76,0.05) #c9a84c;
+    -fx-border-width: 0 0 1 2;
+}
+
+.registry-table .table-cell {
+    -fx-text-fill: #f0ebe0;
+    -fx-font-size: 12px;
+    -fx-font-family: 'Inter','Segoe UI',sans-serif;
+    -fx-border-color: transparent;
+    -fx-padding: 0 12 0 12;
+    -fx-alignment: center-left;
+}
+
+.registry-table .table-row-cell:hover {
+    -fx-background-color: rgba(201,168,76,0.04);
+}
+
+.registry-table .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8;
+}
+
+.registry-table .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(201,168,76,0.15);
+    -fx-background-radius: 0;
+}
+
+.registry-table .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: rgba(201,168,76,0.3);
+}
+
+.registry-table .scroll-bar .increment-button,
+.registry-table .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.registry-table .scroll-bar .increment-arrow,
+.registry-table .scroll-bar .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0;
+}
+
+.registry-table .placeholder .label {
+    -fx-text-fill: #6a6058;
+    -fx-font-family: 'Playfair Display','Georgia',serif;
+    -fx-font-size: 14px;
+}

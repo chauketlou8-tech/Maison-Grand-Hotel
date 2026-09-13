@@ -3,7 +3,7 @@ package models;
 import java.util.Date;
 import enums.Gender;
 import enums.EmploymentStatus;
-import types.Address;
+import records.Address;
 
 public class Employee {
 

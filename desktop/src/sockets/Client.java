@@ -1,10 +1,9 @@
 package sockets;
 
-import models.Notification;
-import models.Reservation;
-import models.Room;
+import models.*;
 import records.Payment;
 import records.RoomHistory;
+import records.Address;
 
 import java.io.*;
 import java.net.Socket;
@@ -19,13 +18,19 @@ public class Client {
     Consumer<Reservation[]> setReservations;
     Consumer<Payment[]> setPayments;
     Consumer<RoomHistory[]> setRoomHistory;
+    Consumer<Guest[]> setGuests;
+    Consumer<Address[]> setAddresses;
+    Consumer<Booking[]> setBookings;
 
     public Client(
             Consumer<Room[]> setRooms,
             Consumer<Notification[]> setNotifications,
             Consumer<Reservation[]> setReservations,
             Consumer<Payment[]> setPayments,
-            Consumer<RoomHistory[]> setRoomHistory
+            Consumer<RoomHistory[]> setRoomHistory,
+            Consumer<Guest[]> setGuests,
+            Consumer<Address[]> setAddresses,
+            Consumer<Booking[]> setBookings
     ) throws IOException {
 
         this.setRooms = setRooms;
@@ -33,6 +38,9 @@ public class Client {
         this.setReservations = setReservations;
         this.setPayments = setPayments;
         this.setRoomHistory = setRoomHistory;
+        this.setGuests = setGuests;
+        this.setAddresses = setAddresses;
+        this.setBookings = setBookings;
 
         Socket client = new Socket("localhost", 3000);
 
@@ -66,6 +74,18 @@ public class Client {
 
                 else if (response instanceof RoomHistory[]) {
                     this.setRoomHistory.accept((RoomHistory[]) response);
+                }
+
+                else if (response instanceof Guest[]) {
+                    this.setGuests.accept((Guest[]) response);
+                }
+
+                else if (response instanceof Address[]) {
+                    this.setAddresses.accept((Address[]) response);
+                }
+
+                else if (response instanceof Booking[]) {
+                    this.setBookings.accept((Booking[]) response);
                 }
 
                 this.out.flush();

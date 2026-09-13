@@ -1,6 +1,5 @@
 package tasks;
 
-import enums.RoomStatus;
 import models.Room;
 import utils.Conn;
 
@@ -11,6 +10,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -22,7 +22,7 @@ public class CaptureRoomHistoryJob {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
         long now = System.currentTimeMillis();
-        long nextMidnight = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        long nextMidnight = LocalDate.now(ZoneId.systemDefault()).plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
         long delay = nextMidnight - now;
 
         scheduler.scheduleAtFixedRate(() -> {
@@ -30,8 +30,8 @@ public class CaptureRoomHistoryJob {
                 captureRoomHistory(roomsSupplier.get());
             }
 
-            catch (SQLException | IOException e) {
-                e.printStackTrace();
+            catch (Throwable t) {
+                t.printStackTrace();
             }
         }, delay, 24, TimeUnit.HOURS);
     }
@@ -42,7 +42,7 @@ public class CaptureRoomHistoryJob {
         Connection connection = Conn.getConnection();
         assert connection != null;
 
-        Timestamp midnight = Timestamp.valueOf(LocalDate.now().atStartOfDay());
+        Timestamp midnight = Timestamp.valueOf(LocalDate.now(ZoneOffset.UTC).atStartOfDay());
 
         try (PreparedStatement ps = connection.prepareStatement("insert into roomhistory (roomid, status_date, status) values (?, ?, ?)")) {
 
