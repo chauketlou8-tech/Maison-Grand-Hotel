@@ -17,14 +17,14 @@ import java.util.Objects;
 public class App extends Application {
     private final LoginPage loginPage;
     private boolean loggedIn = false;
-    private final DashBoardView dashBoardView;
+    private DashBoardView dashBoardView;
     private Stage stage;
+    private User currentUser;
 
-    public App() throws SQLException, IOException {
+    public App() throws SQLException, IOException, ClassNotFoundException {
         ServerRepository.connectDB();
         List<User> users = ServerRepository.getUsers();
-        this.loginPage = new LoginPage(users, this::setIsLoggedIn, this::updateScene);
-        this.dashBoardView = new DashBoardView();
+        this.loginPage = new LoginPage(users, this::setIsLoggedIn, this::updateScene, this::setCurrentUser);
     }
 
     @Override
@@ -33,8 +33,10 @@ public class App extends Application {
         this.updateScene();
 
         stage.setFullScreen(true);
+        stage.setFullScreenExitHint("");
         stage.setWidth(800);
         stage.setHeight(600);
+        stage.setResizable(true);
 
         stage.show();
     }
@@ -44,12 +46,32 @@ public class App extends Application {
     }
 
     private void setIsLoggedIn(boolean isLoggedIn) {
-        loggedIn = true;
+        loggedIn = isLoggedIn;
     }
 
     private void updateScene() {
         Scene appScene = new Scene(loggedIn ? this.dashBoardView : this.loginPage);
         this.stage.setScene(appScene);
-        appScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style.css")).toExternalForm());
+        this.stage.setFullScreen(true);
+        appScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/login.css")).toExternalForm());
+        appScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dashboard.css")).toExternalForm());
+    }
+
+    private void setCurrentUser(User u) {
+        try {
+            this.currentUser = u;
+
+            if (u != null) {
+                this.dashBoardView = new DashBoardView(u, this::setIsLoggedIn, this::updateScene, this::setCurrentUser);
+            }
+
+            else {
+                this.dashBoardView = null;
+            }
+        }
+
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

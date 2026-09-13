@@ -7,6 +7,7 @@ import javafx.animation.Timeline;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.input.KeyCode;
 import javafx.util.Duration;
 import models.User;
 
@@ -26,12 +27,14 @@ public class LoginPage extends VBox {
     private final PasswordField password_input;
     private User selectedUser;
     private final Consumer<Boolean> setIsLoggedIn;
+    private final Consumer<User> setCurrentUser;
     private final Runnable updateScene;
-    private StackPane layout;
+    private final StackPane layout;
 
-    public LoginPage(List<User> users, Consumer<Boolean> setIsLoggedIn, Runnable updateScene) {
+    public LoginPage(List<User> users, Consumer<Boolean> setIsLoggedIn, Runnable updateScene, Consumer<User> setCurrentUser) {
         this.selectedUser = users.getFirst();
         this.setIsLoggedIn = setIsLoggedIn;
+        this.setCurrentUser = setCurrentUser;
         this.updateScene = updateScene;
 
         this.layout = new StackPane();
@@ -299,9 +302,14 @@ public class LoginPage extends VBox {
         });
 
         login_button.setOnAction(e -> this.login());
+        this.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ENTER) {
+                this.login();
+            }
+        });
     }
 
-    private String getInitials(String name) {
+    public static String getInitials(String name) {
         if (name.isEmpty()) {
             return "";
         }
@@ -344,7 +352,6 @@ public class LoginPage extends VBox {
             errorLabel.setText("Please enter your password");
             errorLabel.setVisible(true);
             this.password_input.getStyleClass().add("error");
-            // Add to layout or show somewhere
             return;
         }
 
@@ -401,15 +408,17 @@ public class LoginPage extends VBox {
 
                 if (task.getValue()) {
                     this.setIsLoggedIn.accept(true);
+                    this.setCurrentUser.accept(this.selectedUser);
                     this.updateScene.run();
-                } else {
+                }
+
+                else {
                     // Show error for wrong password
                     errorLabel.setText("Invalid password. Please try again.");
                     errorLabel.setVisible(true);
                     this.password_input.getStyleClass().add("error");
                     this.password_input.clear();
                     this.password_input.requestFocus();
-                    // Add errorLabel to layout
                     VBox layout = (VBox) this.layout.getChildren().get(0);
                     layout.getChildren().add(errorLabel);
                 }
@@ -419,7 +428,9 @@ public class LoginPage extends VBox {
                 PauseTransition pause = new PauseTransition(Duration.millis(remaining));
                 pause.setOnFinished(event -> finish.run());
                 pause.play();
-            } else {
+            }
+
+            else {
                 finish.run();
             }
         });

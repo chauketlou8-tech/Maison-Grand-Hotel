@@ -1,25 +1,48 @@
 package models;
 
-import java.util.Date;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.UUID;
+
 import enums.ReservationStatus;
 
-public class Reservation {
+public class Reservation implements Serializable {
 
     private final long id;
-    private final Guest guest;
+    private final UUID reservation_id;
+    private final long guest_id;
+    private final long room_id;
     private final String requestedroomtype;
-    private final Date reservationdate;
-    private final Date checkindate;
-    private final Date checkoutdate;
+    private final java.sql.Timestamp reservationdate;
+    private final java.sql.Date checkindate;
+    private final java.sql.Date checkoutdate;
     private final long numberofguests;
     private final ReservationStatus reservationstatus;
     private final String[] selectedpackages;
     private final String requests;
-    private final Room reservedroom;
+    private final java.sql.Timestamp created_at;
+    private final java.sql.Timestamp updated_at;
 
-    public Reservation(long id, Guest guest, String requestedroomtype, Date reservationdate, Date checkindate, Date checkoutdate, long numberofguests, ReservationStatus reservationstatus, String[] selectedpackages, String requests, Room reservedroom) {
+    public Reservation(
+            long id,
+            UUID reservation_id,
+            long guest_id,
+            long room_id,
+            String requestedroomtype,
+            java.sql.Timestamp reservationdate,
+            java.sql.Date checkindate,
+            java.sql.Date checkoutdate,
+            long numberofguests,
+            ReservationStatus reservationstatus,
+            String[] selectedpackages,
+            String requests,
+            java.sql.Timestamp created_at,
+            java.sql.Timestamp updated_at
+    ) {
         this.id = id;
-        this.guest = guest;
+        this.reservation_id = reservation_id;
+        this.guest_id = guest_id;
+        this.room_id = room_id;
         this.requestedroomtype = requestedroomtype;
         this.reservationdate = reservationdate;
         this.checkindate = checkindate;
@@ -28,30 +51,39 @@ public class Reservation {
         this.reservationstatus = reservationstatus;
         this.selectedpackages = selectedpackages;
         this.requests = requests;
-        this.reservedroom = reservedroom;
+        this.created_at = created_at;
+        this.updated_at = updated_at;
     }
 
     public long getId() {
         return this.id;
     }
 
-    public Guest getGuest() {
-        return this.guest;
+    public UUID getReservationid() {
+        return this.reservation_id;
+    }
+
+    public long getGuest() {
+        return this.guest_id;
+    }
+
+    public long getReservedroom() {
+        return this.room_id;
     }
 
     public String getRequestedroomtype() {
         return this.requestedroomtype;
     }
 
-    public Date getReservationdate() {
+    public java.sql.Timestamp getReservationdate() {
         return this.reservationdate;
     }
 
-    public Date getCheckindate() {
+    public java.sql.Date getCheckindate() {
         return this.checkindate;
     }
 
-    public Date getCheckoutdate() {
+    public java.sql.Date getCheckoutdate() {
         return this.checkoutdate;
     }
 
@@ -71,24 +103,31 @@ public class Reservation {
         return this.requests;
     }
 
-    public Room getReservedroom() {
-        return this.reservedroom;
+    public java.sql.Timestamp getCreated_at() {
+        return this.created_at;
+    }
+
+    public java.sql.Timestamp getUpdated_at() {
+        return this.updated_at;
     }
 
     @Override
     public String toString() {
         return "{\n" +
                 "  \"id\": " + id + ",\n" +
-                "  \"guest\": " + guest + ",\n" +
+                "  \"reservationId\": \"" + reservation_id + "\",\n" +
+                "  \"guest_id\": " + guest_id + ",\n" +
+                "  \"room_id\": " + room_id + ",\n" +
                 "  \"requestedroomtype\": \"" + requestedroomtype + "\",\n" +
                 "  \"reservationdate\": \"" + reservationdate + "\",\n" +
                 "  \"checkindate\": \"" + checkindate + "\",\n" +
                 "  \"checkoutdate\": \"" + checkoutdate + "\",\n" +
                 "  \"numberofguests\": " + numberofguests + ",\n" +
                 "  \"reservationstatus\": \"" + reservationstatus + "\",\n" +
-                "  \"selectedpackages\": " + java.util.Arrays.toString(selectedpackages) + ",\n" +
+                "  \"selectedpackages\": " + Arrays.toString(selectedpackages) + ",\n" +
                 "  \"requests\": \"" + requests + "\",\n" +
-                "  \"reservedroom\": " + reservedroom + "\n" +
+                "  \"created_at\": \"" + created_at + "\",\n" +
+                "  \"updated_at\": \"" + updated_at + "\"\n" +
                 "}";
     }
 }

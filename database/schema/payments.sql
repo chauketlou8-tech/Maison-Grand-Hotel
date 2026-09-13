@@ -4,6 +4,7 @@ create table if not exists Payments(
     paymentDate date default now(),
     paymentStatus paymentstatus default 'created',
     transactionReference text unique,
+    guest_id int references guests(id) on delete set null,
     yoco_checkout_id text,
     paymentMethod text,
     created_at timestamp with time zone default now(),

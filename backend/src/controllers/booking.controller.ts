@@ -53,6 +53,14 @@ const book = asyncHandler(async (req: req, res: res, next: next) => {
 
     const reservedRoom: Room = reservedRoomResult.rows[0];
 
+    if (!reservedRoom) return;
+
+    await connection.query(`
+        insert into roomhistory (roomid, status_date, status)
+        values ($1, date_trunc('day', now() at time zone 'UTC') at time zone 'UTC', $2)
+        on conflict (roomid, status_date) do update set status = excluded.status, updated_at = now()
+    `, [reservedRoom.roomid, "reserved"]);
+
     const addressResults = await connection.query(`
         insert into address(street, city, province, country, postalcode) 
         values($1, $2, $3, $4, $5) 

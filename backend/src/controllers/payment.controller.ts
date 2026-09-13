@@ -91,6 +91,7 @@ const yocoWebhook = asyncHandler(async (req: req, res: res, next: next) => {
 
     const results = await connection.query(`
         update payments set paymentstatus = $1, transactionreference = $2, paymentdate = NOW(), paymentmethod = $3 where id = $4
+        returning *
         `, ["completed", event.id, paymentMethod, payment.id]);
 
     if (results.rowCount == 0) {
@@ -100,6 +101,8 @@ const yocoWebhook = asyncHandler(async (req: req, res: res, next: next) => {
             }
         });
     }
+
+    const newPayment: Payment = results.rows[0];
 
     const guestResult = await connection.query(`
         select id, firstname, lastname, email from guests where id = $1
@@ -140,7 +143,7 @@ const yocoWebhook = asyncHandler(async (req: req, res: res, next: next) => {
     const email = guest.email;
 
     const emailSubject = "Mason Hotel — Payment Confirmation";
-    const paymentDate = new Date(payment.paymentdate).toLocaleString("en-ZA", { day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: false });
+    const paymentDate = new Date(newPayment.paymentdate).toLocaleString("en-ZA", { day: "2-digit", month: "long", year: "numeric" });
     const emailMessage = `Dear ${name},
 
 Thank you for your payment to Mason Hotel.
@@ -149,9 +152,9 @@ We are pleased to confirm that your payment has been successfully received and p
 
 PAYMENT DETAILS
 ─────────────────
-Amount Paid: R${payment.amount}
+Amount Paid: R${newPayment.amount}
 Payment Status: Confirmed
-Transaction Reference: ${payment.transactionreference}
+Transaction Reference: ${newPayment.transactionreference}
 Payment Date: ${paymentDate}
 
 RESERVATION DETAILS

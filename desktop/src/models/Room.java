@@ -2,7 +2,9 @@ package models;
 
 import enums.RoomStatus;
 
-public class Room {
+import java.io.Serializable;
+
+public class Room implements Serializable {
 
     private final long roomid;
     private final int roomnumber;

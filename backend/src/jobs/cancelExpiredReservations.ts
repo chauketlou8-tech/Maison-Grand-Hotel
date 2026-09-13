@@ -11,7 +11,7 @@ cron.schedule("* * * * *", async () => {
 
         const cancelledReservations = await connection.query(`
         update reservations set reservationstatus = 'CANCELLED'
-        where reservationstatus = 'PENDING' and reservationdate <= NOW() - INTERVAL '30 minutes'
+        where reservationstatus = 'PENDING' and created_at <= NOW() - INTERVAL '30 minutes'
         returning id, guest_id, room_id, reservationid, checkindate, checkoutdate, numberofguests, requestedroomtype
     `);
 

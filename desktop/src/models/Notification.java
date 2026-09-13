@@ -1,10 +1,12 @@
 package models;
 
-import java.util.Date;
+import java.io.Serializable;
+import java.sql.Timestamp;
+
 import enums.NotificationStatus;
 import enums.NotificationType;
 
-public class Notification {
+public class Notification implements Serializable {
 
     private final long notificationid;
     private final NotificationType type;
@@ -14,10 +16,21 @@ public class Notification {
     private final Long reservation_id;
     private final Long guest_id;
     private final NotificationStatus status;
-    private final Date created_at;
-    private final Date updated_at;
+    private final Timestamp created_at;
+    private final Timestamp updated_at;
 
-    public Notification(long notificationid, NotificationType type, String title, String message, Long payment_id, Long reservation_id, Long guest_id, NotificationStatus status, Date created_at, Date updated_at) {
+    public Notification(
+            long notificationid,
+            NotificationType type,
+            String title,
+            String message,
+            Long payment_id,
+            Long reservation_id,
+            Long guest_id,
+            NotificationStatus status,
+            Timestamp created_at,
+            Timestamp updated_at
+    ) {
         this.notificationid = notificationid;
         this.type = type;
         this.title = title;
@@ -62,11 +75,11 @@ public class Notification {
         return this.status;
     }
 
-    public Date getCreated_at() {
+    public Timestamp getCreated_at() {
         return this.created_at;
     }
 
-    public Date getUpdated_at() {
+    public Timestamp getUpdated_at() {
         return this.updated_at;
     }
 

@@ -1,7 +1,5 @@
 package manual;
 
-import models.Payment;
-
 import java.util.Date;
 
 public class PaymentRecordTest {

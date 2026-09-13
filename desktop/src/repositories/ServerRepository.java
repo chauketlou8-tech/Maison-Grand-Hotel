@@ -2,6 +2,10 @@ package repositories;
 
 import enums.AccountStatus;
 import enums.Role;
+import enums.RoomStatus;
+import models.Room;
+import sockets.Server;
+import tasks.CaptureRoomHistoryJob;
 import utils.Conn;
 import models.User;
 
@@ -26,6 +30,36 @@ public class ServerRepository {
         else  {
             System.out.println("Error: Could not open database.");
         }
+
+        Thread socketThread = new Thread(() -> {
+            try {
+                new Server();
+            }
+
+            catch (Exception e) {
+                e.printStackTrace();
+                try {
+                    throw e;
+                }
+
+                catch (IOException | SQLException | ClassNotFoundException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+
+        socketThread.setDaemon(true);
+        socketThread.start();
+
+        CaptureRoomHistoryJob.run(() -> {
+            try {
+                return ServerRepository.getRooms().toArray(new Room[0]);
+            }
+
+            catch (SQLException | IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     public static List<User> getUsers() throws IOException {
@@ -60,5 +94,34 @@ public class ServerRepository {
         catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static List<Room> getRooms() throws SQLException, IOException {
+        List<Room> rooms = new ArrayList<>();
+
+        Connection conn = Conn.getConnection();
+
+        assert conn != null;
+
+        try (Statement statement = conn.createStatement()) {
+            ResultSet rs = statement.executeQuery("select * from rooms");
+
+            while (rs.next()) {
+                Room room = new Room(
+                        rs.getLong("roomid"),
+                        rs.getInt("roomnumber"),
+                        rs.getInt("floornumber"),
+                        rs.getString("roomtype"),
+                        rs.getFloat("price"),
+                        rs.getInt("capacity"),
+                        RoomStatus.valueOf(rs.getString("roomstatus").toUpperCase()),
+                        rs.getString("description")
+                );
+
+                rooms.add(room);
+            }
+        }
+
+        return rooms;
     }
 }
