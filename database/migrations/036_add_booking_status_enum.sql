@@ -1,0 +1,1 @@
+create type bookingstatus as enum ('CHECKED_IN','CHECKED_OUT','CANCELLED');
