@@ -150,6 +150,7 @@ public class Server {
                         ReservationStatus.valueOf(rs.getString("reservationstatus").toUpperCase()),
                         (String[]) rs.getArray("selectedpackages").getArray(),
                         rs.getString("requests"),
+                        rs.getFloat("total"),
                         rs.getTimestamp("created_at"),
                         rs.getTimestamp("updated_at")
                 );

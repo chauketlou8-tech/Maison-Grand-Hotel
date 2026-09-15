@@ -281,6 +281,7 @@ public class ActivityFeed extends VBox {
             case reservation_request -> "#4a9d6a";
             case payment_confirmation -> "#c9a84c";
             case reservation_cancelled -> "#a84c4c";
+            case reservation_confirmation ->  "#8a7ec9";
         };
     }
 }

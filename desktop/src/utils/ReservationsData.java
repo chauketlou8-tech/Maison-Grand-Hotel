@@ -7,13 +7,12 @@ import records.Payment;
 
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Objects;
 
 public class ReservationsData {
-    private Reservation reservation;
-    private Guest[] guests;
-    private Room[] rooms;
-    private Payment[] payments;
+    private final Reservation reservation;
+    private final Guest[] guests;
+    private final Room[] rooms;
+    private final Payment[] payments;
 
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -35,6 +34,16 @@ public class ReservationsData {
             }
         }
         return "Unknown";
+    }
+
+    public long getRoomId() {
+        for (Room r : rooms) {
+            if (r.getRoomid() == reservation.getReservedroom()) {
+                return r.getRoomid();
+            }
+        }
+
+        return 0;
     }
 
     public String getRoomNumber() {
@@ -121,8 +130,37 @@ public class ReservationsData {
         return "pending";
     }
 
+    public long getPaymentId() {
+        for (Payment p : payments) {
+            if (p.reservation_id() == null) continue;
+            if (p.reservation_id().equals(reservation.getReservationid())) {
+                return p.id();
+            }
+        }
+        return 0;
+    }
+
     public Reservation getReservation() {
         return reservation;
+    }
+
+    public Payment getPayment() {
+        for (Payment p : payments) {
+            if (p.reservation_id() == null) continue;
+            if (p.reservation_id().equals(reservation.getReservationid())) return p;
+        }
+        return null;
+    }
+
+    public String getGuestEmail() {
+        for (Guest g : guests) {
+            if (g.getId() == reservation.getGuest()) return g.getEmail();
+        }
+        return null;
+    }
+
+    public long getGuestId() {
+        return reservation.getGuest();
     }
 
     @Override

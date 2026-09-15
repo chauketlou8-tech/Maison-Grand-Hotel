@@ -22,6 +22,8 @@ import models.Room;
 import records.Payment;
 import utils.ReservationsData;
 
+import java.io.IOException;
+
 public class Reservations extends VBox {
     private Reservation[] reservations;
     private final TableView<ReservationsData> reservation_displayer;
@@ -128,7 +130,13 @@ public class Reservations extends VBox {
 
                 if (row != null && row.getItem() != null) {
                     ReservationsData data = (ReservationsData) row.getItem();
-                    openReservationModal(data);
+                    try {
+                        openReservationModal(data);
+                    }
+
+                    catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                     reservation_displayer.getSelectionModel().clearSelection();
                 }
             }
@@ -164,22 +172,15 @@ public class Reservations extends VBox {
         });
     }
 
-    private void openReservationModal(ReservationsData data) {
+    private void openReservationModal(ReservationsData data) throws IOException {
         Stage modal = new Stage();
         modal.initModality(Modality.APPLICATION_MODAL);
         modal.initStyle(StageStyle.TRANSPARENT);
         modal.initOwner(this.getScene().getWindow());
 
-        Runnable close = () -> modal.close();
+        Runnable close = modal::close;
 
-        ReservationRecord record = new ReservationRecord(
-                data,
-                close,
-                () -> { },
-                () -> { },
-                () -> { },
-                () -> { }
-        );
+        ReservationRecord record = new ReservationRecord(data, close);
 
         StackPane root = new StackPane(record);
         root.setStyle("-fx-background-color: transparent; -fx-padding: 40;");

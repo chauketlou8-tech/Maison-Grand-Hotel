@@ -144,7 +144,7 @@ public class Content extends HBox {
         this.bookings = bookings;
 
         if (bookingsPage != null) {
-            bookingsPage.setData(this.bookings, this.rooms, this.guests);
+            bookingsPage.setData(this.bookings, this.rooms, this.guests, this.reservations);
         }
     }
 

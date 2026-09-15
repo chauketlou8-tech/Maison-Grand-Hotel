@@ -18,8 +18,11 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import models.Booking;
 import models.Guest;
+import models.Reservation;
 import models.Room;
 import utils.BookingData;
+
+import java.io.IOException;
 
 public class Bookings extends VBox {
     private Booking[] bookings;
@@ -172,7 +175,13 @@ public class Bookings extends VBox {
 
                 if (row != null && row.getItem() != null) {
                     BookingData data = (BookingData) row.getItem();
-                    openBookingModal(data);
+                    try {
+                        openBookingModal(data);
+                    }
+
+                    catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                     booking_displayer.getSelectionModel().clearSelection();
                 }
             }
@@ -184,15 +193,15 @@ public class Bookings extends VBox {
         setMaxHeight(Double.MAX_VALUE);
     }
 
-    public void setData(Booking[] bookings, Room[] rooms, Guest[] guests) {
-        if (bookings == null || rooms == null || guests == null) return;
+    public void setData(Booking[] bookings, Room[] rooms, Guest[] guests, Reservation[] reservations) {
+        if (bookings == null || rooms == null || guests == null || reservations == null) return;
 
         this.bookings = bookings;
 
         ObservableList<BookingData> newData = FXCollections.observableArrayList();
 
         for (Booking booking : bookings) {
-            newData.add(new BookingData(booking, rooms, guests));
+            newData.add(new BookingData(booking, rooms, guests, reservations));
         }
 
         Platform.runLater(() -> {
@@ -206,20 +215,15 @@ public class Bookings extends VBox {
         });
     }
 
-    private void openBookingModal(BookingData data) {
+    private void openBookingModal(BookingData data) throws IOException {
         Stage modal = new Stage();
         modal.initModality(Modality.APPLICATION_MODAL);
         modal.initStyle(StageStyle.TRANSPARENT);
         modal.initOwner(this.getScene().getWindow());
 
-        Runnable close = () -> modal.close();
+        Runnable close = modal::close;
 
-        BookingRecord record = new BookingRecord(
-                data,
-                close,
-                () -> { },
-                () -> { }
-        );
+        BookingRecord record = new BookingRecord(data, close);
 
         StackPane root = new StackPane(record);
         root.setStyle("-fx-background-color: transparent; -fx-padding: 40;");

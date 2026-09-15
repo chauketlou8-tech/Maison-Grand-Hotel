@@ -21,7 +21,7 @@ import sendEmail from "../services/email.service"
 
 const book = asyncHandler(async (req: req, res: res, next: next) => {
 
-    const { firstName, lastName, email, phone, requests, guests, selectedPackages, idNumber, nationality, address } = req.body;
+    const { firstName, lastName, email, phone, requests, guests, selectedPackages, idNumber, nationality, address, total } = req.body;
     let { checkIn, checkOut, selectedRoom, dateOfBirth } = req.body;
 
     checkIn = checkIn.split("T")[0];
@@ -80,10 +80,10 @@ const book = asyncHandler(async (req: req, res: res, next: next) => {
     const guest: Guest = guestResult.rows[0];
 
     const reservationsResults = await connection.query(`
-        insert into reservations(guest_id, requestedroomtype, reservationdate, checkindate, checkoutdate, numberofguests, selectedpackages, requests, room_id, reservationid)
-        values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        insert into reservations(guest_id, requestedroomtype, reservationdate, checkindate, checkoutdate, numberofguests, selectedpackages, requests, room_id, reservationid, total)
+        values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
         returning *
-    `, [guest.id, getter, new Date(), checkIn, checkOut, guests, selectedPackages, requests, reservedRoom.roomid, HelperFunctions.generateRandomID()]);
+    `, [guest.id, getter, new Date(), checkIn, checkOut, guests, selectedPackages, requests, reservedRoom.roomid, HelperFunctions.generateRandomID(), total]);
 
     const reservation: Reservation = reservationsResults.rows[0];
 

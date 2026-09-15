@@ -21,6 +21,10 @@ cron.schedule("* * * * *", async () => {
             update rooms set roomstatus = 'available' where roomid = $1
         `, [reservation.room_id]);
 
+            await connection.query(`
+            update payments set paymentstatus = 'failed' where reservation_id = $1
+            `, [reservation.reservationid]);
+
             const guestResults = await connection.query(`
             select firstname, lastname, id, email from guests where id = $1
         `, [reservation.guest_id]);

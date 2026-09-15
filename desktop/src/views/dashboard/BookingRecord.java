@@ -2,15 +2,27 @@ package views.dashboard;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcons;
+import enums.BookingStatus;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import models.Reservation;
 import utils.BookingData;
+import utils.Conn;
+
+import java.io.IOException;
+import java.sql.*;
 
 public class BookingRecord extends VBox {
 
-    public BookingRecord(BookingData data, Runnable onClose, Runnable onCheckOut, Runnable onPrintFolio) {
+    private final Connection connection = Conn.getConnection();
+    private final BookingData data;
+    private final Runnable onCLose;
+
+    public BookingRecord(BookingData data, Runnable onClose) throws IOException {
+        this.data = data;
+        this.onCLose = onClose;
         getStyleClass().add("booking-record");
 
         HBox header = new HBox();
@@ -30,12 +42,7 @@ public class BookingRecord extends VBox {
 
         HBox stats = new HBox();
         stats.getStyleClass().add("booking-record-stats");
-        stats.getChildren().addAll(
-                stat("GUEST", data.getGuestName()),
-                stat("ROOM", data.getRoomNumber() + " · " + data.getRoomType()),
-                stat("NIGHTS", String.valueOf(data.getNights())),
-                stat("STATUS", data.getStatus())
-        );
+        stats.getChildren().addAll(stat("GUEST", data.getGuestName()), stat("ROOM", data.getRoomNumber() + " · " + data.getRoomType()), stat("NIGHTS", String.valueOf(data.getNights())), stat("STATUS", data.getStatus()));
 
         HBox body = new HBox();
         body.getStyleClass().add("booking-record-body");
@@ -45,27 +52,14 @@ public class BookingRecord extends VBox {
         HBox.setHgrow(stay, Priority.ALWAYS);
         Label stayTitle = new Label("STAY DETAILS");
         stayTitle.getStyleClass().add("booking-record-section-title");
-        stay.getChildren().addAll(
-                stayTitle,
-                row("Booking ID", data.getBookingId()),
-                row("Reference", data.getReference()),
-                row("Check-In", data.getCheckIn()),
-                row("Check-Out", data.getCheckOut()),
-                row("Nights", String.valueOf(data.getNights())),
-                row("Guests", String.valueOf(data.getGuests()))
-        );
+        stay.getChildren().addAll(stayTitle, row("Booking ID", data.getBookingId()), row("Reference", data.getReference()), row("Check-In", data.getCheckIn()), row("Check-Out", data.getCheckOut()), row("Nights", String.valueOf(data.getNights())), row("Guests", String.valueOf(data.getGuests())));
 
         VBox pricing = new VBox();
         pricing.getStyleClass().add("booking-record-section");
         HBox.setHgrow(pricing, Priority.ALWAYS);
         Label pricingTitle = new Label("PRICING");
         pricingTitle.getStyleClass().add("booking-record-section-title");
-        pricing.getChildren().addAll(
-                pricingTitle,
-                row("Room Rate", data.getRoomRate()),
-                row("Nights", String.valueOf(data.getNights())),
-                row("Total Cost", data.getTotal())
-        );
+        pricing.getChildren().addAll(pricingTitle, row("Room Rate", data.getRoomRate()), row("Nights", String.valueOf(data.getNights())), row("Total Cost", data.getTotal()));
 
         Label pkgTitle = new Label("PACKAGES");
         pkgTitle.getStyleClass().add("booking-record-section-title");
@@ -93,10 +87,7 @@ public class BookingRecord extends VBox {
         footer.getStyleClass().add("booking-record-footer");
         footer.setAlignment(Pos.CENTER_LEFT);
 
-        Button checkOut = new Button("Check Out");
-        checkOut.getStyleClass().add("registry-button");
-
-        checkOut.setOnAction(e -> onCheckOut.run());
+        String status = data.getStatus() == null ? "" : data.getStatus();
 
         Button printFolio = new Button("Print Folio");
         printFolio.getStyleClass().add("registry-button");
@@ -107,8 +98,6 @@ public class BookingRecord extends VBox {
         printerIcon.setFill(Color.web("#9a9080"));
         printFolio.setGraphic(printerIcon);
 
-        printFolio.setOnAction(e -> onPrintFolio.run());
-
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
@@ -116,19 +105,41 @@ public class BookingRecord extends VBox {
         close.getStyleClass().add("registry-button-primary");
         close.setOnAction(e -> onClose.run());
 
-        footer.getChildren().addAll(checkOut, printFolio, spacer, close);
+        if ("PENDING".equalsIgnoreCase(status)) {
+            Button checkIn = new Button("Check In");
+            checkIn.setStyle("-fx-background-color: blue; -fx-text-fill: #fff;");
 
-        getChildren().addAll(
-                header,
-                new Separator(),
-                stats,
-                new Separator(),
-                body,
-                new Separator(),
-                reqBox,
-                new Separator(),
-                footer
-        );
+            FontAwesomeIcon checkInIcon = new FontAwesomeIcon();
+            checkInIcon.setIcon(FontAwesomeIcons.CHECK);
+            checkInIcon.setSize("11");
+            checkInIcon.setFill(Color.web("#fff"));
+            checkIn.setGraphic(checkInIcon);
+
+            footer.getChildren().addAll(printFolio, spacer, checkIn, close);
+            checkIn.setOnAction(e -> {
+                try {
+                    this.checkIn();
+                }
+
+                catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
+        }
+
+        else if ("CHECKED_IN".equalsIgnoreCase(status)) {
+            Button checkOut = new Button("Check Out");
+            checkOut.getStyleClass().add("registry-button");
+
+            footer.getChildren().addAll(checkOut, printFolio, spacer, close);
+            checkOut.setOnAction(e -> this.checkOut());
+        }
+
+        else {
+            footer.getChildren().addAll(printFolio, spacer, close);
+        }
+
+        getChildren().addAll(header, new Separator(), stats, new Separator(), body, new Separator(), reqBox, new Separator(), footer);
     }
 
     private VBox stat(String label, String value) {
@@ -157,5 +168,24 @@ public class BookingRecord extends VBox {
 
         r.getChildren().addAll(k, v);
         return r;
+    }
+
+    private void checkIn() throws SQLException {
+        assert connection != null;
+
+        System.out.println("checking in booking_id = [" + data.getBookingId() + "]");
+
+        try(PreparedStatement statement = connection.prepareStatement("update bookings set booking_status = ?::bookingstatus where booking_id = ?;")) {
+            statement.setObject(1, BookingStatus.CHECKED_IN.name(), java.sql.Types.OTHER);
+            statement.setString(2, data.getBookingId());
+
+            statement.execute();
+        }
+
+        this.onCLose.run();
+    }
+
+    private void checkOut() {
+
     }
 }

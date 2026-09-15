@@ -158,6 +158,7 @@ export default function BookingForm() {
                     guests,
                     selectedRoom,
                     selectedPackages,
+                    total
                 };
 
                 const { guest_id, reservation_id } = await book(bookingDetails);

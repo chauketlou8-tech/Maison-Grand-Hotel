@@ -2,22 +2,25 @@ package utils;
 
 import models.Booking;
 import models.Guest;
+import models.Reservation;
 import models.Room;
 
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
 public class BookingData {
-    private Booking booking;
-    private Guest[] guests;
-    private Room[] rooms;
+    private final Booking booking;
+    private final Guest[] guests;
+    private final Room[] rooms;
+    private final Reservation[] reservations;
 
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    public BookingData(Booking booking, Room[] rooms, Guest[] guests) {
+    public BookingData(Booking booking, Room[] rooms, Guest[] guests, Reservation[]  reservations) {
         this.booking = booking;
         this.rooms = rooms;
         this.guests = guests;
+        this.reservations = reservations;
     }
 
     public String getBookingId() {
@@ -101,6 +104,16 @@ public class BookingData {
 
     public String getStatus() {
         return booking.getBooking_status().name();
+    }
+
+    public Reservation getReservation() {
+        for (Reservation reservation : reservations) {
+            if (reservation.getReservationid() != null && reservation.getReservationid().equals(booking.getReservation_id())) {
+                return reservation;
+            }
+        }
+
+        return null;
     }
 
     @Override

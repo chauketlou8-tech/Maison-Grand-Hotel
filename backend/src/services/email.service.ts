@@ -11,10 +11,10 @@ async function sendEmail(email: string, subject: string, message: string, name: 
             text: message
         });
 
-        logger.info(`Successfully sent email to ${name}!`);
+        logger.info(`Successfully sent email to ${name}`);
     }
     catch(err){
-        logger.error(`Error sending email to ${name}!`, { error: err });
+        logger.error(`Error sending email to ${name}`, { error: err });
     }
 }
 

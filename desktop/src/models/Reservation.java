@@ -20,6 +20,7 @@ public class Reservation implements Serializable {
     private final ReservationStatus reservationstatus;
     private final String[] selectedpackages;
     private final String requests;
+    private final Float total;
     private final java.sql.Timestamp created_at;
     private final java.sql.Timestamp updated_at;
 
@@ -36,6 +37,7 @@ public class Reservation implements Serializable {
             ReservationStatus reservationstatus,
             String[] selectedpackages,
             String requests,
+            Float total,
             java.sql.Timestamp created_at,
             java.sql.Timestamp updated_at
     ) {
@@ -51,6 +53,7 @@ public class Reservation implements Serializable {
         this.reservationstatus = reservationstatus;
         this.selectedpackages = selectedpackages;
         this.requests = requests;
+        this.total = total;
         this.created_at = created_at;
         this.updated_at = updated_at;
     }
@@ -109,6 +112,10 @@ public class Reservation implements Serializable {
 
     public java.sql.Timestamp getUpdated_at() {
         return this.updated_at;
+    }
+
+    public float getTotal() {
+        return this.total;
     }
 
     @Override
