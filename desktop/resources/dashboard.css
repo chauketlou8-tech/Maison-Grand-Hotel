@@ -817,3 +817,396 @@
     -fx-font-family: 'Playfair Display','Georgia',serif;
     -fx-font-size: 14px;
 }
+
+.guest-record {
+    -fx-background-color: #0f0e0c;
+    -fx-border-color: rgba(201,168,76,0.15);
+    -fx-border-width: 1;
+    -fx-padding: 20 24 20 24;
+    -fx-spacing: 12;
+}
+
+.guest-record-top {
+    -fx-spacing: 12;
+    -fx-alignment: center-left;
+}
+
+.guest-record-title {
+    -fx-text-fill: #f0ebe0;
+    -fx-font-size: 15px;
+    -fx-font-weight: 600;
+    -fx-font-family: 'Playfair Display','Georgia',serif;
+}
+
+.guest-record-remove {
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(168,76,76,0.4);
+    -fx-border-width: 1;
+    -fx-text-fill: #a84c4c;
+    -fx-font-size: 12px;
+    -fx-font-family: 'Inter','Segoe UI',sans-serif;
+    -fx-padding: 4 12 4 8;
+    -fx-cursor: hand;
+}
+
+.guest-record-remove:hover {
+    -fx-background-color: rgba(168,76,76,0.08);
+    -fx-border-color: #a84c4c;
+    -fx-text-fill: #d46666;
+}
+
+.guest-record-details {
+    -fx-spacing: 32;
+}
+
+.guest-record-section {
+    -fx-spacing: 6;
+}
+
+.guest-record-section-title {
+    -fx-text-fill: #6a6058;
+    -fx-font-size: 10px;
+    -fx-font-weight: 600;
+    -fx-font-family: 'DM Mono','Consolas','Courier New',monospace;
+}
+
+.guest-record-row {
+    -fx-spacing: 16;
+    -fx-alignment: center-left;
+}
+
+.guest-record-key {
+    -fx-text-fill: #6a6058;
+    -fx-font-size: 10px;
+    -fx-font-weight: 600;
+    -fx-font-family: 'DM Mono','Consolas','Courier New',monospace;
+    -fx-min-width: 120;
+}
+
+.guest-record-value {
+    -fx-text-fill: #f0ebe0;
+    -fx-font-size: 12px;
+    -fx-font-family: 'Inter','Segoe UI',sans-serif;
+}
+
+.guest-record-empty {
+    -fx-text-fill: #6a6058;
+    -fx-font-size: 12px;
+    -fx-font-family: 'Inter','Segoe UI',sans-serif;
+}
+
+.guest-record-booking-row {
+    -fx-spacing: 16;
+    -fx-padding: 6 0 6 0;
+    -fx-alignment: center-left;
+}
+
+.guest-record-booking-id {
+    -fx-text-fill: #9a9080;
+    -fx-font-size: 11px;
+    -fx-font-family: 'DM Mono','Consolas','Courier New',monospace;
+    -fx-min-width: 120;
+}
+
+.guest-record-booking-room {
+    -fx-text-fill: #f0ebe0;
+    -fx-font-size: 12px;
+    -fx-font-family: 'Inter','Segoe UI',sans-serif;
+}
+
+.guest-record-booking-ref {
+    -fx-text-fill: #9a9080;
+    -fx-font-size: 11px;
+    -fx-font-family: 'DM Mono','Consolas','Courier New',monospace;
+}
+
+.guest-record-booking-amount {
+    -fx-text-fill: #c9a84c;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-font-family: 'DM Mono','Consolas','Courier New',monospace;
+}
+
+.booking-record {
+    -fx-background-color: #131210;
+    -fx-border-color: rgba(201,168,76,0.2);
+    -fx-border-width: 1;
+    -fx-spacing: 12;
+    -fx-padding: 20 24 20 24;
+    -fx-max-width: 720;
+    -fx-pref-width: 720;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 24, 0, 0, 8);
+}
+
+.booking-record-header {
+    -fx-spacing: 12;
+}
+
+.booking-record-title {
+    -fx-text-fill: #f0ebe0;
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-font-family: 'Playfair Display','Georgia',serif;
+}
+
+.booking-record-close {
+    -fx-background-color: transparent;
+    -fx-text-fill: #6a6058;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+
+.booking-record-close:hover {
+    -fx-text-fill: #f0ebe0;
+}
+
+.booking-record-stats {
+    -fx-spacing: 24;
+}
+
+.booking-record-stat {
+    -fx-spacing: 2;
+}
+
+.booking-record-stat-key {
+    -fx-text-fill: #6a6058;
+    -fx-font-size: 10px;
+    -fx-font-weight: 600;
+    -fx-font-family: 'DM Mono','Consolas','Courier New',monospace;
+}
+
+.booking-record-stat-value {
+    -fx-text-fill: #f0ebe0;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-font-family: 'Inter','Segoe UI',sans-serif;
+}
+
+.booking-record-body {
+    -fx-spacing: 40;
+}
+
+.booking-record-section {
+    -fx-spacing: 4;
+}
+
+.booking-record-section-title {
+    -fx-text-fill: #6a6058;
+    -fx-font-size: 10px;
+    -fx-font-weight: 600;
+    -fx-font-family: 'DM Mono','Consolas','Courier New',monospace;
+    -fx-padding: 0 0 6 0;
+}
+
+.booking-record-row {
+    -fx-spacing: 16;
+    -fx-padding: 6 0 6 0;
+    -fx-border-color: transparent transparent rgba(201,168,76,0.08) transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.booking-record-key {
+    -fx-text-fill: #6a6058;
+    -fx-font-size: 12px;
+    -fx-font-family: 'Inter','Segoe UI',sans-serif;
+    -fx-min-width: 110;
+}
+
+.booking-record-value {
+    -fx-text-fill: #f0ebe0;
+    -fx-font-size: 12px;
+    -fx-font-family: 'Inter','Segoe UI',sans-serif;
+}
+
+.booking-record-requests {
+    -fx-spacing: 6;
+    -fx-padding: 12 0 0 0;
+    -fx-border-color: rgba(201,168,76,0.15) transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}
+
+.booking-record-footer {
+    -fx-spacing: 8;
+    -fx-padding: 12 0 0 0;
+}
+
+.reservation-confirm {
+    -fx-background-color: #4a9d6a;
+    -fx-border-color: #4a9d6a;
+    -fx-border-width: 1;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-font-family: 'Inter','Segoe UI',sans-serif;
+    -fx-padding: 6 14 6 14;
+    -fx-cursor: hand;
+}
+
+.reservation-confirm:hover {
+    -fx-background-color: #57b87b;
+    -fx-border-color: #57b87b;
+}
+
+.reservation-reject {
+    -fx-background-color: #a84c4c;
+    -fx-border-color: #a84c4c;
+    -fx-border-width: 1;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-font-family: 'Inter','Segoe UI',sans-serif;
+    -fx-padding: 6 14 6 14;
+    -fx-cursor: hand;
+}
+
+.reservation-reject:hover {
+    -fx-background-color: #c05a5a;
+    -fx-border-color: #c05a5a;
+}
+
+.room-rack {
+    -fx-background-color: #0f0e0c;
+}
+
+.room-rack-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+
+.room-rack-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.room-rack-floor-row {
+    -fx-padding: 8 0 8 0;
+    -fx-border-color: transparent transparent rgba(201,168,76,0.1) transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.room-rack-floor-label {
+    -fx-text-fill: #6a6058;
+    -fx-font-size: 11px;
+    -fx-font-family: 'DM Mono','Consolas','Courier New',monospace;
+    -fx-font-weight: 700;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+}
+
+.room-rack-card {
+    -fx-background-color: #131210;
+    -fx-border-color: #6a6058;
+    -fx-border-width: 0 0 0 3;
+    -fx-spacing: 2;
+}
+
+.room-rack-number {
+    -fx-text-fill: #f0ebe0;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-font-family: 'Inter','Segoe UI',sans-serif;
+}
+
+.room-rack-type {
+    -fx-text-fill: #9a9080;
+    -fx-font-size: 11px;
+    -fx-font-family: 'Inter','Segoe UI',sans-serif;
+}
+
+.room-rack-guest {
+    -fx-text-fill: #f0ebe0;
+    -fx-font-size: 12px;
+    -fx-font-family: 'Inter','Segoe UI',sans-serif;
+}
+
+.room-rack-status {
+    -fx-font-size: 10px;
+    -fx-font-weight: 700;
+    -fx-font-family: 'DM Mono','Consolas','Courier New',monospace;
+    -fx-padding: 2 0 0 0;
+}
+
+.room-status-available {
+    -fx-border-color: #4a9d6a;
+}
+.room-status-available .room-rack-status {
+    -fx-text-fill: #4a9d6a;
+}
+
+.room-status-occupied {
+    -fx-border-color: #c9a84c;
+}
+.room-status-occupied .room-rack-status {
+    -fx-text-fill: #c9a84c;
+}
+
+.room-status-maintenance {
+    -fx-border-color: #a84c4c;
+}
+.room-status-maintenance .room-rack-status {
+    -fx-text-fill: #a84c4c;
+}
+
+.room-status-reserved {
+    -fx-border-color: #8a7ec9;
+}
+.room-status-reserved .room-rack-status {
+    -fx-text-fill: #8a7ec9;
+}
+
+.room-status-closed {
+    -fx-border-color: #6a6058;
+}
+.room-status-closed .room-rack-status {
+    -fx-text-fill: #6a6058;
+}
+
+.status-btn-available {
+    -fx-border-color: #4a9d6a;
+    -fx-text-fill: #4a9d6a;
+}
+.status-btn-available:hover {
+    -fx-background-color: rgba(74,157,106,0.12);
+    -fx-border-color: #4a9d6a;
+    -fx-text-fill: #4a9d6a;
+}
+
+.status-btn-occupied {
+    -fx-border-color: #c9a84c;
+    -fx-text-fill: #c9a84c;
+}
+.status-btn-occupied:hover {
+    -fx-background-color: rgba(201,168,76,0.12);
+    -fx-border-color: #c9a84c;
+    -fx-text-fill: #c9a84c;
+}
+
+.status-btn-maintenance {
+    -fx-border-color: #a84c4c;
+    -fx-text-fill: #a84c4c;
+}
+.status-btn-maintenance:hover {
+    -fx-background-color: rgba(168,76,76,0.12);
+    -fx-border-color: #a84c4c;
+    -fx-text-fill: #a84c4c;
+}
+
+.status-btn-reserved {
+    -fx-border-color: #8a7ec9;
+    -fx-text-fill: #8a7ec9;
+}
+.status-btn-reserved:hover {
+    -fx-background-color: rgba(138,126,201,0.12);
+    -fx-border-color: #8a7ec9;
+    -fx-text-fill: #8a7ec9;
+}
+
+.status-btn-closed {
+    -fx-border-color: #6a6058;
+    -fx-text-fill: #6a6058;
+}
+.status-btn-closed:hover {
+    -fx-background-color: rgba(106,96,88,0.12);
+    -fx-border-color: #9a9080;
+    -fx-text-fill: #9a9080;
+}

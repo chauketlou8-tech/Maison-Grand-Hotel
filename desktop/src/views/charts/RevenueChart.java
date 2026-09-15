@@ -1,19 +1,23 @@
 package views.charts;
 
+import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
 import records.Payment;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class RevenueChart extends HBox {
@@ -22,6 +26,11 @@ public class RevenueChart extends HBox {
     private final XYChart.Series<Number, Number> lastWeekSeries;
     private final NumberAxis yAxis;
     private final StackPane wrapper;
+    private final Label loadingLabel;
+    private final StackPane skeleton;
+
+    private double[] lastDaily = null;
+    private double[] lastLastWeek = null;
 
     public RevenueChart() {
         getStyleClass().add("revenue-chart-container");
@@ -81,7 +90,10 @@ public class RevenueChart extends HBox {
         skeletonBar.setWidth(60);
         skeletonBar.setHeight(120);
 
-        StackPane skeleton = new StackPane(skeletonBar);
+        loadingLabel = new Label("Loading");
+        loadingLabel.setStyle("-fx-text-fill: #6a6058; -fx-font-size: 14px; -fx-font-family: 'Playfair Display','Georgia',serif;");
+
+        skeleton = new StackPane(skeletonBar, loadingLabel);
         skeleton.setStyle("-fx-background-color: #1f1d1a; -fx-background-radius: 3;");
         skeleton.setMaxWidth(Double.MAX_VALUE);
 
@@ -96,8 +108,6 @@ public class RevenueChart extends HBox {
 
     public void setPayments(Payment[] payments) {
         if (payments == null) return;
-
-        areaChart.setVisible(true);
 
         LocalDate today = LocalDate.now();
         LocalDate monday = today.with(DayOfWeek.MONDAY);
@@ -123,6 +133,17 @@ public class RevenueChart extends HBox {
             }
         }
 
+        if (Arrays.equals(daily, lastDaily) && Arrays.equals(lastWeek, lastLastWeek)) {
+            return;
+        }
+
+        lastDaily = daily;
+        lastLastWeek = lastWeek;
+
+        boolean firstLoad = !areaChart.isVisible();
+        areaChart.setVisible(true);
+        skeleton.setVisible(false);
+
         double max = 0;
         for (double v : daily) max = Math.max(max, v);
         for (double v : lastWeek) max = Math.max(max, v);
@@ -142,6 +163,11 @@ public class RevenueChart extends HBox {
         for (double[] pt : monotoneSpline(xs, lastWeek)) {
             lastWeekSeries.getData().add(new XYChart.Data<>(pt[0], pt[1]));
         }
+
+        FadeTransition fade = new FadeTransition(Duration.millis(firstLoad ? 600 : 400), areaChart);
+        fade.setFromValue(0.0);
+        fade.setToValue(1.0);
+        fade.play();
     }
 
     private List<double[]> monotoneSpline(double[] xs, double[] ys) {

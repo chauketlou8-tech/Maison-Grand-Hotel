@@ -29,6 +29,9 @@ public class Content extends HBox {
 
     private DashBoard dashboard;
     private GuestRegistry guestRegistry;
+    private Bookings bookingsPage;
+    private Reservations reservationsPage;
+    private RoomManagement roomManagementPage;
 
     private HBox c;
     private Map<String, Object> views;
@@ -37,9 +40,15 @@ public class Content extends HBox {
         this.views = new HashMap<>();
         this.dashboard = new DashBoard();
         this.guestRegistry = new GuestRegistry();
+        this.bookingsPage = new Bookings();
+        this.reservationsPage = new Reservations();
+        this.roomManagementPage = new RoomManagement();
 
         this.views.put("Dashboard", dashboard);
         this.views.put("Guest Registry", guestRegistry);
+        this.views.put("Bookings", bookingsPage);
+        this.views.put("Reservations", reservationsPage);
+        this.views.put("Room Management", roomManagementPage);
 
         this.c = new HBox();
         this.c.setMaxWidth(Double.MAX_VALUE);
@@ -77,6 +86,10 @@ public class Content extends HBox {
         if (dashboard != null) {
             dashboard.setRooms(rooms);
         }
+
+        if (roomManagementPage  != null) {
+            this.roomManagementPage.setData(bookings, guests, rooms);
+        }
     }
 
     public void setNotifications(Notification[] notifications) {
@@ -92,6 +105,10 @@ public class Content extends HBox {
 
         if (dashboard != null) {
             dashboard.setReservations(reservations);
+        }
+
+        if (reservationsPage != null) {
+            reservationsPage.setData(this.reservations, this.rooms, this.guests, this.payments);
         }
     }
 
@@ -115,7 +132,7 @@ public class Content extends HBox {
         this.guests = guests;
 
         if (guestRegistry != null) {
-            guestRegistry.setData(this.guests, this.addresses, this.payments, this.bookings);
+            guestRegistry.setData(this.guests, this.addresses, this.payments, this.bookings, this.rooms);
         }
     }
 
@@ -125,6 +142,10 @@ public class Content extends HBox {
 
     public void setBookings(Booking[] bookings) {
         this.bookings = bookings;
+
+        if (bookingsPage != null) {
+            bookingsPage.setData(this.bookings, this.rooms, this.guests);
+        }
     }
 
     public void updatePage(String page) {

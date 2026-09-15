@@ -1,5 +1,6 @@
 create table if not exists Bookings(
     booking_id text primary key,
+    booking_reference uuid not null default gen_random_uuid(),
     reservation_id uuid references reservations(reservationid) on delete set null,
     guest_id int references guests(id) on delete cascade,
     room_id int references rooms(roomid) on delete set null,

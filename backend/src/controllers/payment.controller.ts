@@ -15,7 +15,7 @@ import type { Payment } from "../types/payment";
 import type { Reservation } from "../types/reservation";
 
 const pay = asyncHandler(async (req: req, res: res) => {
-    const { amount, guest_id } = req.body;
+    const { amount, guest_id, reservation_id } = req.body;
 
     const response = await fetch("https://payments.yoco.com/api/checkouts", {
         method: "POST",
@@ -33,9 +33,9 @@ const pay = asyncHandler(async (req: req, res: res) => {
     const body = await response.json();
 
     await connection.query(`
-        insert into payments(amount, paymentstatus, transactionreference, guest_id, yoco_checkout_id)
-        values($1, $2, $3, $4, $5)
-    `, [amount, "started", null, guest_id, body.id]);
+        insert into payments(amount, paymentstatus, transactionreference, guest_id, reservation_id, yoco_checkout_id)
+        values($1, $2, $3, $4, $5, $6)
+    `, [amount, "started", null, guest_id, reservation_id, body.id]);
 
     return Response.success(res, {
         message: "payment request",

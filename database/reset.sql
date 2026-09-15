@@ -1,3 +1,4 @@
+delete from bookings;
 delete from notifications;
 delete from payments;
 delete from reservations;
@@ -16,4 +17,5 @@ delete from roomhistory;
 alter sequence roomhistory_id_seq restart with 1;
 
 insert into roomhistory (roomid, status_date, status)
-select roomid,date_trunc('day', now() at time zone 'UTC') at time zone 'UTC','available' from rooms;
+select roomid, date_trunc('day', now() at time zone 'Africa/Johannesburg') at time zone 'UTC', 'available'
+from rooms;

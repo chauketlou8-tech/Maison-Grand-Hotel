@@ -2,18 +2,18 @@ package views.dashboard;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcons;
+import enums.BookingStatus;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import models.Booking;
-import models.Guest;
-import models.Reservation;
+import models.*;
 import records.Payment;
 import records.Address;
 import utils.GuestRegistryData;
@@ -26,15 +26,18 @@ public class GuestRegistry extends VBox {
     private Reservation[] reservations;
     private Address[] addresses;
     private Payment[] payments;
+    private Booking[] bookings;
+    private Room[] rooms;
 
-    private Guest selectedGuest;
-    int num_records = 0;
+    private Guest selectedGuest = null;
     private TableView<GuestRegistryData> guest_displayer;
 
     private final ObservableList<GuestRegistryData> allData = FXCollections.observableArrayList();
     private TextField searchField;
     private ComboBox<String> filterCombo;
     private Label recordsLabel;
+
+    private VBox selectedGuestTable = null;
 
     public GuestRegistry() {
         getStyleClass().add("guest-registry");
@@ -157,22 +160,37 @@ public class GuestRegistry extends VBox {
         setMaxHeight(Double.MAX_VALUE);
 
         guest_displayer.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) {
-                GuestRegistryData selected = guest_displayer.getSelectionModel().getSelectedItem();
+            if (event.getClickCount() == 1) {
+                Node target = (Node) event.getTarget();
+                TableRow<?> row = null;
 
-                if (selected != null) {
-                    this.selectedGuest = selected.guest;
-                    System.out.println(selected.guest);
+                while (target != null) {
+                    if (target instanceof TableRow) {
+                        row = (TableRow<?>) target;
+                        break;
+                    }
+                    target = target.getParent();
+                }
+
+                if (row != null && row.getItem() != null) {
+                    this.selectedGuest = ((GuestRegistryData) row.getItem()).guest;
+                }
+
+                else {
+                    this.selectedGuest = null;
+                    guest_displayer.getSelectionModel().clearSelection();
                 }
             }
         });
     }
 
-    public void setData(Guest[] guests, Address[] addresses, Payment[] payments, Booking[] bookings) {
-        if (guests == null || addresses == null || payments == null || bookings == null) return;
+    public void setData(Guest[] guests, Address[] addresses, Payment[] payments, Booking[] bookings, Room[] rooms) {
+        if (guests == null || addresses == null || payments == null || bookings == null || rooms == null) return;
         this.guests = guests;
         this.addresses = addresses;
         this.payments = payments;
+        this.bookings = bookings;
+        this.rooms = rooms;
 
         Map<Guest, Boolean> map = new HashMap<Guest, Boolean>();
 
@@ -209,12 +227,34 @@ public class GuestRegistry extends VBox {
         Platform.runLater(() -> {
             allData.setAll(newData);
 
-            filterCombo.setItems(FXCollections.observableArrayList());
-            filterCombo.getItems().add("All");
-            filterCombo.getItems().addAll(countries);
-            filterCombo.setValue("All");
+            ObservableList<String> newItems = FXCollections.observableArrayList();
+            newItems.add("All");
+            newItems.addAll(countries);
+
+            if (!newItems.equals(filterCombo.getItems())) {
+                String current = filterCombo.getValue();
+                filterCombo.setItems(newItems);
+
+                if (current != null && newItems.contains(current)) {
+                    filterCombo.setValue(current);
+                }
+
+                else {
+                    filterCombo.setValue("All");
+                }
+            }
 
             applyFilters();
+
+            if (selectedGuest != null) {
+                this.buildSelectedGuestTable();
+            }
+
+            else {
+                if (selectedGuestTable != null) {
+                    getChildren().remove(selectedGuestTable);
+                }
+            }
         });
     }
 
@@ -248,5 +288,171 @@ public class GuestRegistry extends VBox {
         if (prev != null && filtered.contains(prev)) {
             guest_displayer.getSelectionModel().select(prev);
         }
+    }
+
+    private void buildSelectedGuestTable() {
+        if (selectedGuestTable != null) {
+            getChildren().remove(selectedGuestTable);
+        }
+
+        if (guests == null || addresses == null || payments == null || bookings == null || rooms == null) return;
+
+        Address guest_address = null;
+        for (Address address : addresses) {
+            if (address.id() == selectedGuest.getAddress_id()) guest_address = address;
+        }
+        if (guest_address == null) return;
+
+        selectedGuestTable = new VBox();
+        selectedGuestTable.getStyleClass().add("guest-record");
+        GuestRegistryData guest_data = new GuestRegistryData(selectedGuest, guest_address, payments, bookings);
+
+        HBox topRow = new HBox();
+        topRow.getStyleClass().add("guest-record-top");
+        topRow.setMaxWidth(Double.MAX_VALUE);
+
+        Label name_label = new Label("Guest Record — " + guest_data.getFirstname() + " " + guest_data.getLastname() + " (" + guest_data.getId() + ")");
+        name_label.getStyleClass().add("guest-record-title");
+        HBox.setHgrow(name_label, Priority.ALWAYS);
+        name_label.setMaxWidth(Double.MAX_VALUE);
+
+        Button remove_button = new Button("Remove");
+        remove_button.getStyleClass().add("guest-record-remove");
+
+        FontAwesomeIcon trashIcon = new FontAwesomeIcon();
+        trashIcon.setIcon(FontAwesomeIcons.TRASH);
+        trashIcon.setSize("11");
+        trashIcon.setFill(Color.web("#a84c4c"));
+        remove_button.setGraphic(trashIcon);
+
+        topRow.getChildren().addAll(name_label, remove_button);
+
+        HBox details_row = new HBox();
+        details_row.getStyleClass().add("guest-record-details");
+        details_row.setMaxWidth(Double.MAX_VALUE);
+
+        VBox personal_info = new VBox();
+        personal_info.getStyleClass().add("guest-record-section");
+        HBox.setHgrow(personal_info, Priority.ALWAYS);
+        personal_info.setMaxWidth(Double.MAX_VALUE);
+
+        VBox identity_info = new VBox();
+        identity_info.getStyleClass().add("guest-record-section");
+        HBox.setHgrow(identity_info, Priority.ALWAYS);
+        identity_info.setMaxWidth(Double.MAX_VALUE);
+
+        VBox booking_info = new VBox();
+        booking_info.getStyleClass().add("guest-record-section");
+        HBox.setHgrow(booking_info, Priority.ALWAYS);
+        booking_info.setMaxWidth(Double.MAX_VALUE);
+
+        Label personal_info_header = new Label("Personal Information".toUpperCase());
+        personal_info_header.getStyleClass().add("guest-record-section-title");
+
+        HBox fullName_row = row("Full name", guest_data.getFirstname() + " " + guest_data.getLastname());
+        HBox email_row    = row("Email",     guest_data.getEmail());
+        HBox phone_row    = row("Phone",     guest_data.getPhoneNumber());
+        HBox country_row  = row("Country",   guest_data.getCountry());
+        HBox city_row     = row("City",      guest_data.getCity());
+
+        personal_info.getChildren().addAll(
+                personal_info_header, new Separator(),
+                fullName_row, new Separator(),
+                email_row,    new Separator(),
+                phone_row,    new Separator(),
+                country_row,  new Separator(),
+                city_row
+        );
+
+        Label identity_info_header = new Label("Identity Information".toUpperCase());
+        identity_info_header.getStyleClass().add("guest-record-section-title");
+
+        HBox guest_id_row   = row("Guest ID",        guest_data.getId());
+        HBox id_number_row  = row("ID number",       guest_data.getIdNumber());
+        HBox num_stays_row  = row("Number of stays", String.valueOf(guest_data.getNumStays()));
+        HBox spent_row      = row("Spent",           "R " + guest_data.getSpent());
+        HBox lastStay_row   = row("Last stay",       guest_data.getLastStay());
+
+        identity_info.getChildren().addAll(
+                identity_info_header, new Separator(),
+                guest_id_row,  new Separator(),
+                id_number_row, new Separator(),
+                num_stays_row, new Separator(),
+                spent_row,     new Separator(),
+                lastStay_row
+        );
+
+        int num_bookings = 0;
+        for (Booking booking : bookings) {
+            if (booking.getGuest_id() != selectedGuest.getId()) continue;
+            if (booking.getBooking_status().equals(BookingStatus.CANCELLED)) continue;
+            num_bookings++;
+        }
+
+        Label booking_info_header = new Label("Booking History (" + num_bookings + ")");
+        booking_info_header.getStyleClass().add("guest-record-section-title");
+        booking_info.getChildren().addAll(booking_info_header, new Separator());
+
+        if (num_bookings == 0) {
+            Label none = new Label("No bookings available");
+            none.getStyleClass().add("guest-record-empty");
+            booking_info.getChildren().add(none);
+        }
+
+        else {
+            for (Booking booking : bookings) {
+                if (booking.getGuest_id() != selectedGuest.getId()) continue;
+                if (booking.getBooking_status().equals(BookingStatus.CANCELLED)) continue;
+
+                HBox booking_row = new HBox();
+                booking_row.getStyleClass().add("guest-record-booking-row");
+                booking_row.setMaxWidth(Double.MAX_VALUE);
+
+                int room_number = 0;
+                for (Room room : rooms) {
+                    if (room.getRoomid() == booking.getRoom_id()) {
+                        room_number = room.getRoomnumber();
+                        break;
+                    }
+                }
+                if (room_number == 0) return;
+
+                Label guest_id_lbl = new Label(guest_data.getId());
+                guest_id_lbl.getStyleClass().add("guest-record-booking-id");
+
+                Label room_number_label = new Label("Rm " + room_number);
+                room_number_label.getStyleClass().add("guest-record-booking-room");
+
+                Label reference_label = new Label(booking.getBooking_reference().toString());
+                reference_label.getStyleClass().add("guest-record-booking-ref");
+
+                Label amount_label = new Label("R" + booking.getTotal_cost());
+                amount_label.getStyleClass().add("guest-record-booking-amount");
+
+                booking_row.getChildren().addAll(guest_id_lbl, room_number_label, reference_label, amount_label);
+                booking_info.getChildren().add(booking_row);
+            }
+        }
+
+        details_row.getChildren().addAll(personal_info, identity_info, booking_info);
+        selectedGuestTable.getChildren().addAll(topRow, new Separator(), details_row);
+        getChildren().add(selectedGuestTable);
+    }
+
+    private HBox row(String key, String value) {
+        HBox r = new HBox();
+        r.getStyleClass().add("guest-record-row");
+        r.setMaxWidth(Double.MAX_VALUE);
+
+        Label k = new Label(key.toUpperCase());
+        k.getStyleClass().add("guest-record-key");
+
+        Label v = new Label(value);
+        v.getStyleClass().add("guest-record-value");
+        HBox.setHgrow(v, Priority.ALWAYS);
+        v.setMaxWidth(Double.MAX_VALUE);
+
+        r.getChildren().addAll(k, v);
+        return r;
     }
 }

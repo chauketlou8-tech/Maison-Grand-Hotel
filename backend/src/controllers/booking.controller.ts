@@ -57,7 +57,7 @@ const book = asyncHandler(async (req: req, res: res, next: next) => {
 
     await connection.query(`
         insert into roomhistory (roomid, status_date, status)
-        values ($1, date_trunc('day', now() at time zone 'UTC') at time zone 'UTC', $2)
+        values ($1, date_trunc('day', now() at time zone 'Africa/Johannesburg') at time zone 'UTC', $2)
         on conflict (roomid, status_date) do update set status = excluded.status, updated_at = now()
     `, [reservedRoom.roomid, "reserved"]);
 
@@ -116,6 +116,7 @@ const book = asyncHandler(async (req: req, res: res, next: next) => {
                     'capacity', rm.capacity,
                     'description', rm.description
                     ),
+            'reservation_id', r.reservationid,
             'requestedRoomType', r.requestedroomtype,
             'reservationDate', r.reservationdate,
             'checkInDate', r.checkindate,

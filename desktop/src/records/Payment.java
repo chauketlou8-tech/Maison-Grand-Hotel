@@ -9,6 +9,7 @@ public record Payment(
         String paymentstatus,
         String transactionreference,
         long guest_id,
+        java.util.UUID reservation_id,
         String yoco_checkout_id,
         String paymentmethod,
         java.sql.Timestamp created_at,

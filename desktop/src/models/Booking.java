@@ -10,6 +10,7 @@ import enums.BookingStatus;
 public class Booking implements Serializable {
 
     private final String booking_id;
+    private final UUID booking_reference;
     private final UUID reservation_id;
     private final long guest_id;
     private final long room_id;
@@ -26,6 +27,7 @@ public class Booking implements Serializable {
 
     public Booking(
             String booking_id,
+            UUID booking_reference,
             UUID reservation_id,
             long guest_id,
             long room_id,
@@ -41,6 +43,7 @@ public class Booking implements Serializable {
             Timestamp updated_at
     ) {
         this.booking_id = booking_id;
+        this.booking_reference = booking_reference;
         this.reservation_id = reservation_id;
         this.guest_id = guest_id;
         this.room_id = room_id;
@@ -58,6 +61,10 @@ public class Booking implements Serializable {
 
     public String getBooking_id() {
         return this.booking_id;
+    }
+
+    public UUID getBooking_reference() {
+        return this.booking_reference;
     }
 
     public UUID getReservation_id() {
@@ -116,6 +123,7 @@ public class Booking implements Serializable {
     public String toString() {
         return "{\n" +
                 "  \"booking_id\": \"" + booking_id + "\",\n" +
+                "  \"booking_reference\": \"" + booking_reference + "\",\n" +
                 "  \"reservation_id\": \"" + reservation_id + "\",\n" +
                 "  \"guest_id\": " + guest_id + ",\n" +
                 "  \"room_id\": " + room_id + ",\n" +

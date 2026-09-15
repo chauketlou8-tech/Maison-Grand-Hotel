@@ -177,6 +177,7 @@ public class Server {
                         rs.getString("paymentstatus"),
                         rs.getString("transactionreference"),
                         rs.getLong("guest_id"),
+                        rs.getObject("reservation_id", java.util.UUID.class),
                         rs.getString("yoco_checkout_id"),
                         rs.getString("paymentmethod"),
                         rs.getTimestamp("created_at"),
@@ -284,7 +285,8 @@ public class Server {
             while (rs.next()) {
                 Booking booking = new Booking(
                         rs.getString("booking_id"),
-                        (java.util.UUID) rs.getObject("reservation_id"),
+                        rs.getObject("booking_reference", java.util.UUID.class),
+                        rs.getObject("reservation_id", java.util.UUID.class),
                         rs.getLong("guest_id"),
                         rs.getLong("room_id"),
                         rs.getDate("booking_date"),

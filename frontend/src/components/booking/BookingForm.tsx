@@ -160,7 +160,7 @@ export default function BookingForm() {
                     selectedPackages,
                 };
 
-                const guest_id = await book(bookingDetails);
+                const { guest_id, reservation_id } = await book(bookingDetails);
 
                 sessionStorage.setItem("bookingState", JSON.stringify({
                     firstName,
@@ -174,7 +174,7 @@ export default function BookingForm() {
                     paid: true,
                 }));
 
-                window.location.href = await pay(total, guest_id);
+                window.location.href = await pay(total, guest_id, reservation_id);
 
                 const deltaTime = Date.now() - startTime;
                 const remainingTime = minLoadingTime - deltaTime;
