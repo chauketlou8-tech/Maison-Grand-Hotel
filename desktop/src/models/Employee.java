@@ -1,11 +1,13 @@
 package models;
 
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.Date;
 import enums.Gender;
 import enums.EmploymentStatus;
-import records.Address;
 
-public class Employee {
+public class Employee implements Serializable {
 
     private final long id;
     private final String employeeid;
@@ -13,23 +15,25 @@ public class Employee {
     private final String lastname;
     private final String email;
     private final String phonenumber;
-    private final Address address;
+    private final int address_id;
     private final Date dateofbirth;
     private final Gender gender;
     private final String jobposition;
     private final String department;
-    private final float salary;
+    private final BigDecimal salary;
     private final Date hiredate;
     private final EmploymentStatus employmentstatus;
+    private final Timestamp created_at;
+    private final Timestamp updated_at;
 
-    public Employee(long id, String employeeid, String firstname, String lastname, String email, String phonenumber, Address address, Date dateofbirth, Gender gender, String jobposition, String department, float salary, Date hiredate, EmploymentStatus employmentstatus) {
+    public Employee(long id, String employeeid, String firstname, String lastname, String email, String phonenumber, int address_id, Date dateofbirth, Gender gender, String jobposition, String department, BigDecimal salary, Date hiredate, EmploymentStatus employmentstatus, Timestamp created_at, Timestamp updated_at) {
         this.id = id;
         this.employeeid = employeeid;
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;
         this.phonenumber = phonenumber;
-        this.address = address;
+        this.address_id = address_id;
         this.dateofbirth = dateofbirth;
         this.gender = gender;
         this.jobposition = jobposition;
@@ -37,6 +41,8 @@ public class Employee {
         this.salary = salary;
         this.hiredate = hiredate;
         this.employmentstatus = employmentstatus;
+        this.created_at = created_at;
+        this.updated_at = updated_at;
     }
 
     public long getId() {
@@ -63,8 +69,8 @@ public class Employee {
         return this.phonenumber;
     }
 
-    public Address getAddress() {
-        return this.address;
+    public int getAddress_id() {
+        return this.address_id;
     }
 
     public Date getDateofbirth() {
@@ -83,7 +89,7 @@ public class Employee {
         return this.department;
     }
 
-    public float getSalary() {
+    public BigDecimal getSalary() {
         return this.salary;
     }
 
@@ -95,6 +101,14 @@ public class Employee {
         return this.employmentstatus;
     }
 
+    public Timestamp getCreated_at() {
+        return this.created_at;
+    }
+
+    public Timestamp getUpdated_at() {
+        return this.updated_at;
+    }
+
     @Override
     public String toString() {
         return "{\n" +
@@ -104,14 +118,16 @@ public class Employee {
                 "  \"lastname\": \"" + lastname + "\",\n" +
                 "  \"email\": \"" + email + "\",\n" +
                 "  \"phonenumber\": \"" + phonenumber + "\",\n" +
-                "  \"address\": " + address + ",\n" +
+                "  \"address_id\": " + address_id + ",\n" +
                 "  \"dateofbirth\": \"" + dateofbirth + "\",\n" +
                 "  \"gender\": \"" + gender + "\",\n" +
                 "  \"jobposition\": \"" + jobposition + "\",\n" +
                 "  \"department\": \"" + department + "\",\n" +
                 "  \"salary\": " + salary + ",\n" +
                 "  \"hiredate\": \"" + hiredate + "\",\n" +
-                "  \"employmentstatus\": \"" + employmentstatus + "\"\n" +
+                "  \"employmentstatus\": \"" + employmentstatus + "\",\n" +
+                "  \"created_at\": \"" + created_at + "\",\n" +
+                "  \"updated_at\": \"" + updated_at + "\"\n" +
                 "}";
     }
 }

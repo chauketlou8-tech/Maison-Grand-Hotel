@@ -1,85 +1,59 @@
 package models;
 
-/**
- * Represents an additional service offered by Mason Hotel that a guest can request or use during their stay.
- *
- * This class represents all hotel services including:
- * - Room service
- * - Laundry
- * - Airport transfers
- * - Spa services
- * - Restaurant services
- * - Other hotel services
- *
- * Features:
- * - Stores service information
- * - Stores service pricing
- * - Categorizes hotel services
- * - Tracks service availability
- * - Allows the hotel to manage its available services
- * - Provides information about additional services offered by the hotel
- */
-public class Service {
+import java.io.Serializable;
+import java.sql.Timestamp;
+
+public class Service implements Serializable {
 
     private final long id;
-    private final String serviceName;
+    private final String name;
     private final String description;
-    private final String category;
-    private final float price;
-    private final boolean available;
+    private final boolean recurring;
+    private final Timestamp created_at;
+    private final Timestamp updated_at;
 
-    /**
-     * Constructs a new Service object.
-     *
-     * @param id           Service's unique identifier
-     * @param serviceName  Name of the service
-     * @param description  Description of the service
-     * @param category     Category the service belongs to
-     * @param price        Price of the service
-     * @param available    Availability status of the service
-     */
-    public Service(long id, String serviceName, String description, String category, float price, boolean available) {
+    public Service(long id, String name, String description, boolean recurring, Timestamp created_at, Timestamp updated_at) {
         this.id = id;
-        this.serviceName = serviceName;
+        this.name = name;
         this.description = description;
-        this.category = category;
-        this.price = price;
-        this.available = available;
+        this.recurring = recurring;
+        this.created_at = created_at;
+        this.updated_at = updated_at;
     }
 
     public long getId() {
         return this.id;
     }
 
-    public String getServiceName() {
-        return this.serviceName;
+    public String getName() {
+        return this.name;
     }
 
     public String getDescription() {
         return this.description;
     }
 
-    public String getCategory() {
-        return this.category;
+    public boolean isRecurring() {
+        return this.recurring;
     }
 
-    public float getPrice() {
-        return this.price;
+    public Timestamp getCreated_at() {
+        return this.created_at;
     }
 
-    public boolean isAvailable() {
-        return this.available;
+    public Timestamp getUpdated_at() {
+        return this.updated_at;
     }
 
     @Override
     public String toString() {
         return "{\n" +
                 "  \"id\": " + id + ",\n" +
-                "  \"serviceName\": \"" + serviceName + "\",\n" +
+                "  \"name\": \"" + name + "\",\n" +
                 "  \"description\": \"" + description + "\",\n" +
-                "  \"category\": \"" + category + "\",\n" +
-                "  \"price\": " + price + ",\n" +
-                "  \"available\": " + available + "\n" +
+                "  \"recurring\": " + recurring + ",\n" +
+                "  \"created_at\": \"" + created_at + "\",\n" +
+                "  \"updated_at\": \"" + updated_at + "\"\n" +
                 "}";
     }
 }

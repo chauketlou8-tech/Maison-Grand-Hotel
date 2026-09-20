@@ -1210,3 +1210,221 @@
     -fx-border-color: #9a9080;
     -fx-text-fill: #9a9080;
 }
+
+.task-list {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-spacing: 0;
+}
+
+.task-checkbox {
+    -fx-background-color: #0f0e0c;
+    -fx-border-color: transparent transparent rgba(201,168,76,0.05) transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 10 20 10 20;
+    -fx-font-size: 12px;
+    -fx-font-family: 'Inter','Segoe UI',sans-serif;
+    -fx-text-fill: #f0ebe0;
+    -fx-cursor: hand;
+    -fx-max-width: infinity;
+    -fx-alignment: center-left;
+}
+
+.task-checkbox:odd {
+    -fx-background-color: #131210;
+}
+
+.task-checkbox:hover {
+    -fx-background-color: rgba(201,168,76,0.04);
+}
+
+.task-checkbox .box {
+    -fx-background-color: #131210;
+    -fx-border-color: rgba(201,168,76,0.3);
+    -fx-border-width: 1;
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
+    -fx-padding: 4;
+}
+
+.task-checkbox:selected .box {
+    -fx-background-color: #4a7cc9;
+    -fx-border-color: #4a7cc9;
+}
+
+.task-checkbox:selected .mark {
+    -fx-background-color: #ffffff;
+    -fx-shape: "M 0 4 L 3 7 L 8 0 L 9 1 L 3 9 L -1 5 Z";
+}
+
+.task-checkbox:selected {
+    -fx-text-fill: #6a6058;
+}
+
+.task-checkbox:disabled {
+    -fx-opacity: 1.0;
+}
+
+.task-checkbox:disabled:selected {
+    -fx-text-fill: #6a6058;
+}
+
+.task-checkbox:disabled .box {
+    -fx-opacity: 1.0;
+    -fx-background-color: #4a7cc9;
+    -fx-border-color: #4a7cc9;
+}
+
+.task-checkbox:disabled .mark {
+    -fx-opacity: 1.0;
+}
+
+.task-checkbox {
+    -fx-max-width: infinity;
+    -fx-alignment: center-left;
+}
+
+.task-placeholder {
+    -fx-text-fill: #6a6058;
+    -fx-font-family: 'Playfair Display','Georgia',serif;
+    -fx-font-size: 14px;
+    -fx-padding: 20;
+    -fx-alignment: center;
+    -fx-max-width: infinity;
+}
+
+.task-placeholder {
+    -fx-text-fill: #6a6058;
+    -fx-font-family: 'Playfair Display','Georgia',serif;
+    -fx-font-size: 14px;
+    -fx-max-width: infinity;
+    -fx-max-height: infinity;
+    -fx-alignment: center;
+}
+
+.settings-nav {
+    -fx-background-color: #0a0908;
+    -fx-border-color: transparent rgba(201,168,76,0.15) transparent transparent;
+    -fx-border-width: 0 1 0 0;
+}
+
+.settings-nav-item {
+    -fx-background-color: transparent;
+    -fx-text-fill: #9a9080;
+    -fx-font-size: 13px;
+    -fx-font-family: 'Inter','Segoe UI',sans-serif;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-background-radius: 0;
+}
+
+.settings-nav-item:hover {
+    -fx-background-color: rgba(201,168,76,0.04);
+    -fx-text-fill: #c9a84c;
+}
+
+.settings-nav-item.active {
+    -fx-background-color: rgba(201,168,76,0.08);
+    -fx-text-fill: #f0ebe0;
+    -fx-border-color: #c9a84c transparent transparent transparent;
+    -fx-border-width: 0 0 0 2;
+}
+
+.settings-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+
+.settings-scroll .viewport {
+    -fx-background-color: #0f0e0c;
+}
+
+/* ── Notifications ─────────────────────────────────────────── */
+
+.notifications-page {
+    -fx-background-color: #0f0e0c;
+}
+
+.notification-toolbar {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent #232019 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 14 24 14 24;
+}
+
+.notification-list {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.notification-row {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent #1a1815 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 16 24 16 24;
+    -fx-cursor: hand;
+}
+
+.notification-row:hover {
+    -fx-background-color: #14120e;
+}
+
+.notification-row-unread {
+    -fx-background-color: #14120e;
+}
+
+.notification-row-unread:hover {
+    -fx-background-color: #191612;
+}
+
+.notification-title {
+    -fx-text-fill: #f0eade;
+    -fx-font-family: 'Inter', 'Segoe UI', sans-serif;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.notification-message {
+    -fx-text-fill: #a89e8c;
+    -fx-font-family: 'Inter', 'Segoe UI', sans-serif;
+    -fx-font-size: 13px;
+}
+
+.notification-time {
+    -fx-text-fill: #6a6058;
+    -fx-font-family: 'Inter', 'Segoe UI', sans-serif;
+    -fx-font-size: 12px;
+}
+
+.notification-dot {
+    -fx-min-width: 8;
+    -fx-min-height: 8;
+    -fx-pref-width: 8;
+    -fx-pref-height: 8;
+    -fx-max-width: 8;
+    -fx-max-height: 8;
+}
+
+.notification-empty {
+    -fx-text-fill: #6a6058;
+    -fx-font-family: 'Inter', 'Segoe UI', sans-serif;
+    -fx-font-size: 13px;
+}
+
+.notification-box {
+    -fx-background-color: #1a1815;
+    -fx-background-radius: 18;
+    -fx-cursor: hand;
+}
+
+.notification-box:hover {
+    -fx-background-color: #221f1a;
+}
+
+.notification-badge-label {
+    -fx-text-fill: #0a0908;
+    -fx-font-family: 'Inter', 'Segoe UI', sans-serif;
+    -fx-font-size: 9px;
+    -fx-font-weight: bold;
+}

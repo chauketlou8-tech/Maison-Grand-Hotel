@@ -24,49 +24,67 @@ public class Server {
     public Server() throws IOException, ClassNotFoundException, SQLException {
         ServerSocket serverSocket = new ServerSocket(3000);
 
-        System.out.println("Server started on port 3000...");
+        System.out.println("Socket started on port 3000...");
+        System.out.println("Waiting for connection...");
 
         Socket server = serverSocket.accept();
 
-        System.out.println("Waiting for connection...");
+        System.out.println("Client connected...");
 
-        ObjectOutputStream out = new ObjectOutputStream(server.getOutputStream());
-        ObjectInputStream in = new ObjectInputStream(server.getInputStream());
+        try {
+            ObjectOutputStream out = new ObjectOutputStream(server.getOutputStream());
+            ObjectInputStream in = new ObjectInputStream(server.getInputStream());
 
-        while (!server.isClosed()) {
-            Object message = in.readObject();
-
-            System.out.println("Received: " + message);
-
-            Room[] rooms = this.getRooms().toArray(new Room[0]);
-            Notification[] notifications = this.getNotifications().toArray(new Notification[0]);
-            Reservation[] reservations = this.getReservations().toArray(new Reservation[0]);
-            Payment[] payments = this.getPayments().toArray(new Payment[0]);
-            RoomHistory[] roomHistory = this.getRoomHistory().toArray(new RoomHistory[0]);
-            Guest[] guests = this.getGuests().toArray(new Guest[0]);
-            Address[] addresses = this.getAddresses().toArray(new Address[0]);
-            Booking[] bookings = this.getBookings().toArray(new Booking[0]);
-
-            out.writeObject(rooms);
-            out.writeObject(notifications);
-            out.writeObject(reservations);
-            out.writeObject(payments);
-            out.writeObject(roomHistory);
-            out.writeObject(guests);
-            out.writeObject(addresses);
-            out.writeObject(bookings);
             out.flush();
-            out.reset();
+
+            while (!server.isClosed()) {
+                Object message = in.readObject();
+
+                if (message instanceof String str) {
+                    if (str.equals("Connecting to the server...")) {
+                        System.out.println("Client connected...");
+                    }
+                }
+
+                Room[] rooms = this.getRooms().toArray(new Room[0]);
+                Notification[] notifications = this.getNotifications().toArray(new Notification[0]);
+                Reservation[] reservations = this.getReservations().toArray(new Reservation[0]);
+                Payment[] payments = this.getPayments().toArray(new Payment[0]);
+                RoomHistory[] roomHistory = this.getRoomHistory().toArray(new RoomHistory[0]);
+                Guest[] guests = this.getGuests().toArray(new Guest[0]);
+                Address[] addresses = this.getAddresses().toArray(new Address[0]);
+                Booking[] bookings = this.getBookings().toArray(new Booking[0]);
+                Service[] services = this.getServices().toArray(new Service[0]);
+                ServiceTask[] serviceTasks = this.getServiceTasks().toArray(new ServiceTask[0]);
+                ServiceItem[] serviceItems = this.getServiceItems().toArray(new ServiceItem[0]);
+                Employee[] employees = this.getEmployees().toArray(new Employee[0]);
+
+                out.writeObject(rooms);
+                out.writeObject(notifications);
+                out.writeObject(reservations);
+                out.writeObject(payments);
+                out.writeObject(roomHistory);
+                out.writeObject(guests);
+                out.writeObject(addresses);
+                out.writeObject(bookings);
+                out.writeObject(services);
+                out.writeObject(serviceTasks);
+                out.writeObject(serviceItems);
+                out.writeObject(employees);
+
+                out.flush();
+                out.reset();
+            }
         }
 
-        server.close();
-        serverSocket.close();
+        finally {
+            server.close();
+            serverSocket.close();
+        }
     }
 
     private List<Room> getRooms() throws SQLException {
         List<Room> rooms = new ArrayList<>();
-
-        assert conn != null;
 
         try (Statement statement = conn.createStatement()) {
             ResultSet rs = statement.executeQuery("select * from rooms");
@@ -90,10 +108,8 @@ public class Server {
         return rooms;
     }
 
-    private List<Notification> getNotifications() throws IOException, SQLException {
+    private List<Notification> getNotifications() throws SQLException {
         List<Notification> notifications = new ArrayList<>();
-
-        assert conn != null;
 
         try (Statement statement = conn.createStatement()) {
             ResultSet rs = statement.executeQuery("select * from notifications");
@@ -128,10 +144,8 @@ public class Server {
         return notifications;
     }
 
-    private List<Reservation> getReservations() throws IOException, SQLException {
+    private List<Reservation> getReservations() throws SQLException {
         List<Reservation> reservations = new ArrayList<>();
-
-        assert conn != null;
 
         try (Statement statement = conn.createStatement()) {
             ResultSet rs = statement.executeQuery("select * from reservations");
@@ -162,10 +176,8 @@ public class Server {
         return reservations;
     }
 
-    private List<Payment> getPayments() throws IOException, SQLException {
+    private List<Payment> getPayments() throws SQLException {
         List<Payment> payments = new ArrayList<>();
-
-        assert conn != null;
 
         try (Statement statement = conn.createStatement()) {
             ResultSet rs = statement.executeQuery("select * from payments");
@@ -192,10 +204,8 @@ public class Server {
         return payments;
     }
 
-    private List<RoomHistory> getRoomHistory() throws IOException, SQLException {
+    private List<RoomHistory> getRoomHistory() throws SQLException {
         List<RoomHistory> roomHistory = new ArrayList<>();
-
-        assert conn != null;
 
         try (Statement statement = conn.createStatement()) {
             ResultSet rs = statement.executeQuery("select * from roomhistory");
@@ -217,10 +227,9 @@ public class Server {
         return roomHistory;
     }
 
-    private List<Guest> getGuests() throws IOException, SQLException {
+    private List<Guest> getGuests() throws SQLException {
         List<Guest> guests = new ArrayList<>();
 
-        assert conn != null;
         try (Statement statement = conn.createStatement()) {
             ResultSet rs = statement.executeQuery("select * from guests");
 
@@ -248,10 +257,8 @@ public class Server {
         return guests;
     }
 
-    private List<Address> getAddresses() throws IOException, SQLException {
+    private List<Address> getAddresses() throws SQLException {
         List<Address> addresses = new ArrayList<>();
-
-        assert conn != null;
 
         try (Statement statement = conn.createStatement()) {
             ResultSet rs = statement.executeQuery("select * from address");
@@ -275,10 +282,8 @@ public class Server {
         return addresses;
     }
 
-    private List<Booking> getBookings() throws IOException, SQLException {
+    private List<Booking> getBookings() throws SQLException {
         List<Booking> bookings = new ArrayList<>();
-
-        assert conn != null;
 
         try (Statement statement = conn.createStatement()) {
             ResultSet rs = statement.executeQuery("select * from bookings");
@@ -307,5 +312,115 @@ public class Server {
         }
 
         return bookings;
+    }
+
+    private List<Service> getServices() throws SQLException {
+        List<Service> services = new ArrayList<>();
+
+        try (Statement statement = conn.createStatement()) {
+            ResultSet rs = statement.executeQuery("select * from services");
+
+            while (rs.next()) {
+                Service service = new Service(
+                        rs.getLong("id"),
+                        rs.getString("name"),
+                        rs.getString("description"),
+                        rs.getBoolean("recurring"),
+                        rs.getTimestamp("created_at"),
+                        rs.getTimestamp("updated_at")
+                );
+
+                services.add(service);
+            }
+        }
+
+        return services;
+    }
+
+    private List<ServiceTask> getServiceTasks() throws SQLException {
+        List<ServiceTask> serviceTasks = new ArrayList<>();
+
+        try (Statement statement = conn.createStatement()) {
+            ResultSet rs = statement.executeQuery("select * from servicetasks");
+
+            while (rs.next()) {
+                ServiceTask serviceTask = new ServiceTask(
+                        rs.getInt("id"),
+                        rs.getInt("service_id"),
+                        rs.getLong("room_id"),
+                        rs.getLong("assigned_to"),
+                        rs.getString("status"),
+                        rs.getTimestamp("scheduled_for"),
+                        rs.getTimestamp("completed_at"),
+                        rs.getString("notes"),
+                        rs.getTimestamp("created_at"),
+                        rs.getTimestamp("updated_at")
+                );
+
+                serviceTasks.add(serviceTask);
+            }
+        }
+
+        return serviceTasks;
+    }
+
+    private List<ServiceItem> getServiceItems() throws SQLException {
+        List<ServiceItem> serviceItems = new ArrayList<>();
+
+        try (Statement statement = conn.createStatement()) {
+            ResultSet rs = statement.executeQuery("select * from serviceitems");
+
+            while (rs.next()) {
+                ServiceItem serviceItem = new ServiceItem(
+                        rs.getLong("id"),
+                        rs.getInt("service_id"),
+                        rs.getString("name"),
+                        rs.getString("category"),
+                        rs.getString("description"),
+                        rs.getBigDecimal("price"),
+                        rs.getString("duration"),
+                        rs.getBoolean("active"),
+                        rs.getTimestamp("created_at"),
+                        rs.getTimestamp("updated_at")
+                );
+
+                serviceItems.add(serviceItem);
+            }
+        }
+
+        return serviceItems;
+    }
+
+    private List<Employee> getEmployees() throws SQLException {
+        List<Employee> employees = new ArrayList<>();
+
+        try (Statement statement = conn.createStatement()) {
+            ResultSet rs = statement.executeQuery("select * from employees");
+
+            while (rs.next()) {
+                Employee employee = new Employee(
+                        rs.getLong("id"),
+                        rs.getString("employeeid"),
+                        rs.getString("firstname"),
+                        rs.getString("lastname"),
+                        rs.getString("email"),
+                        rs.getString("phonenumber"),
+                        rs.getInt("address_id"),
+                        rs.getDate("dateofbirth"),
+                        Gender.valueOf(rs.getString("gender").toUpperCase()),
+                        rs.getString("jobposition"),
+                        rs.getString("department"),
+                        rs.getBigDecimal("salary"),
+                        rs.getDate("hiredate"),
+                        EmploymentStatus.valueOf(rs.getString("employmentstatus").toUpperCase()),
+                        rs.getTimestamp("created_at"),
+                        rs.getTimestamp("updated_at")
+                );
+
+                employees.add(employee);
+            }
+        }
+
+        return employees;
     }
 }

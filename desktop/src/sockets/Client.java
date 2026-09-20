@@ -13,14 +13,18 @@ public class Client {
     private final ObjectOutputStream out;
     private final ObjectInputStream in;
 
-    Consumer<Room[]> setRooms;
-    Consumer<Notification[]> setNotifications;
-    Consumer<Reservation[]> setReservations;
-    Consumer<Payment[]> setPayments;
-    Consumer<RoomHistory[]> setRoomHistory;
-    Consumer<Guest[]> setGuests;
-    Consumer<Address[]> setAddresses;
-    Consumer<Booking[]> setBookings;
+    private final Consumer<Room[]> setRooms;
+    private final Consumer<Notification[]> setNotifications;
+    private final Consumer<Reservation[]> setReservations;
+    private final Consumer<Payment[]> setPayments;
+    private final Consumer<RoomHistory[]> setRoomHistory;
+    private final Consumer<Guest[]> setGuests;
+    private final Consumer<Address[]> setAddresses;
+    private final Consumer<Booking[]> setBookings;
+    private final Consumer<Service[]> setServices;
+    private final Consumer<ServiceTask[]> setServiceTasks;
+    private final Consumer<ServiceItem[]> setServiceItems;
+    private final Consumer<Employee[]> setEmployees;
 
     public Client(
             Consumer<Room[]> setRooms,
@@ -30,7 +34,11 @@ public class Client {
             Consumer<RoomHistory[]> setRoomHistory,
             Consumer<Guest[]> setGuests,
             Consumer<Address[]> setAddresses,
-            Consumer<Booking[]> setBookings
+            Consumer<Booking[]> setBookings,
+            Consumer<Service[]> setServices,
+            Consumer<ServiceTask[]> setServiceTasks,
+            Consumer<ServiceItem[]> setServiceItems,
+            Consumer<Employee[]> setEmployees
     ) throws IOException {
 
         this.setRooms = setRooms;
@@ -41,11 +49,17 @@ public class Client {
         this.setGuests = setGuests;
         this.setAddresses = setAddresses;
         this.setBookings = setBookings;
+        this.setServices = setServices;
+        this.setServiceTasks = setServiceTasks;
+        this.setServiceItems = setServiceItems;
+        this.setEmployees = setEmployees;
 
         Socket client = new Socket("localhost", 3000);
 
         this.out = new ObjectOutputStream(client.getOutputStream());
         this.in = new ObjectInputStream(client.getInputStream());
+
+        System.out.println("Connecting to the server...");
 
         this.out.writeObject("Connecting to the server...");
         this.out.flush();
@@ -88,9 +102,24 @@ public class Client {
                     this.setBookings.accept((Booking[]) response);
                 }
 
-                this.out.flush();
+                else if (response instanceof Service[]) {
+                    this.setServices.accept((Service[]) response);
+                }
+
+                else if (response instanceof ServiceTask[]) {
+                    this.setServiceTasks.accept((ServiceTask[]) response);
+                }
+
+                else if (response instanceof ServiceItem[]) {
+                    this.setServiceItems.accept((ServiceItem[]) response);
+                }
+
+                else if (response instanceof Employee[]) {
+                    this.setEmployees.accept((Employee[]) response);
+                }
 
                 out.writeObject("Received response from server...");
+                out.flush();
             }
 
             catch (IOException e) {
@@ -102,5 +131,4 @@ public class Client {
             }
         }
     }
-
 }

@@ -1,18 +1,20 @@
 package tasks;
 
 import models.Room;
+import models.Settings;
 import utils.Conn;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -23,49 +25,58 @@ import java.util.function.Supplier;
 public class CaptureRoomHistoryJob {
 
     private static final Map<Long, String> lastKnownStatus = new HashMap<>();
-    private static long lastDayKey = 0;
+    private static long lastPeriodKey = 0;
 
-    public static void run(Supplier<Room[]> roomsSupplier) {
+    private static Connection conn;
+
+    public static void run(Supplier<Room[]> roomsSupplier, Settings settings) throws IOException, SQLException {
+        conn = Conn.getConnection();
+
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
+        LocalTime auditTime = settings.getNightAuditTime().toLocalTime();
+
         long now = System.currentTimeMillis();
-        long nextMidnight = LocalDate.now(ZoneId.systemDefault()).plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        long delay = nextMidnight - now;
+
+        long nextAudit = LocalDate.now(ZoneId.systemDefault()).atTime(auditTime).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+
+        if (nextAudit <= now) {
+            nextAudit = LocalDate.now(ZoneId.systemDefault()).plusDays(1).atTime(auditTime).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        }
+
+        long delay = nextAudit - now;
 
         scheduler.scheduleAtFixedRate(() -> {
             try {
-                captureRoomHistory(roomsSupplier.get());
+                captureRoomHistory(roomsSupplier.get(), settings);
             }
 
-            catch (Throwable t) {
-                t.printStackTrace();
+            catch (SQLException e) {
+                e.printStackTrace();
             }
         }, delay, 24, TimeUnit.HOURS);
 
         scheduler.scheduleAtFixedRate(() -> {
             try {
-                captureRoomHistoryForToday(roomsSupplier.get());
+                captureRoomHistoryForToday(roomsSupplier.get(), settings);
             }
 
-            catch (Throwable t) {
-                t.printStackTrace();
+            catch (SQLException e) {
+                e.printStackTrace();
             }
-        }, 60, 60, TimeUnit.SECONDS);
+        }, 0, 60, TimeUnit.SECONDS);
     }
 
-    private static void captureRoomHistory(Room[] rooms) throws SQLException, IOException {
+    private static void captureRoomHistory(Room[] rooms, Settings settings) throws SQLException {
         System.out.println("Running capture room history job...");
 
-        Connection connection = Conn.getConnection();
-        assert connection != null;
+        OffsetDateTime periodKey = computePeriodKey(settings.getNightAuditFrequency());
 
-        OffsetDateTime midnight = OffsetDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.DAYS);
-
-        try (PreparedStatement ps = connection.prepareStatement("insert into roomhistory (roomid, status_date, status) values (?, ?, ?) on conflict (roomid, status_date) do update set status = excluded.status, updated_at = now()")) {
+        try (PreparedStatement ps = conn.prepareStatement("insert into roomhistory (roomid, status_date, status) values (?, ?, ?) on conflict (roomid, status_date) do update set status = excluded.status, updated_at = now()")) {
 
             for (Room room : rooms) {
                 ps.setLong(1, room.getRoomid());
-                ps.setObject(2, midnight);
+                ps.setObject(2, periodKey);
                 ps.setString(3, room.getRoomstatus().name().toLowerCase());
                 ps.addBatch();
             }
@@ -76,19 +87,17 @@ public class CaptureRoomHistoryJob {
         System.out.println("Captured " + rooms.length + " rooms.");
     }
 
-    private static void captureRoomHistoryForToday(Room[] rooms) throws SQLException, IOException {
+    private static void captureRoomHistoryForToday(Room[] rooms, Settings settings) throws SQLException {
         System.out.println("running the frequent room history job...");
-        Connection connection = Conn.getConnection();
-        assert connection != null;
 
-        OffsetDateTime todayKey = LocalDate.now(ZoneId.systemDefault()).atStartOfDay().atOffset(ZoneOffset.UTC);
+        OffsetDateTime periodKey = computePeriodKey(settings.getNightAuditFrequency());
 
-        if (todayKey.toInstant().toEpochMilli() != lastDayKey) {
+        if (periodKey.toInstant().toEpochMilli() != lastPeriodKey) {
             lastKnownStatus.clear();
-            lastDayKey = todayKey.toInstant().toEpochMilli();
+            lastPeriodKey = periodKey.toInstant().toEpochMilli();
         }
 
-        try (PreparedStatement ps = connection.prepareStatement("insert into roomhistory (roomid, status_date, status) values (?, ?, ?) on conflict (roomid, status_date) do update set status = excluded.status, updated_at = now()")) {
+        try (PreparedStatement ps = conn.prepareStatement("insert into roomhistory (roomid, status_date, status) values (?, ?, ?) on conflict (roomid, status_date) do update set status = excluded.status, updated_at = now()")) {
 
             int changed = 0;
 
@@ -101,7 +110,7 @@ public class CaptureRoomHistoryJob {
                 lastKnownStatus.put(room.getRoomid(), status);
 
                 ps.setLong(1, room.getRoomid());
-                ps.setObject(2, todayKey);
+                ps.setObject(2, periodKey);
                 ps.setString(3, status);
                 ps.addBatch();
                 changed++;
@@ -113,5 +122,25 @@ public class CaptureRoomHistoryJob {
 
             System.out.println("Captured " + changed + " of " + rooms.length + " rooms.");
         }
+    }
+
+    private static OffsetDateTime computePeriodKey(String frequency) {
+        LocalDate today = LocalDate.now(ZoneId.systemDefault());
+
+        LocalDate periodStart;
+
+        if ("Weekly".equalsIgnoreCase(frequency)) {
+            periodStart = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        }
+
+        else if ("Monthly".equalsIgnoreCase(frequency)) {
+            periodStart = today.withDayOfMonth(1);
+        }
+
+        else {
+            periodStart = today;
+        }
+
+        return periodStart.atStartOfDay().atOffset(ZoneOffset.UTC);
     }
 }

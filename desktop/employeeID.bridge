@@ -55,5 +55,4 @@ EMP900-EMP999 - Special / Founder / Owner
 // - EMP000 is reserved for system use or founder
 // - No employee shares the same ID
 // - IDs are permanent throughout employment
-// - IDs are not reassigned after an employee leaves
 // - The first digit instantly identifies the department

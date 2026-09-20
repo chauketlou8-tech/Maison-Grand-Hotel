@@ -1,7 +1,8 @@
 create table if not exists Users(
         id serial primary key,
         employee_id int references Employees(id) on delete cascade,
-        username text unique not null,
+        name text not null,
+        email text not null unique ,
         password_hash text not null,
         role role not null,
         account_status employmentstatus default 'ACTIVE',

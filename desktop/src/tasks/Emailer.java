@@ -1,7 +1,7 @@
 package tasks;
 
-import jakarta.mail.internet.*;
 import jakarta.mail.*;
+import jakarta.mail.internet.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,8 +22,6 @@ public class Emailer {
 
         String host = props.getProperty("email.host");
         String port = props.getProperty("email.port");
-        boolean smtp_auth = Boolean.parseBoolean(props.getProperty("mail.smtp.auth"));
-        boolean smtp_starttls = Boolean.parseBoolean(props.getProperty("mail.smtp.starttls.enable"));
         String username = props.getProperty("email.username");
         String password = props.getProperty("email.password");
 
@@ -31,8 +29,8 @@ public class Emailer {
 
         mailProps.put("mail.smtp.host", host);
         mailProps.put("mail.smtp.port", port);
-        mailProps.put("mail.smtp.auth", String.valueOf(smtp_auth));
-        mailProps.put("mail.smtp.starttls.enable", String.valueOf(smtp_starttls));
+        mailProps.put("mail.smtp.auth", props.getProperty("mail.smtp.auth"));
+        mailProps.put("mail.smtp.starttls.enable", props.getProperty("mail.smtp.starttls.enable"));
 
         Session session = Session.getInstance(
                 mailProps,
@@ -66,4 +64,3 @@ public class Emailer {
         }
     }
 }
-
