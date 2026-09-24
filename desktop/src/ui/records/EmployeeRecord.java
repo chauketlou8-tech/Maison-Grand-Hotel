@@ -13,8 +13,13 @@ import javafx.scene.paint.Color;
 
 import models.Employee;
 import data.EmployeeData;
+import utils.Conn;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -38,7 +43,9 @@ public class EmployeeRecord extends VBox {
     private final Button cancelBtn;
     private final Button closeBtn;
 
-    public EmployeeRecord(EmployeeData data, Runnable close) {
+    private final Connection connection = Conn.getConnection();
+
+    public EmployeeRecord(EmployeeData data, Runnable close) throws SQLException, IOException {
 
         getStyleClass().add("booking-record");
         setSpacing(12);
@@ -223,20 +230,42 @@ public class EmployeeRecord extends VBox {
     }
 
     private void save() {
-        String firstName    = editors.get("First name").getText();
-        String lastName     = editors.get("Last name").getText();
-        String email        = editors.get("Email").getText();
-        String phone        = editors.get("Phone").getText();
-        Date dateOfBirth    = Date.from(LocalDate.parse(editors.get("Date of birth").getText(), DATE_FMT).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        Gender gender       = Gender.valueOf(editors.get("Gender").getText().toUpperCase());
-        int addressId       = Integer.parseInt(editors.get("Address ID").getText());
-        String employeeId   = editors.get("Employee ID").getText();
-        String role         = editors.get("Role").getText();
-        String department   = editors.get("Department").getText();
-        BigDecimal salary   = new BigDecimal(editors.get("Salary").getText());
-        Date hireDate       = Date.from(LocalDate.parse(editors.get("Hire date").getText(), DATE_FMT).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        String employeeId       = editors.get("Employee ID").getText();
+        String firstName        = editors.get("First name").getText();
+        String lastName         = editors.get("Last name").getText();
+        String email            = editors.get("Email").getText();
+        String phone            = editors.get("Phone").getText();
+        int addressId           = Integer.parseInt(editors.get("Address ID").getText());
+        Date dateOfBirth        = Date.from(LocalDate.parse(editors.get("Date of birth").getText(), DATE_FMT).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Gender gender           = Gender.valueOf(editors.get("Gender").getText().toUpperCase());
+        String role             = editors.get("Role").getText();
+        String department       = editors.get("Department").getText();
+        BigDecimal salary       = new BigDecimal(editors.get("Salary").getText());
+        Date hireDate           = Date.from(LocalDate.parse(editors.get("Hire date").getText(), DATE_FMT).atStartOfDay(ZoneId.systemDefault()).toInstant());
         EmploymentStatus status = EmploymentStatus.valueOf(editors.get("Status").getText().toUpperCase());
-        Timestamp created   = Timestamp.valueOf(LocalDateTime.parse(editors.get("Created").getText(), TIMESTAMP_FMT));
-        Timestamp updated   = Timestamp.valueOf(LocalDateTime.parse(editors.get("Updated").getText(), TIMESTAMP_FMT));
+
+        try (PreparedStatement statement = connection.prepareStatement("isert into employees (employeeid, firstname, lastname, email, phonenumber, address_id," +
+                "dateofbirth, gender, jobposition, department, salary, hiredate, employmentstatus)" +
+                "values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+            statement.setString(1, employeeId);
+            statement.setString(2, firstName);
+            statement.setString(3, lastName);
+            statement.setString(4, email);
+            statement.setString(5, phone);
+            statement.setInt(6, addressId);
+            statement.setDate(7, new java.sql.Date(dateOfBirth.getTime()));
+            statement.setString(8, gender.toString());
+            statement.setString(9, role);
+            statement.setString(10, department);
+            statement.setBigDecimal(11, salary);
+            statement.setDate(12, new java.sql.Date(hireDate.getTime()));
+            statement.setString(13, status.toString());
+
+            statement.execute();
+        }
+
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

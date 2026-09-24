@@ -1,4 +1,4 @@
-package tasks;
+package services;
 
 import jakarta.mail.*;
 import jakarta.mail.internet.*;
@@ -7,11 +7,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-public class Emailer {
+public class EmailService {
     public static void sendEmail(String to, String subject, String msg, String name) throws IOException {
         Properties props = new Properties();
 
-        try (InputStream inputStream = Emailer.class.getClassLoader().getResourceAsStream("config/application.properties")) {
+        try (InputStream inputStream = EmailService.class.getClassLoader().getResourceAsStream("config/application.properties")) {
 
             if (inputStream == null) {
                 throw new RuntimeException("config/application.properties not found");

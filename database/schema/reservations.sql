@@ -11,6 +11,7 @@ create table if not exists Reservations (
         reservationStatus reservationstatus default 'PENDING',
         selectedPackages text[] default '{}',
         requests text,
+        total numeric(10, 2),
         created_at timestamp with time zone default now(),
         updated_at timestamp with time zone default now()
 );

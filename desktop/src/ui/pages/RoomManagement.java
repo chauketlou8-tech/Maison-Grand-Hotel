@@ -16,21 +16,29 @@ import javafx.scene.paint.Color;
 import models.Booking;
 import models.Guest;
 import models.Room;
+import utils.Assignment;
 import utils.Conn;
 import data.RoomData;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class RoomManagement extends VBox {
+
+    private static final AtomicInteger maintenanceIndex = new AtomicInteger();
 
     private final Connection connection = Conn.getConnection();
 
@@ -131,7 +139,7 @@ public class RoomManagement extends VBox {
         filter_row.getStyleClass().add("registry-filter-row");
         filter_row.setSpacing(16);
         filter_row.setAlignment(Pos.CENTER_LEFT);
-        filter_row.setPadding(new Insets(0, 20, 12, 20));
+        filter_row.setPadding(new Insets(20));
         filter_row.setMaxWidth(Double.MAX_VALUE);
 
         HBox status_panel = new HBox();
@@ -465,6 +473,10 @@ public class RoomManagement extends VBox {
             statement.executeUpdate();
         }
 
+        if (newStatus == RoomStatus.MAINTENANCE) {
+            createMaintenanceTask(roomId, selectedRoom.getFloor());
+        }
+
         for (int i = 0; i < rooms.length; i++) {
             if (rooms[i].getRoomid() == roomId) {
                 Room old = rooms[i];
@@ -478,6 +490,50 @@ public class RoomManagement extends VBox {
         setData(bookings, guests, rooms);
 
         updating = false;
+    }
+
+    private void createMaintenanceTask(long roomId, int floor) throws SQLException {
+        int index = maintenanceIndex.getAndIncrement();
+
+        Long assignedTo = Assignment.pick("maintenance", index, floor);
+
+        int serviceId = getServiceId();
+
+        if (serviceId <= 0) {
+            return;
+        }
+
+        try (PreparedStatement statement = connection.prepareStatement("insert into servicetasks(service_id, room_id, assigned_to, scheduled_for) values (?, ?, ?, ?)")) {
+
+            statement.setInt(1, serviceId);
+            statement.setLong(2, roomId);
+
+            if (assignedTo == null) {
+                statement.setNull(3, Types.BIGINT);
+            }
+
+            else {
+                statement.setLong(3, assignedTo);
+            }
+
+            statement.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)));
+
+            statement.executeUpdate();
+        }
+    }
+
+    private int getServiceId() throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement("select id from services where name = ?")) {
+            statement.setString(1, "Maintenance");
+
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id");
+                }
+            }
+        }
+
+        return 0;
     }
 
     private String capitalize(String s) {

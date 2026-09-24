@@ -3,12 +3,13 @@ package ui.pages;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcons;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import models.Room;
@@ -25,8 +26,6 @@ import java.util.Map;
 
 public class Housekeeping extends VBox {
 
-    private final VBox dailyTasks;
-
     private final Label pendingCleaningValue;
     private final Label inMaintenanceValue;
     private final Label availableRoomsValue;
@@ -41,7 +40,11 @@ public class Housekeeping extends VBox {
     private Service[] pendingServices;
     private ServiceTask[] pendingTasks;
 
-    public Housekeeping() {
+    private final Connection connection = Conn.getConnection();
+
+    public Housekeeping() throws SQLException, IOException {
+        assert(connection != null);
+
         getStyleClass().add("housekeeping");
         setSpacing(0);
         setMaxWidth(Double.MAX_VALUE);
@@ -84,10 +87,9 @@ public class Housekeeping extends VBox {
         HBox.setHgrow(queueBox, Priority.ALWAYS);
 
         VBox tasksBox = sectionBox("DAILY TASK CHECKLIST");
-        dailyTasks = new VBox(0);
-        dailyTasks.getStyleClass().add("task-list");
-        VBox.setVgrow(dailyTasks, Priority.ALWAYS);
-        tasksBox.getChildren().add(dailyTasks);
+        TableView<HousekeepingData.DailyTask> taskTable = buildTaskTable();
+        VBox.setVgrow(taskTable, Priority.ALWAYS);
+        tasksBox.getChildren().add(taskTable);
         HBox.setHgrow(tasksBox, Priority.ALWAYS);
 
         middle.getChildren().addAll(queueBox, tasksBox);
@@ -150,11 +152,11 @@ public class Housekeeping extends VBox {
         TableColumn<HousekeepingData.CleaningRoom, String> lastCleaned = new TableColumn<>("LAST CLEANED");
         TableColumn<HousekeepingData.CleaningRoom, Void> actions = new TableColumn<>("ACTIONS");
 
-        room.setCellValueFactory(new PropertyValueFactory<>("roomNumber"));
-        type.setCellValueFactory(new PropertyValueFactory<>("roomType"));
-        floor.setCellValueFactory(new PropertyValueFactory<>("floor"));
-        description.setCellValueFactory(new PropertyValueFactory<>("description"));
-        lastCleaned.setCellValueFactory(new PropertyValueFactory<>("lastCleaned"));
+        room.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().roomNumber()));
+        type.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().roomType()));
+        floor.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().floor()));
+        description.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().description()));
+        lastCleaned.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().lastCleaned()));
 
         actions.setCellFactory(_ -> new TableCell<>() {
             private final Button cleanBtn = new Button("Clean");
@@ -178,6 +180,34 @@ public class Housekeeping extends VBox {
                 HBox box = new HBox(6, cleanBtn, editBtn);
                 box.setAlignment(Pos.CENTER_LEFT);
                 setGraphic(box);
+
+                cleanBtn.setOnAction(_ -> {
+                    HousekeepingData.CleaningRoom row = getTableView().getItems().get(getIndex());
+
+                    if (row == null) return;
+
+                    try {
+                        markCleaned(row.taskId());
+                    }
+
+                    catch (IOException | SQLException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                });
+
+                editBtn.setOnAction(_ -> {
+                    HousekeepingData.CleaningRoom row = getTableView().getItems().get(getIndex());
+
+                    if (row == null) return;
+
+                    try {
+                        editCleaningTask(row.taskId());
+                    }
+
+                    catch (IOException | SQLException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                });
             }
 
             @Override
@@ -188,6 +218,66 @@ public class Housekeeping extends VBox {
         });
 
         table.getColumns().addAll(room, type, floor, description, lastCleaned, actions);
+
+        return table;
+    }
+
+    private TableView<HousekeepingData.DailyTask> buildTaskTable() {
+        TableView<HousekeepingData.DailyTask> table = new TableView<>();
+        table.getStyleClass().add("registry-table");
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+        table.setMaxWidth(Double.MAX_VALUE);
+        table.setMaxHeight(Double.MAX_VALUE);
+        table.setItems(taskData);
+
+        TableColumn<HousekeepingData.DailyTask, String> name = new TableColumn<>("NAME");
+        TableColumn<HousekeepingData.DailyTask, String> assignedTo = new TableColumn<>("ASSIGNED TO");
+        TableColumn<HousekeepingData.DailyTask, String> notes = new TableColumn<>("NOTES");
+        TableColumn<HousekeepingData.DailyTask, Void> done = new TableColumn<>("DONE");
+
+        name.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().task()));
+        assignedTo.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().assignedTo()));
+        notes.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().notes()));
+
+        done.setCellFactory(_ -> new TableCell<>() {
+            private final CheckBox box = new CheckBox();
+
+            {
+                box.setOnAction(_ -> {
+                    HousekeepingData.DailyTask row = getTableView().getItems().get(getIndex());
+
+                    if (row == null) return;
+                    if (row.done()) return;
+
+                    try {
+                        setComplete(row.id());
+                    }
+
+                    catch (IOException | SQLException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (empty || getIndex() < 0 || getIndex() >= getTableView().getItems().size()) {
+                    setGraphic(null);
+                    return;
+                }
+
+                HousekeepingData.DailyTask row = getTableView().getItems().get(getIndex());
+
+                box.setSelected(row.done());
+                box.setDisable(row.done());
+
+                setGraphic(box);
+            }
+        });
+
+        table.getColumns().addAll(name, assignedTo, notes, done);
 
         return table;
     }
@@ -207,11 +297,11 @@ public class Housekeeping extends VBox {
         TableColumn<HousekeepingData.MaintenanceRoom, String> lastCleaned = new TableColumn<>("LAST CLEANED");
         TableColumn<HousekeepingData.MaintenanceRoom, Void> action = new TableColumn<>("ACTION");
 
-        room.setCellValueFactory(new PropertyValueFactory<>("roomNumber"));
-        type.setCellValueFactory(new PropertyValueFactory<>("roomType"));
-        floor.setCellValueFactory(new PropertyValueFactory<>("floor"));
-        description.setCellValueFactory(new PropertyValueFactory<>("description"));
-        lastCleaned.setCellValueFactory(new PropertyValueFactory<>("lastCleaned"));
+        room.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().roomNumber()));
+        type.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().roomType()));
+        floor.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().floor()));
+        description.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().description()));
+        lastCleaned.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().lastCleaned()));
 
         action.setCellFactory(_ -> new TableCell<>() {
             private final Button markAvailable = new Button("Mark Available");
@@ -223,6 +313,20 @@ public class Housekeeping extends VBox {
                 checkIcon.setSize("10");
                 checkIcon.setFill(Color.web("#fff"));
                 markAvailable.setGraphic(checkIcon);
+
+                markAvailable.setOnAction(_ -> {
+                    HousekeepingData.MaintenanceRoom row = getTableView().getItems().get(getIndex());
+
+                    if (row == null) return;
+
+                    try {
+                        markRoomAvailable(row.roomNumber());
+                    }
+
+                    catch (IOException | SQLException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                });
             }
 
             @Override
@@ -249,11 +353,17 @@ public class Housekeeping extends VBox {
 
         Platform.runLater(() -> {
             updateQueued = false;
-            processData(pendingRooms, pendingServices, pendingTasks, settings);
+            try {
+                processData(pendingRooms, pendingServices, pendingTasks, settings);
+            }
+
+            catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 
-    private void processData(Room[] rooms, Service[] services, ServiceTask[] serviceTasks, Settings settings) {
+    private void processData(Room[] rooms, Service[] services, ServiceTask[] serviceTasks, Settings settings) throws SQLException {
         if (rooms == null || services == null || serviceTasks == null) return;
 
         Map<Integer, Service> servicesById = new HashMap<>();
@@ -261,6 +371,8 @@ public class Housekeeping extends VBox {
 
         Map<Long, Room> roomsById = new HashMap<>();
         for (Room r : rooms) roomsById.put(r.getRoomid(), r);
+
+        Map<Long, String> employeeNames = loadEmployeeNames();
 
         ObservableList<HousekeepingData.CleaningRoom> newCleaning = FXCollections.observableArrayList();
         int pendingCleaning = 0;
@@ -273,7 +385,7 @@ public class Housekeeping extends VBox {
             Room room = roomsById.get(st.getRoom_id());
             if (room == null) continue;
 
-            newCleaning.add(new HousekeepingData.CleaningRoom(room.getRoomnumber(), room.getRoomtype(), room.getFloornumber(), room.getDescription(), HousekeepingData.latestCleaningDate(room.getRoomid(), serviceTasks, servicesById, settings)));
+            newCleaning.add(new HousekeepingData.CleaningRoom(st.getId(), room.getRoomnumber(), room.getRoomtype(), room.getFloornumber(), room.getDescription(), HousekeepingData.latestCleaningDate(room.getRoomid(), serviceTasks, servicesById, settings)));
             pendingCleaning++;
         }
 
@@ -289,7 +401,10 @@ public class Housekeeping extends VBox {
             boolean done = "completed".equalsIgnoreCase(st.getStatus());
             if (done) completed++;
 
-            newTasks.add(new HousekeepingData.DailyTask(st.getId(), done, s.getName()));
+            String assignedName = st.getAssigned_to() == 0 ? "—" : employeeNames.getOrDefault(st.getAssigned_to(), "—");
+            String note = st.getNotes() == null || st.getNotes().isBlank() ? "—" : st.getNotes();
+
+            newTasks.add(new HousekeepingData.DailyTask(st.getId(), done, s.getName(), assignedName, note));
         }
 
         ObservableList<HousekeepingData.MaintenanceRoom> newMaintenance = FXCollections.observableArrayList();
@@ -311,7 +426,9 @@ public class Housekeeping extends VBox {
             cleaningData.setAll(newCleaning);
         }
 
-        syncDailyTasks(newTasks);
+        if (!newTasks.equals(taskData)) {
+            taskData.setAll(newTasks);
+        }
 
         if (!newMaintenance.equals(maintenanceData)) {
             maintenanceData.setAll(newMaintenance);
@@ -338,53 +455,53 @@ public class Housekeeping extends VBox {
         }
     }
 
-    private void syncDailyTasks(ObservableList<HousekeepingData.DailyTask> newTasks) {
-        if (!newTasks.equals(taskData)) {
-            rebuildDailyTasks(newTasks);
-        }
-    }
+    private Map<Long, String> loadEmployeeNames() throws SQLException {
+        Map<Long, String> names = new HashMap<>();
 
-    private void rebuildDailyTasks(ObservableList<HousekeepingData.DailyTask> newTasks) {
-        taskData.setAll(newTasks);
-        dailyTasks.getChildren().clear();
+        try (Statement statement = connection.createStatement();
+             ResultSet rs = statement.executeQuery("select id, firstname, lastname from employees")) {
 
-        if (taskData.isEmpty()) {
-            Label empty = new Label("No tasks");
-            empty.getStyleClass().add("task-placeholder");
-            VBox.setVgrow(empty, Priority.ALWAYS);
-            dailyTasks.getChildren().add(empty);
-            return;
+            while (rs.next()) {
+                names.put(rs.getLong("id"), rs.getString("firstname") + " " + rs.getString("lastname"));
+            }
         }
 
-        for (HousekeepingData.DailyTask task : taskData) {
-            CheckBox box = new CheckBox(task.task());
-            box.getStyleClass().add("task-checkbox");
-
-            box.setSelected(task.done());
-            box.setDisable(task.done());
-
-            box.setOnAction(_ -> {
-                try {
-                    setComplete(task.id());
-                } catch (IOException | SQLException ex) {
-                    throw new RuntimeException(ex);
-                }
-            });
-
-            dailyTasks.getChildren().add(box);
-        }
+        return names;
     }
 
     private void setComplete(int taskId) throws IOException, SQLException {
-        Connection connection = Conn.getConnection();
-        assert(connection != null);
-
-        try(Statement statement = connection.createStatement()){
+        try (Statement statement = connection.createStatement()){
             statement.execute("update servicetasks set status = 'completed', completed_at = now(), updated_at = now() where id = '" + taskId + "'");
         }
 
         catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void markRoomAvailable(int roomNumber) throws IOException, SQLException {
+        try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate("update rooms set roomstatus = 'available' where roomnumber = '" + roomNumber + "'");
+        }
+
+        try (PreparedStatement statement = connection.prepareStatement(
+                "update servicetasks set status = 'completed', completed_at = now(), updated_at = now() " +
+                    "where room_id = (select roomid from rooms where roomnumber = ?) " +
+                    "and service_id = (select id from services where name = 'Maintenance') and status <> 'completed'")) {
+
+            statement.setInt(1, roomNumber);
+
+            statement.executeUpdate();
+        }
+    }
+
+    private void markCleaned(int taskId) throws IOException, SQLException {
+        try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate("update servicetasks set status = 'completed', completed_at = now(), updated_at = now() where id = '" + taskId + "'");
+        }
+    }
+
+    private void editCleaningTask(int taskId) throws IOException, SQLException {
+        // YOU WRITE THIS
     }
 }

@@ -5,5 +5,6 @@ insert into Services (name, description, recurring) values
     ('Dining', 'Restaurant and in-room dining', true),
     ('Transport', 'Airport transfers and city transport', false),
     ('Activities', 'Tours and experiences', false),
-    ('Fitness', 'Gym and personal training', true)
+    ('Fitness', 'Gym and personal training', true),
+    ('Maintenance', 'Repairs and upkeep', false)
 on conflict (name) do nothing;

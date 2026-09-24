@@ -99,9 +99,7 @@ public class TopBar extends HBox {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, " + datePattern + " " + timePattern);
 
-        Timeline clock = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
-            date_label.setText(LocalDateTime.now().format(formatter).toUpperCase());
-        }));
+        Timeline clock = new Timeline(new KeyFrame(Duration.seconds(1), _ -> date_label.setText(LocalDateTime.now().format(formatter).toUpperCase())));
 
         clock.setCycleCount(Animation.INDEFINITE);
         clock.play();
@@ -211,7 +209,7 @@ public class TopBar extends HBox {
     }
 
     public void setOnBellClick(Runnable action) {
-        notification_box.setOnMouseClicked(e -> action.run());
+        notification_box.setOnMouseClicked(_ -> action.run());
     }
 
     private static String javaPattern(String pattern) {

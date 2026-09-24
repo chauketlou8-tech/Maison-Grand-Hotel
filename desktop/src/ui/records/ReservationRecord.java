@@ -14,7 +14,7 @@ import javafx.stage.Stage;
 import models.Reservation;
 import models.Settings;
 import records.Payment;
-import tasks.Emailer;
+import services.EmailService;
 import utils.Conn;
 import data.ReservationsData;
 
@@ -251,7 +251,7 @@ public class ReservationRecord extends VBox {
     private Properties loadProperties() throws IOException {
         Properties properties = new Properties();
 
-        try (InputStream inputStream = Emailer.class.getClassLoader().getResourceAsStream("config/application.properties")) {
+        try (InputStream inputStream = EmailService.class.getClassLoader().getResourceAsStream("config/application.properties")) {
 
             if (inputStream == null) {
                 throw new IOException("config/application.properties not found");
@@ -361,7 +361,7 @@ public class ReservationRecord extends VBox {
 
             new Thread(() -> {
                 try {
-                    Emailer.sendEmail(guest_email, emailSubject, emailMessage, name);
+                    EmailService.sendEmail(guest_email, emailSubject, emailMessage, name);
                 }
 
                 catch (Exception e) {
@@ -454,7 +454,7 @@ public class ReservationRecord extends VBox {
 
             new Thread(() -> {
                 try {
-                    Emailer.sendEmail(guest_email, emailSubject, emailMessage, name);
+                    EmailService.sendEmail(guest_email, emailSubject, emailMessage, name);
                 }
 
                 catch (Exception e) {

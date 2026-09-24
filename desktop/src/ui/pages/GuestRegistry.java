@@ -18,7 +18,6 @@ import models.Settings;
 import records.Payment;
 import records.Address;
 import data.GuestRegistryData;
-import ui.newModals.NewGuest;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,20 +49,6 @@ public class GuestRegistry extends VBox {
         button_row.setPadding(new Insets(16, 20, 12, 20));
         button_row.setMaxWidth(Double.MAX_VALUE);
 
-        Button newGuest = new Button("New Guest");
-        newGuest.getStyleClass().add("registry-button-primary");
-
-        FontAwesomeIcon plusIcon = new FontAwesomeIcon();
-        plusIcon.setIcon(FontAwesomeIcons.PLUS);
-        plusIcon.setSize("11");
-        plusIcon.setFill(Color.web("#0a0908"));
-        newGuest.setGraphic(plusIcon);
-
-        newGuest.setOnAction(_ -> NewGuest.open(this));
-
-        Label divider = new Label("|");
-        divider.getStyleClass().add("registry-divider");
-
         Button clearFilters = new Button("Clear Filters");
         clearFilters.getStyleClass().add("registry-button");
 
@@ -76,13 +61,13 @@ public class GuestRegistry extends VBox {
         recordsLabel = new Label("No records");
         recordsLabel.getStyleClass().add("registry-count");
 
-        button_row.getChildren().addAll(newGuest, divider, clearFilters, recordsLabel);
+        button_row.getChildren().addAll(clearFilters, recordsLabel);
 
         HBox filler_row = new HBox();
         filler_row.getStyleClass().add("registry-filter-row");
         filler_row.setSpacing(16);
         filler_row.setAlignment(Pos.CENTER_LEFT);
-        filler_row.setPadding(new Insets(0, 20, 12, 20));
+        filler_row.setPadding(new Insets(20));
         filler_row.setMaxWidth(Double.MAX_VALUE);
 
         HBox search_box = new HBox();
@@ -195,7 +180,7 @@ public class GuestRegistry extends VBox {
         this.bookings = bookings;
         this.rooms = rooms;
 
-        Map<Guest, Boolean> map = new HashMap<Guest, Boolean>();
+        Map<Guest, Boolean> map = new HashMap<>();
 
         ObservableList<GuestRegistryData> newData = FXCollections.observableArrayList();
 

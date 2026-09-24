@@ -112,7 +112,7 @@ public class Payments extends VBox {
         HBox stats = new HBox();
         stats.getStyleClass().add("housekeeping-stats");
         stats.setSpacing(12);
-        stats.setPadding(new Insets(0, 20, 12, 20));
+        stats.setPadding(new Insets(20));
         stats.setMaxWidth(Double.MAX_VALUE);
 
         VBox collectedCard = statCard("COLLECTED");
@@ -137,7 +137,7 @@ public class Payments extends VBox {
         filter_row.getStyleClass().add("registry-filter-row");
         filter_row.setSpacing(16);
         filter_row.setAlignment(Pos.CENTER_LEFT);
-        filter_row.setPadding(new Insets(0, 20, 12, 20));
+        filter_row.setPadding(new Insets(20));
         filter_row.setMaxWidth(Double.MAX_VALUE);
 
         HBox search_panel = new HBox();

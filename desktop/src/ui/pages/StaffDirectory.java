@@ -20,9 +20,9 @@ import models.Employee;
 import data.EmployeeData;
 import models.Settings;
 import ui.records.EmployeeRecord;
-import ui.newModals.NewEmployee;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 public class StaffDirectory extends VBox {
 
@@ -49,17 +49,6 @@ public class StaffDirectory extends VBox {
         left_panel.setSpacing(8);
         left_panel.setAlignment(Pos.CENTER_LEFT);
 
-        Button addEmployee = new Button("Add Employee");
-        addEmployee.getStyleClass().add("registry-button-primary");
-
-        FontAwesomeIcon plusIcon = new FontAwesomeIcon();
-        plusIcon.setIcon(FontAwesomeIcons.PLUS);
-        plusIcon.setSize("11");
-        plusIcon.setFill(Color.web("#0a0908"));
-        addEmployee.setGraphic(plusIcon);
-
-        addEmployee.setOnAction(_ -> NewEmployee.open(this));
-
         Button clear = new Button("Clear");
         clear.getStyleClass().add("registry-button");
 
@@ -69,7 +58,7 @@ public class StaffDirectory extends VBox {
         refreshIcon.setFill(Color.web("#9a9080"));
         clear.setGraphic(refreshIcon);
 
-        left_panel.getChildren().addAll(addEmployee, clear);
+        left_panel.getChildren().addAll(clear);
 
         HBox right_panel = new HBox();
         right_panel.setAlignment(Pos.CENTER_RIGHT);
@@ -85,7 +74,7 @@ public class StaffDirectory extends VBox {
         filter_row.getStyleClass().add("registry-filter-row");
         filter_row.setSpacing(16);
         filter_row.setAlignment(Pos.CENTER_LEFT);
-        filter_row.setPadding(new Insets(0, 20, 12, 20));
+        filter_row.setPadding(new Insets(20));
         filter_row.setMaxWidth(Double.MAX_VALUE);
 
         HBox search_panel = new HBox();
@@ -183,7 +172,7 @@ public class StaffDirectory extends VBox {
                     try {
                         openEmployeeModal(data);
                     }
-                    catch (IOException e) {
+                    catch (IOException | SQLException e) {
                         throw new RuntimeException(e);
                     }
 
@@ -289,7 +278,7 @@ public class StaffDirectory extends VBox {
         }
     }
 
-    private void openEmployeeModal(EmployeeData data) throws IOException {
+    private void openEmployeeModal(EmployeeData data) throws IOException, SQLException {
         Stage modal = new Stage();
         modal.initModality(Modality.APPLICATION_MODAL);
         modal.initStyle(StageStyle.TRANSPARENT);

@@ -26,10 +26,8 @@ import records.RoomHistory;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+
 import records.Event;
 
 public class ActivityFeed extends VBox {
@@ -128,7 +126,7 @@ public class ActivityFeed extends VBox {
             Date created_at = r.getCreated_at();
             LocalDateTime when = toLocalDateTime(created_at);
 
-            events.add(new Event("#4a9d6a", "Booking received · " + r.getRequestedroomtype() + " room", when));
+            events.add(new Event("#4a9d6a", "Reservation received · " + r.getRequestedroomtype() + " room", when));
         }
 
         for (Payment p : payments) {
@@ -139,7 +137,17 @@ public class ActivityFeed extends VBox {
             events.add(new Event("#c9a84c", "Payment R" + String.format("%,.2f", p.amount()) + " received", when));
         }
 
+        Map<Long, String> lastStatus = new HashMap<>();
+
         for (RoomHistory h : roomHistory) {
+            String prev = lastStatus.get(h.roomid());
+
+            if (h.status().equals(prev)) {
+                continue;
+            }
+
+            lastStatus.put(h.roomid(), h.status());
+
             LocalDateTime when = toLocalDateTime(h.updated_at());
 
             events.add(new Event(colorForStatus(h.status()), "Room " + h.roomid() + " · " + h.status(), when));

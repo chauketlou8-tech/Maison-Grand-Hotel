@@ -1,7 +1,5 @@
 package ui.pages;
 
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcons;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -11,11 +9,9 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import models.ServiceItem;
 import utils.Conn;
 import data.ServiceItemData;
-import ui.newModals.NewService;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -44,30 +40,19 @@ public class Services extends VBox {
         button_row.setPadding(new Insets(16, 20, 12, 20));
         button_row.setMaxWidth(Double.MAX_VALUE);
 
-        Button addService = new Button("Add Service");
-        addService.getStyleClass().add("registry-button-primary");
-
-        FontAwesomeIcon plusIcon = new FontAwesomeIcon();
-        plusIcon.setIcon(FontAwesomeIcons.PLUS);
-        plusIcon.setSize("11");
-        plusIcon.setFill(Color.web("#0a0908"));
-        addService.setGraphic(plusIcon);
-
-        addService.setOnAction(_ -> NewService.open(this));
-
         HBox spacer = new HBox();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         countLabel = new Label("0 active · 0 unavailable");
         countLabel.getStyleClass().add("registry-count");
 
-        button_row.getChildren().addAll(addService, spacer, countLabel);
+        button_row.getChildren().addAll(spacer, countLabel);
 
         HBox filter_row = new HBox();
         filter_row.getStyleClass().add("registry-filter-row");
+        filter_row.setSpacing(16);
         filter_row.setAlignment(Pos.CENTER_LEFT);
-        filter_row.setSpacing(8);
-        filter_row.setPadding(new Insets(0, 20, 12, 20));
+        filter_row.setPadding(new Insets(20));
         filter_row.setMaxWidth(Double.MAX_VALUE);
 
         Label categoryLabel = new Label("Category:");

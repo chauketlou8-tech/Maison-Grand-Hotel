@@ -1,6 +1,7 @@
 package tasks;
 
 import models.Settings;
+import utils.Assignment;
 import utils.Conn;
 
 import java.io.IOException;
@@ -101,13 +102,11 @@ public class CreateCleaningTasksJob {
             return;
         }
 
-        long[] staffIds = getActiveHousekeepers();
-
         try (PreparedStatement statement = conn.prepareStatement("insert into ServiceTasks (service_id, room_id, assigned_to, status, scheduled_for) values (1, ?, ?, ?, ?)")) {
 
             for (int i = 0; i < occupiedRoomIds.size(); i++) {
                 long roomId = occupiedRoomIds.get(i);
-                Long assignedTo = pickAssignee(assignment, i, roomFloors.get(roomId), staffIds);
+                Long assignedTo = Assignment.pick("housekeepers", i, roomFloors.get(roomId));
 
                 statement.setLong(1, roomId);
 
@@ -128,38 +127,5 @@ public class CreateCleaningTasksJob {
 
             System.out.println("Created " + occupiedRoomIds.size() + " cleaning tasks for " + target.toLocalDate() + " using " + assignment + ".");
         }
-    }
-
-    private static Long pickAssignee(String assignment, int index, int floor, long[] staffIds) {
-        if (staffIds.length == 0) {
-            return null;
-        }
-
-        if ("By floor".equalsIgnoreCase(assignment)) {
-            return staffIds[Math.floorMod(floor, staffIds.length)];
-        }
-
-        return staffIds[index % staffIds.length];
-    }
-
-    private static long[] getActiveHousekeepers() throws SQLException {
-        List<Long> ids = new ArrayList<>();
-
-        try (PreparedStatement statement = conn.prepareStatement("select id from employees where department = 'Housekeeping' and employmentstatus = 'ACTIVE' and jobposition in ('Room Attendant', 'Public Area Attendant', 'Temporary Housekeeper') order by id")) {
-
-            ResultSet rs = statement.executeQuery();
-
-            while (rs.next()) {
-                ids.add(rs.getLong("id"));
-            }
-        }
-
-        long[] out = new long[ids.size()];
-
-        for (int i = 0; i < ids.size(); i++) {
-            out[i] = ids.get(i);
-        }
-
-        return out;
     }
 }

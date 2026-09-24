@@ -13,6 +13,7 @@ import sockets.Server;
 import tasks.CaptureRoomHistoryJob;
 import tasks.CreateCleaningTasksJob;
 
+import tasks.CreateInspectionTasksJob;
 import utils.Conn;
 
 import java.io.IOException;
@@ -72,6 +73,7 @@ public class ServerRepository {
         }, settings);
 
         CreateCleaningTasksJob.run(settings);
+        CreateInspectionTasksJob.run(settings);
     }
 
     public static List<User> getUsers() throws SQLException {

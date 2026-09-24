@@ -13,20 +13,19 @@ import javafx.scene.paint.Color;
 
 import data.BookingData;
 import models.Settings;
+import utils.Assignment;
 import utils.Conn;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.sql.*;
+import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class BookingRecord extends VBox {
+
+    private static final AtomicInteger inspectionIndex = new AtomicInteger();
 
     private final Connection connection = Conn.getConnection();
     private final BookingData data;
@@ -300,6 +299,8 @@ public class BookingRecord extends VBox {
             }
         }
 
+        int index = inspectionIndex.getAndIncrement();
+
         connection.setAutoCommit(false);
 
         try {
@@ -328,6 +329,15 @@ public class BookingRecord extends VBox {
                 statement.setString(1, RoomStatus.AVAILABLE.name().toLowerCase());
                 statement.setLong(2, data.getRoom().getRoomid());
                 statement.setObject(3, OffsetDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.DAYS));
+
+                statement.executeUpdate();
+            }
+
+            try (PreparedStatement statement = connection.prepareStatement("insert into servicetasks(service_id, room_id, assigned_to, scheduled_for) values (?, ?, ?, ?)")) {
+                statement.setLong(1, 2);
+                statement.setLong(2, data.getRoom().getRoomid());
+                statement.setObject(3, Assignment.pick("supervisors", index, data.getRoom().getFloornumber()), Types.BIGINT);
+                statement.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(20)));
 
                 statement.executeUpdate();
             }

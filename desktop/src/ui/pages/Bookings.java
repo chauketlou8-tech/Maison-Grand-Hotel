@@ -22,7 +22,6 @@ import models.Reservation;
 import models.Room;
 import data.BookingData;
 import models.Settings;
-import ui.newModals.NewBooking;
 import ui.records.BookingRecord;
 
 import java.io.IOException;
@@ -50,20 +49,6 @@ public class Bookings extends VBox {
         left_panel.setSpacing(8);
         left_panel.setAlignment(Pos.CENTER_LEFT);
 
-        Button newBooking = new Button("New Booking");
-        newBooking.getStyleClass().add("registry-button-primary");
-
-        FontAwesomeIcon plusIcon = new FontAwesomeIcon();
-        plusIcon.setIcon(FontAwesomeIcons.PLUS);
-        plusIcon.setSize("11");
-        plusIcon.setFill(Color.web("#0a0908"));
-        newBooking.setGraphic(plusIcon);
-
-        newBooking.setOnAction(_ -> NewBooking.open(this));
-
-        Label divider = new Label("|");
-        divider.getStyleClass().add("registry-divider");
-
         Button clear = new Button("Clear");
         clear.getStyleClass().add("registry-button");
 
@@ -73,7 +58,7 @@ public class Bookings extends VBox {
         refreshIcon.setFill(Color.web("#9a9080"));
         clear.setGraphic(refreshIcon);
 
-        left_panel.getChildren().addAll(newBooking, divider, clear);
+        left_panel.getChildren().add(clear);
 
         HBox right_panel = new HBox();
         right_panel.setAlignment(Pos.CENTER_RIGHT);
@@ -89,7 +74,7 @@ public class Bookings extends VBox {
         filter_row.getStyleClass().add("registry-filter-row");
         filter_row.setSpacing(16);
         filter_row.setAlignment(Pos.CENTER_LEFT);
-        filter_row.setPadding(new Insets(0, 20, 12, 20));
+        filter_row.setPadding(new Insets(20));
         filter_row.setMaxWidth(Double.MAX_VALUE);
 
         HBox search_panel = new HBox();
