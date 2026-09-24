@@ -5,10 +5,15 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcons;
 import enums.NotificationType;
 import enums.ReservationStatus;
 
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.print.PrinterJob;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 import models.Reservation;
@@ -23,6 +28,7 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.Properties;
 
 public class ReservationRecord extends VBox {
@@ -41,9 +47,10 @@ public class ReservationRecord extends VBox {
         boolean alreadyConfirmed = "CONFIRMED".equalsIgnoreCase(data.getStatus());
         boolean alreadyCancelled = "CANCELLED".equalsIgnoreCase(data.getStatus());
         boolean alreadyRejected = "REJECTED".equalsIgnoreCase(data.getStatus());
+        boolean alreadyExpired = "EXPIRED".equalsIgnoreCase(data.getStatus());
 
-        boolean canConfirm = paymentComplete && !alreadyConfirmed && !alreadyCancelled && !alreadyRejected;
-        boolean canCancel = !paymentComplete && !alreadyConfirmed && !alreadyCancelled && !alreadyRejected && withinCancellationWindow();
+        boolean canConfirm = paymentComplete && !alreadyConfirmed && !alreadyCancelled && !alreadyRejected && !alreadyExpired;
+        boolean canCancel = !paymentComplete && !alreadyConfirmed && !alreadyCancelled && !alreadyRejected && !alreadyExpired && withinCancellationWindow();
 
         HBox header = new HBox();
         header.getStyleClass().add("booking-record-header");
@@ -95,6 +102,8 @@ public class ReservationRecord extends VBox {
         printerIcon.setSize("11");
         printerIcon.setFill(Color.web("#9a9080"));
         print.setGraphic(printerIcon);
+
+        print.setOnAction(_ -> print());
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -180,6 +189,125 @@ public class ReservationRecord extends VBox {
         java.time.LocalDateTime cutoff = checkIn.minusHours(settings.getCancellationWindowHours());
 
         return java.time.LocalDateTime.now().isBefore(cutoff);
+    }
+
+    private void print() {
+        VBox slip = buildPrintSlip();
+
+        Scene scene = new Scene(slip);
+        scene.getStylesheets().addAll(this.getScene().getStylesheets());
+
+        slip.applyCss();
+        slip.resize(595, slip.prefHeight(595));
+        slip.applyCss();
+        slip.layout();
+
+        PrinterJob job = PrinterJob.createPrinterJob();
+
+        if (job == null) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "No printer available.", ButtonType.OK);
+            alert.setHeaderText(null);
+            alert.initOwner(this.getScene().getWindow());
+            alert.showAndWait();
+            return;
+        }
+
+        boolean proceed = job.showPrintDialog(this.getScene().getWindow());
+
+        if (!proceed) {
+            job.endJob();
+            return;
+        }
+
+        boolean printed = job.printPage(slip);
+
+        if (printed) {
+            job.endJob();
+        }
+    }
+
+    private VBox buildPrintSlip() {
+        VBox slip = new VBox(12);
+        slip.setPadding(new Insets(40));
+        slip.setStyle("-fx-background-color: #ffffff;");
+        slip.setPrefWidth(595);
+        slip.setMinWidth(595);
+        slip.setMaxWidth(595);
+
+        Label hotel = new Label(settings == null ? "" : settings.getHotelName());
+        hotel.setFont(Font.font("Georgia", FontWeight.BOLD, 20));
+        hotel.setTextFill(Color.web("#1a1814"));
+
+        Label address = new Label(settings == null ? "" : settings.getHotelStreet() + ", " + settings.getHotelCity() + ", " + settings.getHotelProvince() + ", " + settings.getHotelPostalCode());
+        address.setFont(Font.font("Georgia", 11));
+        address.setTextFill(Color.web("#444444"));
+
+        Label contact = new Label(settings == null ? "" : settings.getHotelPhone() + " · " + settings.getHotelEmail());
+        contact.setFont(Font.font("Georgia", 11));
+        contact.setTextFill(Color.web("#444444"));
+
+        Separator top = new Separator();
+
+        Label title = new Label("RESERVATION SLIP");
+        title.setFont(Font.font("Georgia", FontWeight.BOLD, 14));
+        title.setTextFill(Color.web("#1a1814"));
+
+        GridPane grid = new GridPane();
+        grid.setHgap(24);
+        grid.setVgap(8);
+        grid.setMaxWidth(Double.MAX_VALUE);
+
+        ColumnConstraints keyCol = new ColumnConstraints();
+        keyCol.setMinWidth(140);
+        keyCol.setPrefWidth(140);
+
+        ColumnConstraints valueCol = new ColumnConstraints();
+        valueCol.setHgrow(Priority.ALWAYS);
+        valueCol.setFillWidth(true);
+
+        grid.getColumnConstraints().addAll(keyCol, valueCol);
+
+        int row = 0;
+
+        row = addPrintRow(grid, row, "Reservation ID", data.getReservationId());
+        row = addPrintRow(grid, row, "Guest",          data.getGuestName());
+        row = addPrintRow(grid, row, "Room",           data.getRoomNumber() + " · " + data.getRoomType());
+        row = addPrintRow(grid, row, "Arrival",        data.getArrival());
+        row = addPrintRow(grid, row, "Departure",      data.getDeparture());
+        row = addPrintRow(grid, row, "Nights",         String.valueOf(data.getNights()));
+        row = addPrintRow(grid, row, "Guests",         String.valueOf(data.getGuests()));
+        row = addPrintRow(grid, row, "Booked On",      data.getBookedOn());
+        row = addPrintRow(grid, row, "Total",          data.getTotal());
+        addPrintRow(grid, row, "Payment Status",       data.getPaymentStatus());
+
+        Separator bottom = new Separator();
+
+        Label footer = new Label(settings == null ? "" : settings.getHotelName() + " · " + settings.getHotelPhone() + " · " + settings.getHotelEmail());
+        footer.setFont(Font.font("Georgia", 9));
+        footer.setTextFill(Color.web("#666666"));
+
+        slip.getChildren().addAll(hotel, address, contact, top, title, grid, bottom, footer);
+
+        return slip;
+    }
+
+    private int addPrintRow(GridPane grid, int row, String key, String value) {
+        Label k = new Label(key.toUpperCase());
+        k.setFont(Font.font("Georgia", 10));
+        k.setTextFill(Color.web("#666666"));
+
+        Label v = new Label(value == null ? "—" : value);
+        v.setFont(Font.font("Georgia", 12));
+        v.setTextFill(Color.web("#1a1814"));
+        v.setWrapText(true);
+        v.setMaxWidth(Double.MAX_VALUE);
+
+        GridPane.setHgrow(v, Priority.ALWAYS);
+
+        grid.add(k, 0, row);
+        grid.add(v, 1, row);
+
+        return row + 1;
     }
 
     private void onClose() {
@@ -281,7 +409,8 @@ public class ReservationRecord extends VBox {
 
         try {
             try (PreparedStatement statement = connection.prepareStatement("insert into bookings (booking_id, reservation_id, guest_id, room_id, booking_date, check_in_date, check_out_date, number_of_guests, booking_status, total_cost, selected_packages, requests) values(?,?,?,?,?,?,?,?,?::bookingstatus,?,?,?)")) {
-                statement.setString(1, "BK-" + reservation.getId());
+                String bookingId = String.format("BK-%s-%04d", LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyMM")), reservation.getId() % 10000);
+                statement.setString(1, bookingId);
                 statement.setObject(2, reservation.getReservationid());
                 statement.setLong(3, reservation.getGuest());
                 statement.setLong(4, reservation.getReservedroom());

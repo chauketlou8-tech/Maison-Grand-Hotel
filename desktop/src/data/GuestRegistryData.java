@@ -36,6 +36,10 @@ public record GuestRegistryData(Guest guest, Address address, Payment[] payments
         return guest.getPhonenumber();
     }
 
+    public long getAddressId() {
+        return address.id();
+    }
+
     public String getCountry() {
         return address == null ? "" : address.country();
     }

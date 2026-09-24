@@ -64,7 +64,7 @@ public class CaptureRoomHistoryJob {
             catch (SQLException e) {
                 e.printStackTrace();
             }
-        }, 0, 60, TimeUnit.SECONDS);
+        }, 60, 60, TimeUnit.MINUTES);
     }
 
     private static void captureRoomHistory(Room[] rooms, Settings settings) throws SQLException {

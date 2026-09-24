@@ -21,6 +21,9 @@ import data.HousekeepingData;
 
 import java.io.IOException;
 import java.sql.*;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -204,7 +207,7 @@ public class Housekeeping extends VBox {
                         editCleaningTask(row.taskId());
                     }
 
-                    catch (IOException | SQLException ex) {
+                    catch (SQLException ex) {
                         throw new RuntimeException(ex);
                     }
                 });
@@ -270,8 +273,11 @@ public class Housekeeping extends VBox {
 
                 HousekeepingData.DailyTask row = getTableView().getItems().get(getIndex());
 
+                LocalDateTime sf = row.scheduled_for().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                boolean isAfter = sf.isAfter(LocalDateTime.now());
+
                 box.setSelected(row.done());
-                box.setDisable(row.done());
+                box.setDisable(row.done() || isAfter);
 
                 setGraphic(box);
             }
@@ -377,10 +383,14 @@ public class Housekeeping extends VBox {
         ObservableList<HousekeepingData.CleaningRoom> newCleaning = FXCollections.observableArrayList();
         int pendingCleaning = 0;
 
+        Instant now = Instant.now();
+
         for (ServiceTask st : serviceTasks) {
             Service s = servicesById.get(st.getService_id());
             if (s == null || !"Cleaning".equalsIgnoreCase(s.getName())) continue;
             if (!"pending".equalsIgnoreCase(st.getStatus())) continue;
+
+            if (st.getScheduled_for() != null && st.getScheduled_for().toInstant().isAfter(now)) continue;
 
             Room room = roomsById.get(st.getRoom_id());
             if (room == null) continue;
@@ -404,7 +414,7 @@ public class Housekeeping extends VBox {
             String assignedName = st.getAssigned_to() == 0 ? "—" : employeeNames.getOrDefault(st.getAssigned_to(), "—");
             String note = st.getNotes() == null || st.getNotes().isBlank() ? "—" : st.getNotes();
 
-            newTasks.add(new HousekeepingData.DailyTask(st.getId(), done, s.getName(), assignedName, note));
+            newTasks.add(new HousekeepingData.DailyTask(st.getId(), done, s.getName(), assignedName, note, st.getScheduled_for()));
         }
 
         ObservableList<HousekeepingData.MaintenanceRoom> newMaintenance = FXCollections.observableArrayList();
@@ -486,8 +496,8 @@ public class Housekeeping extends VBox {
 
         try (PreparedStatement statement = connection.prepareStatement(
                 "update servicetasks set status = 'completed', completed_at = now(), updated_at = now() " +
-                    "where room_id = (select roomid from rooms where roomnumber = ?) " +
-                    "and service_id = (select id from services where name = 'Maintenance') and status <> 'completed'")) {
+                        "where room_id = (select roomid from rooms where roomnumber = ?) " +
+                        "and service_id = (select id from services where name = 'Maintenance') and status <> 'completed'")) {
 
             statement.setInt(1, roomNumber);
 
@@ -501,7 +511,45 @@ public class Housekeeping extends VBox {
         }
     }
 
-    private void editCleaningTask(int taskId) throws IOException, SQLException {
-        // YOU WRITE THIS
+    private void editCleaningTask(int taskId) throws SQLException {
+        String currentNotes = null;
+
+        try (PreparedStatement statement = connection.prepareStatement("select notes from servicetasks where id = ?")) {
+            statement.setInt(1, taskId);
+
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    currentNotes = rs.getString("notes");
+                }
+            }
+        }
+
+        TextArea notesArea = new TextArea(currentNotes == null ? "" : currentNotes);
+        notesArea.setWrapText(true);
+        notesArea.setPrefRowCount(5);
+        notesArea.setPrefWidth(400);
+
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Edit Notes");
+        dialog.setHeaderText("Task #" + taskId);
+        dialog.getDialogPane().setContent(notesArea);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        if (getScene() != null) {
+            dialog.initOwner(getScene().getWindow());
+        }
+
+        dialog.setResultConverter(button -> button == ButtonType.OK ? notesArea.getText() : null);
+
+        String result = dialog.showAndWait().orElse(null);
+
+        if (result == null) return;
+
+        try (PreparedStatement statement = connection.prepareStatement("update servicetasks set notes = ?, updated_at = now() where id = ?")) {
+            statement.setString(1, result.isBlank() ? null : result);
+            statement.setInt(2, taskId);
+
+            statement.executeUpdate();
+        }
     }
 }

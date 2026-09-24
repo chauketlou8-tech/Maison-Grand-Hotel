@@ -38,6 +38,7 @@ public class GuestRegistry extends VBox {
     private final Label recordsLabel;
 
     private VBox selectedGuestTable = null;
+    private Guest lastRenderedGuest = null;
 
     public GuestRegistry() {
         getStyleClass().add("guest-registry");
@@ -162,11 +163,14 @@ public class GuestRegistry extends VBox {
 
                 if (row != null && row.getItem() != null) {
                     this.selectedGuest = ((GuestRegistryData) row.getItem()).guest();
+                    this.lastRenderedGuest = null;
                 }
 
                 else {
                     this.selectedGuest = null;
+                    this.lastRenderedGuest = null;
                     guest_displayer.getSelectionModel().clearSelection();
+                    this.removeSelectedGuestTable();
                 }
             }
         });
@@ -239,9 +243,7 @@ public class GuestRegistry extends VBox {
             }
 
             else {
-                if (selectedGuestTable != null) {
-                    getChildren().remove(selectedGuestTable);
-                }
+                this.removeSelectedGuestTable();
             }
         });
     }
@@ -278,12 +280,18 @@ public class GuestRegistry extends VBox {
         }
     }
 
-    private void buildSelectedGuestTable(Settings settings) {
+    private void removeSelectedGuestTable() {
         if (selectedGuestTable != null) {
             getChildren().remove(selectedGuestTable);
+            selectedGuestTable = null;
+            lastRenderedGuest = null;
         }
+    }
 
+    private void buildSelectedGuestTable(Settings settings) {
         if (guests == null || addresses == null || payments == null || bookings == null || rooms == null) return;
+
+        if (selectedGuest == lastRenderedGuest && selectedGuestTable != null) return;
 
         Address guest_address = null;
         for (Address address : addresses) {
@@ -291,8 +299,6 @@ public class GuestRegistry extends VBox {
         }
         if (guest_address == null) return;
 
-        selectedGuestTable = new VBox();
-        selectedGuestTable.getStyleClass().add("guest-record");
         GuestRegistryData guest_data = new GuestRegistryData(selectedGuest, guest_address, payments, bookings, settings);
 
         HBox topRow = new HBox();
@@ -304,16 +310,7 @@ public class GuestRegistry extends VBox {
         HBox.setHgrow(name_label, Priority.ALWAYS);
         name_label.setMaxWidth(Double.MAX_VALUE);
 
-        Button remove_button = new Button("Remove");
-        remove_button.getStyleClass().add("guest-record-remove");
-
-        FontAwesomeIcon trashIcon = new FontAwesomeIcon();
-        trashIcon.setIcon(FontAwesomeIcons.TRASH);
-        trashIcon.setSize("11");
-        trashIcon.setFill(Color.web("#a84c4c"));
-        remove_button.setGraphic(trashIcon);
-
-        topRow.getChildren().addAll(name_label, remove_button);
+        topRow.getChildren().addAll(name_label);
 
         HBox details_row = new HBox();
         details_row.getStyleClass().add("guest-record-details");
@@ -423,8 +420,16 @@ public class GuestRegistry extends VBox {
         }
 
         details_row.getChildren().addAll(personal_info, identity_info, booking_info);
-        selectedGuestTable.getChildren().addAll(topRow, new Separator(), details_row);
-        getChildren().add(selectedGuestTable);
+
+        if (selectedGuestTable == null) {
+            selectedGuestTable = new VBox();
+            selectedGuestTable.getStyleClass().add("guest-record");
+            getChildren().add(selectedGuestTable);
+        }
+
+        selectedGuestTable.getChildren().setAll(topRow, new Separator(), details_row);
+
+        lastRenderedGuest = selectedGuest;
     }
 
     private HBox row(String key, String value) {

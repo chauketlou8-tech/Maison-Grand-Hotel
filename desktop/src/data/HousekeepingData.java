@@ -65,7 +65,7 @@ public class HousekeepingData {
 
     }
 
-    public record DailyTask(int id, boolean done, String task, String assignedTo, String notes) {
+    public record DailyTask(int id, boolean done, String task, String assignedTo, String notes, Timestamp scheduled_for) {
 
         @Override
         public boolean equals(Object o) {
@@ -73,11 +73,11 @@ public class HousekeepingData {
                 return true;
             }
 
-            if (!(o instanceof DailyTask(int id1, boolean done1, String task1, String assignedTo1, String notes1))) {
+            if (!(o instanceof DailyTask(int id1, boolean done1, String task1, String assignedTo1, String notes1, Timestamp scheduled_for1))) {
                 return false;
             }
 
-            return Objects.equals(task, task1) && Objects.equals(assignedTo, assignedTo1) && Objects.equals(notes, notes1) && id == id1 && done == done1;
+            return Objects.equals(task, task1) && Objects.equals(assignedTo, assignedTo1) && Objects.equals(notes, notes1) && id == id1 && done == done1 && Objects.equals(scheduled_for, scheduled_for1);
         }
 
     }

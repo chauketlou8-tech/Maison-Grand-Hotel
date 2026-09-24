@@ -6,10 +6,15 @@ import enums.BookingStatus;
 import enums.ReservationStatus;
 import enums.RoomStatus;
 
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.print.PrinterJob;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 
 import data.BookingData;
 import models.Settings;
@@ -100,7 +105,7 @@ public class BookingRecord extends VBox {
 
         String status = data.getStatus();
 
-        Button printFolio = new Button("Print Folio");
+        Button printFolio = new Button("Print PortFolio");
         printFolio.getStyleClass().add("registry-button");
 
         FontAwesomeIcon printerIcon = new FontAwesomeIcon();
@@ -108,6 +113,8 @@ public class BookingRecord extends VBox {
         printerIcon.setSize("11");
         printerIcon.setFill(Color.web("#9a9080"));
         printFolio.setGraphic(printerIcon);
+
+        printFolio.setOnAction(_ -> print());
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -200,6 +207,130 @@ public class BookingRecord extends VBox {
         return alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK;
     }
 
+    private void print() {
+        VBox slip = buildPrintSlip();
+
+        Scene scene = new Scene(slip);
+        scene.getStylesheets().addAll(this.getScene().getStylesheets());
+
+        slip.applyCss();
+        slip.resize(595, slip.prefHeight(595));
+        slip.applyCss();
+        slip.layout();
+
+        PrinterJob job = PrinterJob.createPrinterJob();
+
+        if (job == null) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "No printer available.", ButtonType.OK);
+            alert.setHeaderText(null);
+            alert.initOwner(this.getScene().getWindow());
+            alert.showAndWait();
+            return;
+        }
+
+        boolean proceed = job.showPrintDialog(this.getScene().getWindow());
+
+        if (!proceed) {
+            job.endJob();
+            return;
+        }
+
+        boolean printed = job.printPage(slip);
+
+        if (printed) {
+            job.endJob();
+        }
+    }
+
+    private VBox buildPrintSlip() {
+        VBox slip = new VBox(12);
+        slip.setPadding(new Insets(40));
+        slip.setStyle("-fx-background-color: #ffffff;");
+        slip.setPrefWidth(595);
+        slip.setMinWidth(595);
+        slip.setMaxWidth(595);
+
+        Settings settings = data.getSettings();
+
+        Label hotel = new Label(settings == null ? "" : settings.getHotelName());
+        hotel.setFont(Font.font("Georgia", FontWeight.BOLD, 20));
+        hotel.setTextFill(Color.web("#1a1814"));
+
+        Label address = new Label(settings == null ? "" : settings.getHotelStreet() + ", " + settings.getHotelCity() + ", " + settings.getHotelProvince() + ", " + settings.getHotelPostalCode());
+        address.setFont(Font.font("Georgia", 11));
+        address.setTextFill(Color.web("#444444"));
+
+        Label contact = new Label(settings == null ? "" : settings.getHotelPhone() + " · " + settings.getHotelEmail());
+        contact.setFont(Font.font("Georgia", 11));
+        contact.setTextFill(Color.web("#444444"));
+
+        Separator top = new Separator();
+
+        Label title = new Label("BOOKING PORTFOLIO");
+        title.setFont(Font.font("Georgia", FontWeight.BOLD, 14));
+        title.setTextFill(Color.web("#1a1814"));
+
+        GridPane grid = new GridPane();
+        grid.setHgap(24);
+        grid.setVgap(8);
+        grid.setMaxWidth(Double.MAX_VALUE);
+
+        ColumnConstraints keyCol = new ColumnConstraints();
+        keyCol.setMinWidth(140);
+        keyCol.setPrefWidth(140);
+
+        ColumnConstraints valueCol = new ColumnConstraints();
+        valueCol.setHgrow(Priority.ALWAYS);
+        valueCol.setFillWidth(true);
+
+        grid.getColumnConstraints().addAll(keyCol, valueCol);
+
+        int row = 0;
+
+        row = addPrintRow(grid, row, "Booking ID",  data.getBookingId());
+        row = addPrintRow(grid, row, "Reference",   data.getReference());
+        row = addPrintRow(grid, row, "Guest",       data.getGuestName());
+        row = addPrintRow(grid, row, "Room",        data.getRoomNumber() + " · " + data.getRoomType());
+        row = addPrintRow(grid, row, "Check-In",    data.getCheckIn());
+        row = addPrintRow(grid, row, "Check-Out",   data.getCheckOut());
+        row = addPrintRow(grid, row, "Nights",      String.valueOf(data.getNights()));
+        row = addPrintRow(grid, row, "Guests",      String.valueOf(data.getGuests()));
+        row = addPrintRow(grid, row, "Room Rate",   data.getRoomRate());
+        row = addPrintRow(grid, row, "Total Cost",  data.getTotal());
+        row = addPrintRow(grid, row, "Status",      data.getStatus());
+        row = addPrintRow(grid, row, "Packages",    data.getPackages());
+        addPrintRow(grid, row, "Requests",          data.getRequests());
+
+        Separator bottom = new Separator();
+
+        Label footer = new Label(settings == null ? "" : settings.getHotelName() + " · " + settings.getHotelPhone() + " · " + settings.getHotelEmail());
+        footer.setFont(Font.font("Georgia", 9));
+        footer.setTextFill(Color.web("#666666"));
+
+        slip.getChildren().addAll(hotel, address, contact, top, title, grid, bottom, footer);
+
+        return slip;
+    }
+
+    private int addPrintRow(GridPane grid, int row, String key, String value) {
+        Label k = new Label(key.toUpperCase());
+        k.setFont(Font.font("Georgia", 10));
+        k.setTextFill(Color.web("#666666"));
+
+        Label v = new Label(value == null ? "—" : value);
+        v.setFont(Font.font("Georgia", 12));
+        v.setTextFill(Color.web("#1a1814"));
+        v.setWrapText(true);
+        v.setMaxWidth(Double.MAX_VALUE);
+
+        GridPane.setHgrow(v, Priority.ALWAYS);
+
+        grid.add(k, 0, row);
+        grid.add(v, 1, row);
+
+        return row + 1;
+    }
+
     private void checkIn() throws SQLException {
         LocalDate checkInDate = data.getCheckInDate();
 
@@ -275,6 +406,13 @@ public class BookingRecord extends VBox {
                 statement.executeUpdate();
             }
 
+            try (PreparedStatement statement = connection.prepareStatement("update reservations set reservationstatus = ?::reservationstatus where id = ?")) {
+                statement.setObject(1, ReservationStatus.EXPIRED.name(), java.sql.Types.OTHER);
+                statement.setLong(2, Objects.requireNonNull(data.getReservation()).getId());
+
+                statement.execute();
+            }
+
             connection.commit();
         }
 
@@ -333,11 +471,18 @@ public class BookingRecord extends VBox {
                 statement.executeUpdate();
             }
 
-            try (PreparedStatement statement = connection.prepareStatement("insert into servicetasks(service_id, room_id, assigned_to, scheduled_for) values (?, ?, ?, ?)")) {
-                statement.setLong(1, 2);
-                statement.setLong(2, data.getRoom().getRoomid());
-                statement.setObject(3, Assignment.pick("supervisors", index, data.getRoom().getFloornumber()), Types.BIGINT);
-                statement.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(20)));
+            try (PreparedStatement statement = connection.prepareStatement("insert into servicetasks(service_id, room_id, assigned_to, scheduled_for, completed_at) values (2, ?, ?, ?, now())")) {
+                statement.setLong(1, data.getRoom().getRoomid());
+                statement.setObject(2, Assignment.pick("supervisors", index, data.getRoom().getFloornumber()), Types.BIGINT);
+                statement.setObject(3, OffsetDateTime.now(ZoneOffset.UTC).plusMinutes(20));
+
+                statement.executeUpdate();
+            }
+
+            try (PreparedStatement statement = connection.prepareStatement("insert into servicetasks(service_id, room_id, assigned_to, scheduled_for, completed_at) values (1, ?, ?, ?, now())")) {
+                statement.setLong(1, data.getRoom().getRoomid());
+                statement.setObject(2, Assignment.pick("supervisors", index, data.getRoom().getFloornumber()), Types.BIGINT);
+                statement.setObject(3, OffsetDateTime.now(ZoneOffset.UTC).plusMinutes(20));
 
                 statement.executeUpdate();
             }
