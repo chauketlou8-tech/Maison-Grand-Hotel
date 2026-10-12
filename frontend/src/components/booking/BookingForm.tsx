@@ -1,20 +1,32 @@
-import {type FormEvent, useEffect, useState} from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { AlertCircle, Check, ChevronDown, Loader2, Mail, MapPin, Phone } from "lucide-react";
-import rooms from "../../constants/rooms";
 import packages from "../../constants/packages";
 import nightsBetween from "../../utils/nightsBetween";
 import book from "../../services/book";
 import { sendMessage, websocket } from "../../services/websock";
 import extractDOB from "../../utils/extractDOB";
 import pay from "../../services/pay";
+import getSettings from "../../services/getSettings";
+import getRooms from "../../services/getRooms";
+import { buildRoomTeasers } from "../../constants/roomDetails";
+import type { Settings } from "../../types/settings";
+import type { Room } from "../../types/Room";
+import type { RoomTeaser } from "../../types/RoomTeaser";
+
+const EXTRA_ADULT_FEE = 10;
+const CHILD_FEE = 20;
 
 export default function BookingForm() {
-    const [selectedRoom, setSelectedRoom] = useState(rooms[4].name);
+    const [settings, setSettings] = useState<Settings>(null);
+    const [rooms, setRooms] = useState<Room[]>([]);
+
+    const [selectedRoom, setSelectedRoom] = useState<string>("");
 
     const [checkIn, setCheckIn] = useState<Date>(new Date());
     const [checkOut, setCheckOut] = useState<Date>(new Date());
 
-    const [guests, setGuests] = useState<number>(2);
+    const [adults, setAdults] = useState<number>(2);
+    const [children, setChildren] = useState<number>(0);
     const [selectedPackages, setSelectedPackages] = useState<string[]>([]);
 
     const [firstName, setFirstName] = useState("");
@@ -29,7 +41,7 @@ export default function BookingForm() {
     const [submitError, setSubmitError] = useState("");
 
     const [isLoading, setIsLoading] = useState(false);
-    const [availableRooms, setAvailableRooms] = useState<Record<string, any[]>>({});
+    const [availableRooms, setAvailableRooms] = useState<Record<string, Room[]>>({});
 
     const [idNumber, setIdNumber] = useState("");
     const [nationality, setNationality] = useState("");
@@ -37,29 +49,91 @@ export default function BookingForm() {
     const [dateOfBirth, setDateOfBirth] = useState<Date | null>(null);
     const [address, setAddress] = useState({ street: "", city: "", province: "", country: "", postalCode: "" });
 
-    const room = rooms.find((r) => r.name === selectedRoom) ?? rooms[4];
+    const guests = adults + children;
+
+    const teasers: RoomTeaser[] = buildRoomTeasers(rooms);
+
+    useEffect(() => {
+        async function set() {
+            setSettings(await getSettings());
+            setRooms(await getRooms());
+        }
+
+        void set();
+    }, []);
+
+    useEffect(() => {
+        if (!selectedRoom && teasers.length > 0) {
+            setSelectedRoom(teasers[0].name);
+        }
+    }, [teasers, selectedRoom]);
+
+    const room = teasers.find((r) => r.name === selectedRoom) ?? teasers[0];
+
     const nights = nightsBetween(checkIn, checkOut);
+
     const packageTotal = packages.filter((p) => selectedPackages.includes(p.id)).reduce((s, p) => s + p.price, 0);
-    const roomTotal = room.price * Math.max(nights, 1);
-    const total = roomTotal + packageTotal * Math.max(nights, 1);
+
+    const extraAdults = Math.max(adults - 1, 0);
+    const personSurchargePerNight = extraAdults * EXTRA_ADULT_FEE + children * CHILD_FEE;
+    const personSurcharge = personSurchargePerNight * Math.max(nights, 1);
+
+    const subtotal = (room?.price ?? 0) * Math.max(nights, 1)
+        + packageTotal * Math.max(nights, 1)
+        + personSurcharge;
+
+    const vatRate = settings ? Number(settings.vat_rate) : 0;
+    const serviceRate = settings ? Number(settings.service_charge_rate) : 0;
+    const levyRate = settings ? Number(settings.tourism_levy) : 0;
+
+    let vatAmount = 0;
+    let total = subtotal;
+
+    if (settings) {
+        if (settings.prices_include_vat) {
+            vatAmount = subtotal * vatRate / (100 + vatRate);
+            total = subtotal;
+        }
+
+        else {
+            vatAmount = subtotal * vatRate / 100;
+            total = subtotal + vatAmount;
+        }
+
+        total += subtotal * serviceRate / 100;
+        total += subtotal * levyRate / 100;
+    }
+
+    const serviceAmount = subtotal * serviceRate / 100;
+    const levyAmount = subtotal * levyRate / 100;
+
+    const showBreakdown = !!(settings && !settings.prices_include_vat && settings.show_tax_breakdown);
+
+    const maxCapacity = rooms.length > 0
+        ? Math.max(...rooms.map((r) => r.capacity))
+        : 4;
+
+    const adultOptions = Array.from({ length: maxCapacity }, (_, i) => i + 1);
+    const childrenOptions = Array.from({ length: maxCapacity }, (_, i) => i);
 
     useEffect(() => {
         const handleMessage = (e: MessageEvent) => {
             try {
                 const data = JSON.parse(e.data);
                 if (data.type === "availableRooms") {
-                    const sortedRooms: Record<string, any[]> = {};
+                    const sortedRooms: Record<string, Room[]> = {};
 
-                    data.data.rooms.forEach((room: any) => {
-                        if (!sortedRooms[room.roomtype]) {
-                            sortedRooms[room.roomtype] = [];
+                    data.data.rooms.forEach((r: Room) => {
+                        if (!sortedRooms[r.roomtype]) {
+                            sortedRooms[r.roomtype] = [];
                         }
-                        sortedRooms[room.roomtype].push(room);
+                        sortedRooms[r.roomtype].push(r);
                     });
 
                     setAvailableRooms(sortedRooms);
                 }
-            } catch (error) {
+            }
+            catch (error) {
                 console.error("Error parsing message:", error);
             }
         };
@@ -95,9 +169,10 @@ export default function BookingForm() {
         else if (!/\S+@\S+\.\S+/.test(email)) {
             newErrors.email = "Please enter a valid email address";
         }
+
         if (!phone.trim()) newErrors.phone = "Phone number is required";
 
-        if (!idNumber.trim()) newErrors.idNumber = "ID number is required";
+        if (settings?.id_required && !idNumber.trim()) newErrors.idNumber = "ID number is required";
 
         if (!nationality.trim()) newErrors.nationality = "Nationality is required";
 
@@ -118,6 +193,25 @@ export default function BookingForm() {
         if (checkIn && checkOut && new Date(checkOut) <= new Date(checkIn)) {
             newErrors.checkOut = "Check-out must be after check-in";
         }
+
+        if (settings) {
+            if (nights < settings.min_nights) {
+                newErrors.checkOut = `Minimum stay is ${settings.min_nights} night(s)`;
+            }
+
+            if (nights > settings.max_nights) {
+                newErrors.checkOut = `Maximum stay is ${settings.max_nights} night(s)`;
+            }
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const daysAhead = Math.round((checkIn.getTime() - today.getTime()) / 86_400_000);
+
+            if (daysAhead > settings.advance_booking_limit_days) {
+                newErrors.checkIn = `Bookings can only be made up to ${settings.advance_booking_limit_days} days in advance`;
+            }
+        }
+
         setErrors(newErrors);
 
         if (Object.keys(newErrors).length > 0) {
@@ -201,12 +295,34 @@ export default function BookingForm() {
         return date.toISOString().split("T")[0];
     }
 
-    // Check if a room is available
+    function maxCheckInDate(): string {
+        const d = new Date();
+        d.setDate(d.getDate() + (settings?.advance_booking_limit_days ?? 365));
+        return formatDate(d);
+    }
+
     function isRoomAvailable(roomName: string): boolean {
         const roomType = roomName.split(" ")[0];
         const getter = roomType[0].toUpperCase() + roomType[1].toUpperCase();
         return availableRooms[getter]?.length > 0;
     }
+
+    if (!room) {
+        return (
+            <section className="py-16 px-8 md:px-20 bg-[#0f0e0c]">
+                <div className="max-w-6xl mx-auto flex items-center justify-center py-20">
+                    <Loader2 size={24} className="animate-spin text-[#c9a84c]" />
+                </div>
+            </section>
+        );
+    }
+
+    const fullAddress = [
+        settings?.hotel_street,
+        settings?.hotel_city,
+        settings?.hotel_province,
+        settings?.hotel_postal_code
+    ].filter(Boolean).join(", ");
 
     return (
         <section className="py-16 px-8 md:px-20 bg-[#0f0e0c]">
@@ -226,7 +342,7 @@ export default function BookingForm() {
 
                             <div className="grid sm:grid-cols-2 gap-3">
                                 {
-                                    rooms.map((r) => {
+                                    teasers.map((r) => {
                                         const available = isRoomAvailable(r.name);
 
                                         return (
@@ -256,10 +372,10 @@ export default function BookingForm() {
                         <div>
                             <h2 className="text-2xl font-normal mb-5 text-[#f0ebe0] font-display">2. Dates &amp; Guests</h2>
 
-                            <div className="grid sm:grid-cols-3 gap-4">
+                            <div className={`grid gap-4 ${settings?.children_allowed ? "sm:grid-cols-4" : "sm:grid-cols-3"}`}>
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Check-in</label>
-                                    <input type="date" value={formatDate(checkIn)} min={formatDate(new Date())} onChange={(e) => setCheckIn(new Date(e.target.value))} className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.checkIn ? "border-red-500" : "border-[#c9a84c]/15"}`} />
+                                    <input type="date" value={formatDate(checkIn)} min={formatDate(new Date())} max={maxCheckInDate()} onChange={(e) => setCheckIn(new Date(e.target.value))} className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.checkIn ? "border-red-500" : "border-[#c9a84c]/15"}`} />
 
                                     {
                                         errors.checkIn &&
@@ -278,16 +394,30 @@ export default function BookingForm() {
                                 </div>
 
                                 <div>
-                                    <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Guests</label>
+                                    <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Adults</label>
 
                                     <div className="relative">
-                                        <select value={guests} onChange={(e) => setGuests(Number(e.target.value))} className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] focus:outline-none focus:border-[#c9a84c] transition-colors appearance-none cursor-pointer">
-                                            {[1, 2, 3, 4].map((n) => (<option key={n}>{n}</option>))}
+                                        <select value={adults} onChange={(e) => setAdults(Number(e.target.value))} className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] focus:outline-none focus:border-[#c9a84c] transition-colors appearance-none cursor-pointer">
+                                            {adultOptions.map((n) => (<option key={n}>{n}</option>))}
                                         </select>
 
                                         <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9a9080] pointer-events-none" />
                                     </div>
                                 </div>
+
+                                {settings?.children_allowed && (
+                                    <div>
+                                        <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Children</label>
+
+                                        <div className="relative">
+                                            <select value={children} onChange={(e) => setChildren(Number(e.target.value))} className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] focus:outline-none focus:border-[#c9a84c] transition-colors appearance-none cursor-pointer">
+                                                {childrenOptions.map((n) => (<option key={n}>{n}</option>))}
+                                            </select>
+
+                                            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9a9080] pointer-events-none" />
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -351,14 +481,15 @@ export default function BookingForm() {
 
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Phone</label>
-                                    <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+33 6 00 00 00 00" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
+                                    <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+27 21 000 0000" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
                                 </div>
                             </div>
 
                             <div className="grid sm:grid-cols-2 gap-4 mb-4">
                                 <div>
-                                    <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">ID Number</label>
-                                    <input type="text" value={idNumber} onChange={(e) => { setIdNumber(e.target.value); const dob = extractDOB(e.target.value); if (dob) setDateOfBirth(dob); }} placeholder="ID Number" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
+                                    <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">ID Number {settings?.id_required ? "" : "(optional)"}</label>
+                                    <input type="text" value={idNumber} onChange={(e) => { setIdNumber(e.target.value); const dob = extractDOB(e.target.value); if (dob) setDateOfBirth(dob); }} placeholder="ID Number" className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.idNumber ? "border-red-500" : "border-[#c9a84c]/15"}`} />
+                                    {errors.idNumber && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.idNumber}</p>}
                                 </div>
 
                                 <div>
@@ -392,7 +523,7 @@ export default function BookingForm() {
 
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Postal Code</label>
-                                    <input type="text" value={address.postalCode} onChange={(e) => setAddress({...address, postalCode: e.target.value})} placeholder="75002" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
+                                    <input type="text" value={address.postalCode} onChange={(e) => setAddress({...address, postalCode: e.target.value})} placeholder="7700" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
                                 </div>
                             </div>
 
@@ -446,7 +577,7 @@ export default function BookingForm() {
                             <div className="flex flex-col gap-2 text-sm mb-6 pb-6 border-b border-[#c9a84c]/15">
                                 <div className="flex justify-between">
                                     <span className="text-[#9a9080] text-xs">{room.name.split(" ")[0]} ({nights > 0 ? `${nights}n` : "per night"})</span>
-                                    <span className="text-[#f0ebe0]/75">R{nights > 0 ? roomTotal.toLocaleString() : room.price}</span>
+                                    <span className="text-[#f0ebe0]/75">R{nights > 0 ? ((room?.price ?? 0) * nights).toLocaleString() : room?.price}</span>
                                 </div>
 
                                 {
@@ -457,6 +588,29 @@ export default function BookingForm() {
                                         </div>
                                     ))
                                 }
+
+                                {showBreakdown && (
+                                    <>
+                                        <div className="flex justify-between">
+                                            <span className="text-[#9a9080] text-xs">VAT ({settings?.vat_rate}%)</span>
+                                            <span className="text-[#f0ebe0]/75">R{vatAmount.toFixed(2)}</span>
+                                        </div>
+
+                                        {serviceRate > 0 && (
+                                            <div className="flex justify-between">
+                                                <span className="text-[#9a9080] text-xs">Service ({serviceRate}%)</span>
+                                                <span className="text-[#f0ebe0]/75">R{serviceAmount.toFixed(2)}</span>
+                                            </div>
+                                        )}
+
+                                        {levyRate > 0 && (
+                                            <div className="flex justify-between">
+                                                <span className="text-[#9a9080] text-xs">Tourism Levy ({levyRate}%)</span>
+                                                <span className="text-[#f0ebe0]/75">R{levyAmount.toFixed(2)}</span>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
                             </div>
 
                             <div className="flex justify-between items-baseline mb-6">
@@ -475,21 +629,21 @@ export default function BookingForm() {
                                 }
                             </button>
 
-                            <p className="text-xs text-[#9a9080] text-center font-light">No payment now. We'll confirm within 2 hours.</p>
+                            <p className="text-xs text-[#9a9080] text-center font-light">You'll be redirected to complete payment.</p>
 
                             <div className="mt-6 pt-6 border-t border-[#c9a84c]/15 flex flex-col gap-3">
                                 <p className="text-[10px] tracking-[0.3em] uppercase text-[#9a9080]">Prefer to call?</p>
 
-                                <a href="tel:+33142000000" className="flex items-center gap-2 text-xs text-[#f0ebe0]/60 hover:text-[#c9a84c] transition-colors">
-                                    <Phone size={11} className="text-[#c9a84c]" /> +33 1 42 00 00 00
+                                <a href={`tel:${settings?.hotel_phone?.replace(/\s/g, "") ?? ""}`} className="flex items-center gap-2 text-xs text-[#f0ebe0]/60 hover:text-[#c9a84c] transition-colors">
+                                    <Phone size={11} className="text-[#c9a84c]" /> {settings?.hotel_phone}
                                 </a>
 
-                                <a href="mailto:reservations@maisongrandhotel.com" className="flex items-center gap-2 text-xs text-[#f0ebe0]/60 hover:text-[#c9a84c] transition-colors">
-                                    <Mail size={11} className="text-[#c9a84c]" /> reservations@maison...
+                                <a href={`mailto:${settings?.hotel_email ?? ""}`} className="flex items-center gap-2 text-xs text-[#f0ebe0]/60 hover:text-[#c9a84c] transition-colors">
+                                    <Mail size={11} className="text-[#c9a84c]" /> {settings?.hotel_email}
                                 </a>
 
                                 <span className="flex items-start gap-2 text-xs text-[#f0ebe0]/60">
-                                    <MapPin size={11} className="text-[#c9a84c] flex-shrink-0 mt-0.5" /> 12 Rue de la Paix, 75002 Paris
+                                    <MapPin size={11} className="text-[#c9a84c] flex-shrink-0 mt-0.5" /> {fullAddress}
                                 </span>
                             </div>
                         </div>

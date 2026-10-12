@@ -21,7 +21,6 @@ import models.Reservation;
 import models.ServiceTask;
 import models.Settings;
 import records.Payment;
-import records.RoomHistory;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -40,6 +39,7 @@ public class ActivityFeed extends VBox {
     private final Timeline pulse;
     private final ScrollPane scroll;
     private final Rectangle liveDot;
+    private final VBox emptyState;
 
     private boolean firstRender = true;
 
@@ -99,23 +99,49 @@ public class ActivityFeed extends VBox {
         scroll.setManaged(false);
         VBox.setVgrow(scroll, Priority.ALWAYS);
 
-        getChildren().addAll(header, skeleton, scroll);
+        emptyState = buildEmptyState();
+        emptyState.setVisible(false);
+        emptyState.setManaged(false);
+        VBox.setVgrow(emptyState, Priority.ALWAYS);
+
+        getChildren().addAll(header, skeleton, scroll, emptyState);
 
         pulse = new Timeline(new KeyFrame(Duration.ZERO, new KeyValue(skeleton.opacityProperty(), 1.0)), new KeyFrame(Duration.millis(1500), new KeyValue(skeleton.opacityProperty(), 0.75)), new KeyFrame(Duration.millis(3000), new KeyValue(skeleton.opacityProperty(), 1.0)));
         pulse.setCycleCount(Timeline.INDEFINITE);
         pulse.play();
     }
 
-    public void setData(Notification[] notifications, Reservation[] reservations, Payment[] payments, RoomHistory[] roomHistory, ServiceTask[] serviceTasks, Settings settings) {
-        if (notifications == null || reservations == null || payments == null || roomHistory == null || serviceTasks == null) return;
+    private VBox buildEmptyState() {
+        VBox box = new VBox(10);
+        box.setAlignment(Pos.CENTER);
+        box.setPadding(new Insets(40, 20, 40, 20));
+        box.setMaxWidth(Double.MAX_VALUE);
+        box.setMaxHeight(Double.MAX_VALUE);
+
+        Rectangle dot = new Rectangle(10, 10);
+        dot.setFill(Color.web("#3a352e"));
+        dot.setArcWidth(10);
+        dot.setArcHeight(10);
+
+        Label titleLbl = new Label("No activity yet");
+        titleLbl.getStyleClass().add("activity-empty-title");
+
+        Label subLbl = new Label("Events will show up here as they happen.");
+        subLbl.getStyleClass().add("activity-empty-sub");
+        subLbl.setWrapText(true);
+
+        box.getChildren().addAll(dot, titleLbl, subLbl);
+        return box;
+    }
+
+    public void setData(Notification[] notifications, Reservation[] reservations, Payment[] payments, ServiceTask[] serviceTasks, Settings settings) {
+        if (notifications == null || reservations == null || payments == null || serviceTasks == null) return;
 
         this.settings = settings;
 
         pulse.stop();
         skeleton.setVisible(false);
         skeleton.setManaged(false);
-        scroll.setVisible(true);
-        scroll.setManaged(true);
         liveDot.setFill(Color.web("#4a9d6a"));
 
         List<Event> events = new ArrayList<>();
@@ -135,22 +161,6 @@ public class ActivityFeed extends VBox {
             LocalDateTime when = toLocalDateTime(p.created_at());
 
             events.add(new Event("#c9a84c", "Payment R" + String.format("%,.2f", p.amount()) + " received", when));
-        }
-
-        Map<Long, String> lastStatus = new HashMap<>();
-
-        for (RoomHistory h : roomHistory) {
-            String prev = lastStatus.get(h.roomid());
-
-            if (h.status().equals(prev)) {
-                continue;
-            }
-
-            lastStatus.put(h.roomid(), h.status());
-
-            LocalDateTime when = toLocalDateTime(h.updated_at());
-
-            events.add(new Event(colorForStatus(h.status()), "Room " + h.roomid() + " · " + h.status(), when));
         }
 
         for (Notification n : notifications) {
@@ -178,15 +188,29 @@ public class ActivityFeed extends VBox {
 
         feed.getChildren().clear();
 
-        int limit = Math.min(events.size(), MAX_EVENTS);
-        for (int i = 0; i < limit; i++) {
-            Event ev = events.get(i);
-            feed.getChildren().add(activityRow(ev.color(), ev.text(), relativeTime(ev.when()), i == 0));
+        if (events.isEmpty()) {
+            scroll.setVisible(false);
+            scroll.setManaged(false);
+            emptyState.setVisible(true);
+            emptyState.setManaged(true);
         }
 
-        if (firstRender) {
-            scroll.setVvalue(0);
-            firstRender = false;
+        else {
+            emptyState.setVisible(false);
+            emptyState.setManaged(false);
+            scroll.setVisible(true);
+            scroll.setManaged(true);
+
+            int limit = Math.min(events.size(), MAX_EVENTS);
+            for (int i = 0; i < limit; i++) {
+                Event ev = events.get(i);
+                feed.getChildren().add(activityRow(ev.color(), ev.text(), relativeTime(ev.when()), i == 0));
+            }
+
+            if (firstRender) {
+                scroll.setVvalue(0);
+                firstRender = false;
+            }
         }
 
         updatedLabel.setText("Updated " + LocalDateTime.now().format(timeFormatter()));
@@ -298,25 +322,18 @@ public class ActivityFeed extends VBox {
         return (seconds / 86400) + "d ago";
     }
 
-    private String colorForStatus(String status) {
-        if (status == null) return "#9a9080";
-        return switch (status) {
-            case "available" -> "#4a9d6a";
-            case "occupied" -> "#c9a84c";
-            case "closed" -> "#d07a3c";
-            case "maintenance" -> "#a84c4c";
-            case "reserved" -> "#8a7ec9";
-            default -> "#9a9080";
-        };
-    }
-
     private String colorForNotification(NotificationType type) {
         if (type == null) return "#9a9080";
         return switch (type) {
             case reservation_request -> "#4a9d6a";
             case payment_confirmation -> "#c9a84c";
             case reservation_cancelled -> "#a84c4c";
-            case reservation_confirmation ->  "#8a7ec9";
+            case reservation_confirmation -> "#8a7ec9";
+            case low_occupancy -> "#d07a3c";
+            case checkin_reminder -> "#4a7cc9";
+            case task_completed -> "#5ba8c9";
+            case feedback_request -> "#c97ec9";
+            case daily_report -> "#b8b06a";
         };
     }
 }

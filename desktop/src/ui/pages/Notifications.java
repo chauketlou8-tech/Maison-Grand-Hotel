@@ -342,12 +342,16 @@ public class Notifications extends VBox {
 
     private String colorForType(NotificationType type) {
         if (type == null) return "#9a9080";
-
         return switch (type) {
             case reservation_request -> "#4a9d6a";
             case payment_confirmation -> "#c9a84c";
             case reservation_cancelled -> "#a84c4c";
             case reservation_confirmation -> "#8a7ec9";
+            case low_occupancy -> "#d07a3c";
+            case checkin_reminder -> "#4a7cc9";
+            case task_completed -> "#5ba8c9";
+            case feedback_request -> "#c97ec9";
+            case daily_report -> "#b8b06a";
         };
     }
 }

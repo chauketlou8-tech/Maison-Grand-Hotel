@@ -7,7 +7,10 @@ const server = new WebSocket.Server({ port: 3003 });
 server.on("connection", (ws) => {
     logger.info("client connected");
 
-    ws.send(JSON.stringify({ type: "connection", message: "Connected to server" }));
+    ws.send(JSON.stringify({
+        type: "connection",
+        message: "Connected to server"
+    }));
 
     ws.on("message", async (message) => {
         try {

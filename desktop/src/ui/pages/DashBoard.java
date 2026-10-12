@@ -16,7 +16,6 @@ import models.Settings;
 import records.Payment;
 import records.RoomHistory;
 import ui.charts.*;
-import ui.charts.*;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -184,7 +183,7 @@ public class DashBoard extends VBox {
 
             if (this.occupancy_chart != null) {
                 this.occupancy_chart.setRooms(rooms);
-                this.activity.setData(notifications, reservations, payments, roomHistory, serviceTasks, settings);
+                this.activity.setData(notifications, reservations, payments, serviceTasks, settings);
             }
         });
     }
@@ -224,7 +223,7 @@ public class DashBoard extends VBox {
             this.roomHistory = roomHistory;
 
             if (this.heatmap != null) {
-                this.heatmap.setRoomHistory(roomHistory, this.rooms, settings);
+                this.heatmap.setRoomHistory(this.roomHistory, this.rooms, settings);
             }
         });
     }

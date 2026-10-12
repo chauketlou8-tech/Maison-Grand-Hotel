@@ -27,6 +27,8 @@ public class CaptureRoomHistoryJob {
     private static final Map<Long, String> lastKnownStatus = new HashMap<>();
     private static long lastPeriodKey = 0;
 
+    private static boolean changed = true;
+
     private static Connection conn;
 
     public static void run(Supplier<Room[]> roomsSupplier, Settings settings) throws IOException, SQLException {
@@ -64,7 +66,7 @@ public class CaptureRoomHistoryJob {
             catch (SQLException e) {
                 e.printStackTrace();
             }
-        }, 60, 60, TimeUnit.MINUTES);
+        }, 0, 60, TimeUnit.SECONDS);
     }
 
     private static void captureRoomHistory(Room[] rooms, Settings settings) throws SQLException {
@@ -88,18 +90,22 @@ public class CaptureRoomHistoryJob {
     }
 
     private static void captureRoomHistoryForToday(Room[] rooms, Settings settings) throws SQLException {
+        if (!changed) return;
+
         System.out.println("running the frequent room history job...");
 
         OffsetDateTime periodKey = computePeriodKey(settings.getNightAuditFrequency());
+        long key = periodKey.toInstant().toEpochMilli();
 
-        if (periodKey.toInstant().toEpochMilli() != lastPeriodKey) {
+        if (key != lastPeriodKey) {
             lastKnownStatus.clear();
-            lastPeriodKey = periodKey.toInstant().toEpochMilli();
+            lastPeriodKey = key;
+            changed = true;
         }
 
         try (PreparedStatement ps = conn.prepareStatement("insert into roomhistory (roomid, status_date, status) values (?, ?, ?) on conflict (roomid, status_date) do update set status = excluded.status, updated_at = now()")) {
 
-            int changed = 0;
+            int count = 0;
 
             for (Room room : rooms) {
                 String status = room.getRoomstatus().name().toLowerCase();
@@ -113,14 +119,16 @@ public class CaptureRoomHistoryJob {
                 ps.setObject(2, periodKey);
                 ps.setString(3, status);
                 ps.addBatch();
-                changed++;
+                count++;
             }
 
-            if (changed > 0) {
+            if (count > 0) {
                 ps.executeBatch();
             }
 
-            System.out.println("Captured " + changed + " of " + rooms.length + " rooms.");
+            changed = false;
+
+            System.out.println("Captured " + count + " of " + rooms.length + " rooms.");
         }
     }
 

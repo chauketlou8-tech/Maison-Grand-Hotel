@@ -1,6 +1,22 @@
 import { Clock, Shield, Gift } from "lucide-react";
-export default [
-    { icon: Clock, title: "Check-in / Check-out", body: "Check-in from 15:00; check-out by 12:00. Early and late options available via concierge." },
-    { icon: Shield, title: "Cancellation", body: "Free cancellation up to 48 hours before arrival. Suites and packages: 7 days. Non-refundable rates available at a discount." },
-    { icon: Gift, title: "Special Occasions", body: "Birthdays, anniversaries, proposals — let us know and our team will prepare something memorable." },
-];
+import type { Settings } from "../types/settings";
+
+export default function buildPolicies(settings: Settings | null) {
+    return [
+        {
+            icon: Clock,
+            title: "Check-in / Check-out",
+            body: `Check-in from ${settings?.check_in_time ?? "—"}; check-out by ${settings?.check_out_time ?? "—"}. Early and late options available via concierge.`
+        },
+        {
+            icon: Shield,
+            title: "Cancellation",
+            body: `Free cancellation up to ${settings?.cancellation_window_hours ?? "—"} hours before arrival.`
+        },
+        {
+            icon: Gift,
+            title: "Special Occasions",
+            body: "Birthdays, anniversaries, proposals — let us know and our team will prepare something memorable."
+        }
+    ];
+}

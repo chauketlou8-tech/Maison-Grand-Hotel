@@ -1,9 +1,0 @@
-[
-  { "code": "SI", "name": "Single", "values": ["Single", "18 m²", "2–4", "—", "—", "€195"] },
-  { "code": "ST", "name": "Standard", "values": ["Double", "26 m²", "2–6", "—", "—", "€260"] },
-  { "code": "KI", "name": "King", "values": ["King", "44 m²", "4–9", "—", "—", "€510"] },
-  { "code": "EX", "name": "Executive", "values": ["Super-King", "58 m²", "7–12", "—", "—", "€720"] },
-  { "code": "FA", "name": "Family", "values": ["King + 2×", "72 m²", "2–6", "✓", "—", "€680"] },
-  { "code": "SU", "name": "Suite", "values": ["Super-King", "95 m²", "8–14", "✓", "✓", "€1,100"] },
-  { "code": "PE", "name": "Penthouse", "values": ["220×220", "210 m²", "15–20", "360°", "✓", "€2,800"] }
-]

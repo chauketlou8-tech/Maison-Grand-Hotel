@@ -10,6 +10,7 @@ import type { req, res, next } from "../types/express";
 
 import type { Room } from "../types/room";
 import type { Address } from "../types/address";
+import type { Settings } from "../types/settings";
 
 import type { Guest } from "../types/guest";
 import type { Reservation } from "../types/reservation";
@@ -17,12 +18,16 @@ import type { Notification } from "../types/notification";
 
 import { base_url } from "../config/env";
 
-import sendEmail from "../services/email.service"
+import sendEmail from "../services/email.service";
+
+import getSettings from "../sockets/settingsClient";
 
 const book = asyncHandler(async (req: req, res: res, next: next) => {
 
     const { firstName, lastName, email, phone, requests, guests, selectedPackages, idNumber, nationality, address, total } = req.body;
     let { checkIn, checkOut, selectedRoom, dateOfBirth } = req.body;
+
+    const settings: Settings | null = getSettings();
 
     checkIn = checkIn.split("T")[0];
     checkOut = checkOut.split("T")[0];
@@ -33,7 +38,7 @@ const book = asyncHandler(async (req: req, res: res, next: next) => {
 
     const result = await connection.query(`
         select * from rooms where roomstatus = 'available' and roomtype = $1
-        `, [getter]);
+    `, [getter]);
 
     const availableRooms: Room[] = result.rows;
 
@@ -49,7 +54,7 @@ const book = asyncHandler(async (req: req, res: res, next: next) => {
 
     const reservedRoomResult = await connection.query(`
         update rooms set roomStatus = 'reserved' where roomid = $1 returning *
-        `, [suitableRoom.roomid]);
+    `, [suitableRoom.roomid]);
 
     const reservedRoom: Room = reservedRoomResult.rows[0];
 
@@ -62,20 +67,19 @@ const book = asyncHandler(async (req: req, res: res, next: next) => {
     `, [reservedRoom.roomid, "reserved"]);
 
     const addressResults = await connection.query(`
-        insert into address(street, city, province, country, postalcode) 
-        values($1, $2, $3, $4, $5) 
+        insert into address(street, city, province, country, postalcode)
+        values($1, $2, $3, $4, $5)
         returning *
-        `, [address.street, address.city, address.province, address.country, address.postalCode]);
+    `, [address.street, address.city, address.province, address.country, address.postalCode]);
 
     const userAddress: Address = addressResults.rows[0];
 
-    //creates the guest
     const guestResult = await connection.query(`
-            insert into guests(guestid, firstname, lastname, email, phonenumber, address_id, idnumber, dateofbirth, nationality, registrationdate)
-            values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
-            returning *
-            `, [HelperFunctions.createGuestID(reservedRoom), firstName, lastName, email, phone, userAddress.id, idNumber, dateOfBirth, nationality, new Date()]
-        );
+                insert into guests(guestid, firstname, lastname, email, phonenumber, address_id, idnumber, dateofbirth, nationality, registrationdate)
+                values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                returning *
+        `, [HelperFunctions.createGuestID(reservedRoom), firstName, lastName, email, phone, userAddress.id, idNumber, dateOfBirth, nationality, new Date()]
+    );
 
     const guest: Guest = guestResult.rows[0];
 
@@ -89,45 +93,45 @@ const book = asyncHandler(async (req: req, res: res, next: next) => {
 
     const fullReservationResults = await connection.query(`
         select json_build_object(
-            'guest', json_build_object(
-                'guestid', g.guestid,
-                'firstname', g.firstname,
-                'lastname', g.lastname,
-                'email', g.email,
-                'phonenumber', g.phonenumber,
-                'idnumber', g.idnumber,
-                'dateofbirth', g.dateofbirth,
-                'nationality', g.nationality,
-                'registrationdate', g.registrationdate,
-                'address', json_build_object (
-                    'street', a.street,
-                    'city', a.city,
-                    'province', a.province,
-                    'country', a.country,
-                    'postalcode', a.postalcode
-                )
-            ),
-            'room', json_build_object (
-                    'roomid', rm.roomid,
-                    'roomnumber', rm.roomnumber,
-                    'floornumber', rm.floornumber,
-                    'roomtype', rm.roomtype,
-                    'price', rm.price,
-                    'capacity', rm.capacity,
-                    'description', rm.description
-                    ),
-            'reservation_id', r.reservationid,
-            'requestedRoomType', r.requestedroomtype,
-            'reservationDate', r.reservationdate,
-            'checkInDate', r.checkindate,
-            'checkOutDate', r.checkoutdate,
-            'numberOfGuests', r.numberOfGuests,
-            'reservationStatus', r.reservationStatus,
-            'selectedpackages', r.selectedpackages,
-            'requests', r.requests
-        ) 
-        as Reservation from reservations r join guests g on r.guest_id = g.id
-        join address a on g.address_id = a.id join rooms rm on r.room_id = rm.roomid
+                       'guest', json_build_object(
+                        'guestid', g.guestid,
+                        'firstname', g.firstname,
+                        'lastname', g.lastname,
+                        'email', g.email,
+                        'phonenumber', g.phonenumber,
+                        'idnumber', g.idnumber,
+                        'dateofbirth', g.dateofbirth,
+                        'nationality', g.nationality,
+                        'registrationdate', g.registrationdate,
+                        'address', json_build_object (
+                                'street', a.street,
+                                'city', a.city,
+                                'province', a.province,
+                                'country', a.country,
+                                'postalcode', a.postalcode
+                                   )
+                                ),
+                       'room', json_build_object (
+                               'roomid', rm.roomid,
+                               'roomnumber', rm.roomnumber,
+                               'floornumber', rm.floornumber,
+                               'roomtype', rm.roomtype,
+                               'price', rm.price,
+                               'capacity', rm.capacity,
+                               'description', rm.description
+                               ),
+                       'reservation_id', r.reservationid,
+                       'requestedRoomType', r.requestedroomtype,
+                       'reservationDate', r.reservationdate,
+                       'checkInDate', r.checkindate,
+                       'checkOutDate', r.checkoutdate,
+                       'numberOfGuests', r.numberOfGuests,
+                       'reservationStatus', r.reservationStatus,
+                       'selectedpackages', r.selectedpackages,
+                       'requests', r.requests
+               )
+                   as Reservation from reservations r join guests g on r.guest_id = g.id
+                                                      join address a on g.address_id = a.id join rooms rm on r.room_id = rm.roomid
         where g.id = $1 and r.id = $2 and rm.roomid = $3
     `, [guest.id, reservation.id, reservedRoom.roomid]);
 
@@ -146,16 +150,26 @@ const book = asyncHandler(async (req: req, res: res, next: next) => {
         updated_at: new Date()
     }
 
-    await connection.query(`
-        insert into notifications(type, title, message, reservationid, guestid) 
-        values($1, $2, $3, $4, $5)
-    `, [notification.type, notification.title, notification.message, notification.reservation_id, notification.guest_id]);
+    if (settings?.notify_staff_new_reservation) {
+        await connection.query(`
+            insert into notifications(type, title, message, reservationid, guestid)
+            values($1, $2, $3, $4, $5)
+        `, [notification.type, notification.title, notification.message, notification.reservation_id, notification.guest_id]);
+    }
 
-    const emailSubject = "Mason Hotel — Reservation Received";
+    if (settings && settings.notify_reservation_received) {
+        const address = [
+            settings.hotel_street,
+            settings.hotel_city,
+            settings.hotel_province,
+            settings.hotel_postal_code
+        ].filter(Boolean).join(", ");
 
-    const emailMessage = `Dear ${name},
+        const emailSubject = `${settings.hotel_name} — Reservation Received`;
 
-Thank you for choosing Mason Hotel.
+        const emailMessage = `Dear ${name},
+
+Thank you for choosing ${settings.hotel_name}.
 
 We have successfully received your reservation request. Your booking is currently awaiting payment confirmation and will be secured once payment is completed.
 
@@ -174,7 +188,7 @@ ${base_url}/booking/${reservation.reservationid}
 
 PAYMENT INFORMATION
 ─────────────────
-To confirm your reservation, please complete your payment within the next 30 minutes to avoid cancellation.
+To confirm your reservation, please complete your payment within the next ${settings.payment_window_minutes} minutes to avoid cancellation.
 
 If you have already made payment, please disregard this notice.
 
@@ -184,15 +198,16 @@ If you have any questions regarding your reservation, please contact us and prov
 
 Kind regards,
 
-Mason Hotel
+${settings.hotel_name}
 Guest Services
-stay@maisongrandhotel.co.za
-+27 21 987 6543
-08 Greenwood Street, Gardens, Cape Town, 7700
+${settings.hotel_email}
+${settings.hotel_phone}
+${address}
 www.maisongrandhotel.co.za
 `;
 
-    await sendEmail(email, emailSubject, emailMessage, name);
+        await sendEmail(email, emailSubject, emailMessage, name);
+    }
 
     return Response.success(res, {
         message: "Booking received",

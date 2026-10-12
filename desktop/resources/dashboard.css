@@ -1428,3 +1428,14 @@
     -fx-font-size: 9px;
     -fx-font-weight: bold;
 }
+
+.activity-empty-title {
+    -fx-text-fill: #9a9080;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.activity-empty-sub   {
+    -fx-text-fill: #6a6058;
+    -fx-font-size: 11px;
+}

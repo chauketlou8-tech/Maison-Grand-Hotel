@@ -13,6 +13,9 @@ import type { req, res, next } from "../types/express";
 import type { Notification } from "../types/notification";
 import type { Payment } from "../types/payment";
 import type { Reservation } from "../types/reservation";
+import type { Settings } from "../types/settings";
+
+import getSettings from "../sockets/settingsClient";
 
 const pay = asyncHandler(async (req: req, res: res) => {
     const { amount, guest_id, reservation_id } = req.body;
@@ -48,6 +51,7 @@ const pay = asyncHandler(async (req: req, res: res) => {
 const yocoWebhook = asyncHandler(async (req: req, res: res, next: next) => {
     //@ts-ignore
     const rawBody = req.rawBody;
+    const settings: Settings | null = getSettings();
 
     if (!HelperFunctions.isValidSignature(rawBody, req.headers, yoco_webhook_secret!)) {
         return next(new PaymentError("Invalid Signature", 401));
@@ -92,7 +96,7 @@ const yocoWebhook = asyncHandler(async (req: req, res: res, next: next) => {
     const results = await connection.query(`
         update payments set paymentstatus = $1, transactionreference = $2, paymentdate = NOW(), paymentmethod = $3 where id = $4
         returning *
-        `, ["completed", event.id, paymentMethod, payment.id]);
+    `, ["completed", event.id, paymentMethod, payment.id]);
 
     if (results.rowCount == 0) {
         return Response.success(res, {
@@ -130,23 +134,33 @@ const yocoWebhook = asyncHandler(async (req: req, res: res, next: next) => {
         updated_at: new Date()
     }
 
-    await connection.query(`
-        insert into notifications(type, title, message, payment_id, guestid) 
-        values($1, $2, $3, $4, $5)
-    `, [notification.type, notification.title, notification.message, notification.payment_id, notification.guest_id]);
+    if (settings?.notify_staff_new_payment) {
+        await connection.query(`
+            insert into notifications(type, title, message, payment_id, guestid) 
+            values($1, $2, $3, $4, $5)
+        `, [notification.type, notification.title, notification.message, notification.payment_id, notification.guest_id]);
+    }
 
-    const checkIn = new Date(reservation.checkindate).toLocaleString("en-ZA", { day: "2-digit", month: "long", year: "numeric" });
-    const checkOut = new Date(reservation.checkoutdate).toLocaleString("en-ZA", { day: "2-digit", month: "long", year: "numeric" });
+    if (settings && settings.notify_payment_confirmation) {
+        const checkIn = new Date(reservation.checkindate).toLocaleString("en-ZA", { day: "2-digit", month: "long", year: "numeric" });
+        const checkOut = new Date(reservation.checkoutdate).toLocaleString("en-ZA", { day: "2-digit", month: "long", year: "numeric" });
 
-    const guests = reservation.numberofguests;
-    const roomName = reservation.requestedroomtype;
-    const email = guest.email;
+        const guests = reservation.numberofguests;
+        const roomName = reservation.requestedroomtype;
+        const email = guest.email;
 
-    const emailSubject = "Mason Hotel — Payment Confirmation";
-    const paymentDate = new Date(newPayment.paymentdate).toLocaleString("en-ZA", { day: "2-digit", month: "long", year: "numeric" });
-    const emailMessage = `Dear ${name},
+        const address = [
+            settings.hotel_street,
+            settings.hotel_city,
+            settings.hotel_province,
+            settings.hotel_postal_code
+        ].filter(Boolean).join(", ");
 
-Thank you for your payment to Mason Hotel.
+        const emailSubject = `${settings.hotel_name} — Payment Confirmation`;
+        const paymentDate = new Date(newPayment.paymentdate).toLocaleString("en-ZA", { day: "2-digit", month: "long", year: "numeric" });
+        const emailMessage = `Dear ${name},
+
+Thank you for your payment to ${settings.hotel_name}.
 
 We are pleased to confirm that your payment has been successfully received and processed. Your reservation is now confirmed.
 
@@ -172,18 +186,19 @@ ${base_url}/booking/${reservation.reservationid}
 
 Your payment has been successfully recorded against your reservation. Please keep this email as proof of payment.
 
-We look forward to welcoming you to Mason Hotel.
+We look forward to welcoming you to ${settings.hotel_name}.
 
 Kind regards,
 
-Mason Hotel
+${settings.hotel_name}
 Guest Services
-stay@maisongrandhotel.co.za
-+27 21 987 6543
-08 Greenwood Street, Gardens, Cape Town, 7700
+${settings.hotel_email}
+${settings.hotel_phone}
+${address}
 www.maisongrandhotel.co.za`;
 
-    await sendEmail(email, emailSubject, emailMessage, name);
+        await sendEmail(email, emailSubject, emailMessage, name);
+    }
 
     return Response.success(res, {
         message: "Payment successful",

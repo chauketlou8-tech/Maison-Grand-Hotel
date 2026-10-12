@@ -3,13 +3,17 @@ import { db_url, port } from "./src/config/env";
 import { logger } from "./src/config/logger";
 import connectDB from "./src/config/db";
 import websocket from "./src/sockets/websock";
+import settingsSocket from "./src/sockets/settingsSocket";
 import "./src/jobs/cancelExpiredReservations";
+import "./src/jobs/NotifyCheckInReminder";
+import "./src/jobs/sendFeedBackRequest";
 
 class Server {
     public async start() {
         try {
             connectDB(db_url!);
             void websocket;
+            void settingsSocket;
 
             logger.info("Connected to database");
 

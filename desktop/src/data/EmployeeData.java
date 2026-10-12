@@ -39,9 +39,7 @@ public class EmployeeData {
 
         this.salary = employee.getSalary() == null ? "—" : "R " + String.format("%,.2f", employee.getSalary());
 
-        this.startDate = employee.getHiredate() == null
-                ? "—"
-                : ((java.sql.Date) employee.getHiredate()).toLocalDate().format(DateFormats.of(settings));
+        this.startDate = employee.getHiredate() == null ? "—" : ((java.sql.Date) employee.getHiredate()).toLocalDate().format(DateFormats.of(settings));
 
         this.status = employee.getEmploymentstatus() == null ? "—" : employee.getEmploymentstatus().name();
     }

@@ -7,6 +7,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+/**
+ * This class represent the database connection
+ */
 public class Conn {
     public static Connection getConnection() throws IOException, SQLException {
         Properties properties = new Properties();

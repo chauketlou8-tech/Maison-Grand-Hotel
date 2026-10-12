@@ -1,8 +1,29 @@
+import { useState, useEffect } from "react";
 import navLinks from "../../constants/navLinks.js";
 import { Link } from "react-router-dom";
 import { MapPin, Phone, Mail } from "lucide-react";
+import type { Settings } from "../../types/settings";
+import getSettings from "../../services/getSettings"
 
 export default function Footer() {
+    const [settings, setSettings] = useState<Settings>(null);
+
+    useEffect(() => {
+        async function set() {
+            setSettings(await getSettings());
+        }
+
+        void set();
+    }, []);
+
+    const address = settings ? [
+        settings.hotel_street,
+        settings.hotel_city,
+        settings.hotel_province,
+        settings.hotel_postal_code,
+        settings.hotel_country
+    ].filter(Boolean).join(", ") : "";
+
     return (
         <footer className="py-16 px-8 md:px-20 border-t border-neutral-700 bg-black/95">
             <div className="max-w-6xl mx-auto">
@@ -36,15 +57,15 @@ export default function Footer() {
                     <div>
                         <p className="text-[10px] tracking-[0.35em] uppercase text-neutral-400 mb-5">Contact</p>
                         <div className="flex flex-col gap-3 text-sm text-neutral-400 font-light">
-                            <span className="flex items-start gap-2"><MapPin size={13} className="text-white mt-0.5 flex-shrink-0" />08 Greenwood Street, Gardens, Cape Town, 7700, South Africa</span>
-                            <span className="flex items-center gap-2"><Phone size={13} className="text-white flex-shrink-0" />+27 21 987 6543</span>
-                            <span className="flex items-center gap-2"><Mail size={13} className="text-white flex-shrink-0" />stay@maisongrandhotel.co.za</span>
+                            <span className="flex items-start gap-2"><MapPin size={13} className="text-white mt-0.5 flex-shrink-0" />{address}</span>
+                            <span className="flex items-center gap-2"><Phone size={13} className="text-white flex-shrink-0" />{settings?.hotel_phone}</span>
+                            <span className="flex items-center gap-2"><Mail size={13} className="text-white flex-shrink-0" />{settings?.hotel_email}</span>
                         </div>
                     </div>
                 </div>
                 <div className="border-t border-neutral-700 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
                     <p className="text-xs text-neutral-500 font-light tracking-wider">
-                        © {new Date().getFullYear()} Maison Grand Hôtel. All rights reserved.
+                        © {new Date().getFullYear()} {settings?.hotel_name ?? "Maison Grand Hôtel"}. All rights reserved.
                     </p>
                     <div className="flex gap-6 text-xs text-neutral-500 font-light">
                         <button className="hover:text-white transition-colors">Privacy Policy</button>

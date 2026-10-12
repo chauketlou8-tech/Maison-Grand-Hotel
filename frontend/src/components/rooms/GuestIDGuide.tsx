@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Info } from "lucide-react";
+import roomTypes from "../../constants/rooms";
 
 export default function GuestIdGuide() {
     const [showIdGuide, setShowIdGuide] = useState(false);
@@ -31,10 +32,10 @@ export default function GuestIdGuide() {
                         <div>
                             <p className="text-[10px] tracking-[0.35em] uppercase mb-3" style={{ color: "#c9a84c" }}>Room Type Codes</p>
                             <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
-                                {[["SI","Single"],["ST","Standard"],["DO","Double"],["QU","Queen"],["KI","King"],["DE","Deluxe"],["EX","Executive"],["FA","Family"],["SU","Suite"],["PE","Penthouse"]].map(([code, label]) => (
+                                {roomTypes.map(({ code, name }) => (
                                     <div key={code} className="flex items-center gap-2 text-xs">
                                         <code className="font-mono" style={{ color: "#c9a84c" }}>{code}</code>
-                                        <span style={{ color: "#9a9080" }}>{label}</span>
+                                        <span style={{ color: "#9a9080" }}>{name.replace(" Room", "")}</span>
                                     </div>
                                 ))}
                             </div>

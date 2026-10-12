@@ -1,13 +1,19 @@
-export type Room = {
-    "id": string,
-    "code": string,
-    "name": string,
-    "category": string,
-    "size": string,
-    "floors": string,
-    "price": number,
-    "img": string,
-    "tag": string | null,
-    "features": string[],
-    "desc": string
+enum RoomStatus {
+    AVAILABLE = 'available',
+    OCCUPIED = 'occupied',
+    MAINTENANCE = 'maintenance',
+    CLOSED = 'closed'
 }
+
+export type Room = {
+    roomid: number;
+    roomnumber: number;
+    floornumber: number;
+    roomtype: string;
+    price: number;
+    capacity: number;
+    roomstatus: RoomStatus;
+    description: string;
+    created_at: Date;
+    updated_at: Date;
+};

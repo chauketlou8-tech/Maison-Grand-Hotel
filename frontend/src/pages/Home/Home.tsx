@@ -5,7 +5,6 @@ import Dining from "../../components/home/Dining";
 import GalleryCarousel from "../../components/home/GalleryCarousel";
 import Testimonials from "../../components/home/Testimonials";
 import Booking from "../../components/home/Booking";
-import Stats from "../../components/home/Stats";
 
 export default function Home() {
     return (
@@ -14,14 +13,13 @@ export default function Home() {
 
             <About />
 
-            <Stats />
-
             <Rooms />
 
             <Dining />
 
             <GalleryCarousel />
 
+            {/*Change later*/}
             <Testimonials />
 
             <Booking />

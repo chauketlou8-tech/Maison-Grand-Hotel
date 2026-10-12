@@ -2,6 +2,7 @@ package ui.pages;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcons;
+import enums.NotificationType;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -16,6 +17,7 @@ import models.Room;
 import models.Service;
 import models.ServiceTask;
 import models.Settings;
+import repositories.ServerRepository;
 import utils.Conn;
 import data.HousekeepingData;
 
@@ -44,6 +46,7 @@ public class Housekeeping extends VBox {
     private ServiceTask[] pendingTasks;
 
     private final Connection connection = Conn.getConnection();
+    private final Settings settings = ServerRepository.getSettings();
 
     public Housekeeping() throws SQLException, IOException {
         assert(connection != null);
@@ -479,6 +482,18 @@ public class Housekeeping extends VBox {
         return names;
     }
 
+    private void notifyTaskCompleted(int taskId) throws SQLException {
+        if (settings == null || !settings.isNotifyStaffTaskCompleted()) return;
+
+        try (PreparedStatement statement = connection.prepareStatement(
+                "insert into notifications (type, title, message) values (?::notificationtype, ?, ?)")) {
+            statement.setString(1, NotificationType.task_completed.name());
+            statement.setString(2, "Task Completed");
+            statement.setString(3, "Task #" + taskId + " has been completed.");
+            statement.execute();
+        }
+    }
+
     private void setComplete(int taskId) throws IOException, SQLException {
         try (Statement statement = connection.createStatement()){
             statement.execute("update servicetasks set status = 'completed', completed_at = now(), updated_at = now() where id = '" + taskId + "'");
@@ -487,6 +502,8 @@ public class Housekeeping extends VBox {
         catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+        notifyTaskCompleted(taskId);
     }
 
     private void markRoomAvailable(int roomNumber) throws IOException, SQLException {
@@ -509,6 +526,8 @@ public class Housekeeping extends VBox {
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate("update servicetasks set status = 'completed', completed_at = now(), updated_at = now() where id = '" + taskId + "'");
         }
+
+        notifyTaskCompleted(taskId);
     }
 
     private void editCleaningTask(int taskId) throws SQLException {

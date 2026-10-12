@@ -1,6 +1,6 @@
 export type Notification = {
     notificationid?: number;
-    type: "reservation_request" | "payment_confirmation" | "reservation_cancelled" | "reservation_confirmation";
+    type: "reservation_request" | "payment_confirmation" | "reservation_cancelled" | "reservation_confirmation" | "low_occupancy" | "checkin_reminder" | "feedback_request" | "daily_report";
     title: string;
     message: string;
     payment_id?: number;

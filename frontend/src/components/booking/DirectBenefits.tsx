@@ -1,7 +1,22 @@
+import { useState, useEffect } from "react";
 import { Check } from "lucide-react";
-import directBenefits from "../../constants/directBenefits";
+import type { Settings } from "../../types/settings";
+import getSettings from "../../services/getSettings";
+import buildDirectBenefits from "../../constants/directBenefits";
 
 export default function DirectBenefits() {
+    const [settings, setSettings] = useState<Settings>(null);
+
+    useEffect(() => {
+        async function set() {
+            setSettings(await getSettings());
+        }
+
+        void set();
+    }, []);
+
+    const directBenefits = buildDirectBenefits(settings);
+
     return (
         <section className="py-8 px-8 md:px-20 bg-[#0f0e0c] border-b border-[#c9a84c]/10 relative">
             <div className="absolute inset-0 bg-[#c9a84c]/10" />

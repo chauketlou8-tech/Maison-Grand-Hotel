@@ -10,12 +10,9 @@ import models.User;
 
 import sockets.Server;
 
-import tasks.CaptureRoomHistoryJob;
-import tasks.CreateCleaningTasksJob;
+import tasks.*;
 
-import tasks.CreateInspectionTasksJob;
 import utils.Conn;
-
 import java.io.IOException;
 
 import java.sql.Connection;
@@ -30,11 +27,13 @@ public class ServerRepository {
     private static Connection conn;
 
     public static void connectDB() throws IOException, SQLException {
+        //connect to the database
+
         conn = Conn.getConnection();
         Settings settings = getSettings();
 
         if (conn != null && !conn.isClosed() && conn.isValid(2)) {
-            System.out.println("Database opened successfully.");
+            System.out.println("Connected to the database.");
         }
 
         else {
@@ -74,6 +73,9 @@ public class ServerRepository {
 
         CreateCleaningTasksJob.run(settings);
         CreateInspectionTasksJob.run(settings);
+        NotifyLowOccupancy.run(settings);
+        NotifyCheckOutReminder.run(settings);
+        CreateDailyReport.run(settings);
     }
 
     public static List<User> getUsers() throws SQLException {

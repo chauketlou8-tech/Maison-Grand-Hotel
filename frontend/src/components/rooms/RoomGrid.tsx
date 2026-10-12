@@ -2,18 +2,17 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Check, ArrowRight } from "lucide-react";
 import GuestIdBadge from "../../utils/GuestIDBadge";
-import type { Room } from "../../types/Room"
+import type { RoomGridProps } from "../../types/RoomGridProps"
 
-export default function RoomGrid({ rooms }) {
-    const [selectedRoom, setSelectedRoom] = useState(null);
+export default function RoomGrid({ rooms }: RoomGridProps) {
+    const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
 
     return (
         <section className="py-16 px-8 md:px-20" style={{ backgroundColor: "#0f0e0c" }}>
             <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {rooms.map((room: Room) => (
+                {rooms.map((room) => (
                     <div key={room.id} className={`group overflow-hidden border transition-all duration-300 ${selectedRoom === room.id ? "border-primary" : "border-border hover:border-primary/30"}`} style={{ backgroundColor: "#1a1814", borderColor: selectedRoom === room.id ? "#c9a84c" : "rgba(201, 168, 76, 0.15)" }}>
                         <div className="relative overflow-hidden" style={{ backgroundColor: "#1c1917" }}>
-                            {room.tag && <span className="absolute top-4 left-4 z-10 text-[10px] tracking-[0.3em] uppercase px-3 py-1" style={{ backgroundColor: "#c9a84c", color: "#0f0e0c" }}>{room.tag}</span>}
                             <span className="absolute top-4 right-4 z-10 font-mono text-[10px] tracking-widest px-2 py-1 border" style={{ backgroundColor: "rgba(15, 14, 12, 0.8)", color: "#c9a84c", borderColor: "rgba(201, 168, 76, 0.3)" }}>{room.code}</span>
                             <img src={room.img} alt={room.name} className="w-full h-56 object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" />
                         </div>
@@ -24,7 +23,7 @@ export default function RoomGrid({ rooms }) {
                                     <p className="text-xs tracking-wider mt-1" style={{ color: "#9a9080" }}>{room.size} · Floors {room.floors}</p>
                                 </div>
                                 <div className="text-right flex-shrink-0">
-                                    <p className="text-2xl font-light" style={{ color: "#c9a84c" }}>€{room.price.toLocaleString()}</p>
+                                    <p className="text-2xl font-light" style={{ color: "#c9a84c" }}>R{room.price.toLocaleString()}</p>
                                     <p className="text-xs" style={{ color: "#9a9080" }}>per night</p>
                                 </div>
                             </div>

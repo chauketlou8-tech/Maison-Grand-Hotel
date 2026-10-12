@@ -26,7 +26,7 @@ export default function Rooms() {
                                     <p className="text-sm tracking-wider" style={{ color: "rgba(240, 235, 224, 0.8)" }}>{room.name}</p>
                                 </div>
                                 <div className="text-right">
-                                    <p className="font-light" style={{ color: "#c9a84c" }}>€{room.price}</p>
+                                    <p className="font-light" style={{ color: "#c9a84c" }}>R{room.price}</p>
                                     <p className="text-xs" style={{ color: "#9a9080" }}>/ night</p>
                                 </div>
                             </div>

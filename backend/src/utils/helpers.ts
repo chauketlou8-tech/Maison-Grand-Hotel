@@ -73,6 +73,16 @@ class HelperFunctions {
         const result = await connection.query(`select * from rooms where roomstatus = 'available'`);
         return result.rows;
     }
+
+    public async getSettings() {
+        const result = await connection.query(`select * from settings`);
+        return result.rows[0];
+    }
+
+    public async getRooms(): Promise<Room[]> {
+        const result = await connection.query(`select * from rooms`);
+        return result.rows;
+    }
 }
 
 export default new HelperFunctions();

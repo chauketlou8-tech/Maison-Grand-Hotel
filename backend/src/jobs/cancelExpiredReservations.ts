@@ -1,33 +1,47 @@
 import cron from "node-cron";
 import connection from "../config/connection";
 import type { Notification } from "../types/notification";
+import type { Settings } from "../types/settings";
 import { logger } from "../config/logger";
 import sendEmail from "../services/email.service";
 import { base_url } from "../config/env"
+import getSettings from "../sockets/settingsClient"
 
 cron.schedule("* * * * *", async () => {
     try {
+        const settings: Settings | null = getSettings();
+
+        if (!settings) {
+            logger.info("cron schedule skipped: settings not loaded yet");
+            return;
+        }
+
+        if (!settings.auto_cancel_unpaid) {
+            logger.info("cron schedule skipped: auto_cancel_unpaid is off");
+            return;
+        }
+
         logger.info("cron schedule running...");
 
         const cancelledReservations = await connection.query(`
-        update reservations set reservationstatus = 'CANCELLED'
-        where reservationstatus = 'PENDING' and created_at <= NOW() - INTERVAL '30 minutes'
-        returning id, guest_id, room_id, reservationid, checkindate, checkoutdate, numberofguests, requestedroomtype
-    `);
+            update reservations set reservationstatus = 'CANCELLED'
+            where reservationstatus = 'PENDING' and created_at <= NOW() - INTERVAL '${settings.payment_window_minutes} minutes'
+            returning id, guest_id, room_id, reservationid, checkindate, checkoutdate, numberofguests, requestedroomtype
+        `);
 
         for (const reservation of cancelledReservations.rows) {
 
             await connection.query(`
-            update rooms set roomstatus = 'available' where roomid = $1
-        `, [reservation.room_id]);
+                update rooms set roomstatus = 'available' where roomid = $1
+            `, [reservation.room_id]);
 
             await connection.query(`
-            update payments set paymentstatus = 'failed' where reservation_id = $1
+                update payments set paymentstatus = 'failed' where reservation_id = $1
             `, [reservation.reservationid]);
 
             const guestResults = await connection.query(`
-            select firstname, lastname, id, email from guests where id = $1
-        `, [reservation.guest_id]);
+                select firstname, lastname, id, email from guests where id = $1
+            `, [reservation.guest_id]);
 
             const guest = guestResults.rows[0];
 
@@ -51,15 +65,26 @@ cron.schedule("* * * * *", async () => {
             };
 
             await connection.query(`
-            insert into notifications (type, title, message, guestid)
-            values ($1, $2, $3, $4)
-        `, [notification.type, notification.title, notification.message, notification.guest_id]);
+                insert into notifications (type, title, message, guestid)
+                values ($1, $2, $3, $4)
+            `, [notification.type, notification.title, notification.message, notification.guest_id]);
 
-            const emailSubject = "Mason Hotel — Reservation Cancelled";
+            if (!settings.notify_reservation_cancelled) {
+                continue;
+            }
+
+            const address = [
+                settings.hotel_street,
+                settings.hotel_city,
+                settings.hotel_province,
+                settings.hotel_postal_code
+            ].filter(Boolean).join(", ");
+
+            const emailSubject = `${settings.hotel_name} — Reservation Cancelled`;
 
             const emailMessage = `Dear ${name}
 
-We regret to inform you that your reservation at Mason Hotel has been cancelled because the required payment was not received within the allocated payment period.
+We regret to inform you that your reservation at ${settings.hotel_name} has been cancelled because the required payment was not received within the allocated payment period.
 
 RESERVATION DETAILS
 ─────────────────
@@ -83,16 +108,15 @@ ${base_url}/booking
 
 If you have any questions regarding this cancellation, please contact us and provide your Reservation ID.
 
-We hope to welcome you to Mason Hotel in the future.
+We hope to welcome you to ${settings.hotel_name} in the future.
 
 Kind regards,
 
-Mason Hotel
+${settings.hotel_name}
 Guest Services
-stay@maisongrandhotel.co.za
-+27 21 987 6543
-08 Greenwood Street, Gardens, Cape Town, 7700
-www.maisongrandhotel.co.za`;
+${settings.hotel_email}
+${settings.hotel_phone}
+${address}`;
 
             await sendEmail(guest.email, emailSubject, emailMessage, name);
         }

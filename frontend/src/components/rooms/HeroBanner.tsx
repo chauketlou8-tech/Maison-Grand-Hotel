@@ -1,4 +1,21 @@
+import { useState, useEffect } from "react";
+import type { Room } from "../../types/Room";
+import getRooms from "../../services/getRooms";
+
 export default function HeroBanner() {
+    const [rooms, setRooms] = useState<Room[]>([]);
+
+    useEffect(() => {
+        async function set() {
+            setRooms(await getRooms());
+        }
+
+        void set();
+    }, []);
+
+    const categories = new Set(rooms.map((r) => r.roomtype)).size;
+    const floors = new Set(rooms.map((r) => r.floornumber)).size;
+
     return (
         <section className="relative h-[55vh] min-h-[420px] flex items-end pb-16 pt-20" style={{ backgroundColor: "#0f0e0c" }}>
             <img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1600&h=900&fit=crop&auto=format" alt="Hotel room interior" className="absolute inset-0 w-full h-full object-cover opacity-40" />
@@ -8,7 +25,7 @@ export default function HeroBanner() {
             <div className="relative z-10 px-8 md:px-20 max-w-6xl mx-auto w-full">
                 <p className="text-[11px] tracking-[0.5em] uppercase mb-3 font-light" style={{ color: "#c9a84c" }}>Accommodation</p>
                 <h1 className="text-5xl md:text-6xl font-normal" style={{ fontFamily: "'Playfair Display', serif", color: "#f0ebe0" }}>Rooms &amp; Suites</h1>
-                <p className="font-light mt-4 max-w-lg" style={{ color: "rgba(240, 235, 224, 0.5)" }}>Ten room categories across twenty floors. Every room hand-appointed, every view intentional.</p>
+                <p className="font-light mt-4 max-w-lg" style={{ color: "rgba(240, 235, 224, 0.5)" }}>{categories} room categories across {floors} floors. Every room hand-appointed, every view intentional.</p>
             </div>
         </section>
     );

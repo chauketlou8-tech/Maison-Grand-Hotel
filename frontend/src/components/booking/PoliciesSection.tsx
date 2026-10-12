@@ -1,7 +1,21 @@
-// components/booking/PoliciesSection.tsx
-import policies from "../../constants/policies";
+import { useState, useEffect } from "react";
+import type { Settings } from "../../types/settings";
+import getSettings from "../../services/getSettings";
+import buildPolicies from "../../constants/policies";
 
 export default function PoliciesSection() {
+    const [settings, setSettings] = useState<Settings>(null);
+
+    useEffect(() => {
+        async function set() {
+            setSettings(await getSettings());
+        }
+
+        void set();
+    }, []);
+
+    const policies = buildPolicies(settings);
+
     return (
         <section className="py-16 px-8 md:px-20 bg-[#252218] border-t border-[#c9a84c]/15">
             <div className="max-w-6xl mx-auto">

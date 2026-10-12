@@ -1,14 +1,27 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Star, Clock, Users, Coffee } from "lucide-react";
+import { ArrowRight, Clock, Coffee } from "lucide-react";
+import type { Settings } from "../../types/settings";
+import getSettings from "../../services/getSettings";
 
 export default function Dining() {
+    const [settings, setSettings] = useState<Settings>(null);
+
+    useEffect(() => {
+        async function set() {
+            setSettings(await getSettings());
+        }
+
+        void set();
+    }, []);
+
     return (
         <section className="py-28 px-8 md:px-20" style={{ backgroundColor: "#252218" }}>
             <div className="max-w-6xl mx-auto">
                 <div className="flex items-end justify-between mb-12">
                     <div>
                         <p className="text-[11px] tracking-[0.5em] uppercase mb-3 font-light" style={{ color: "#c9a84c" }}>Culinary</p>
-                        <h2 className="text-4xl md:text-5xl font-normal" style={{ fontFamily: "'Playfair Display', serif", color: "#f0ebe0" }}>Dining at Maison</h2>
+                        <h2 className="text-4xl md:text-5xl font-normal" style={{ fontFamily: "'Playfair Display', serif", color: "#f0ebe0" }}>Dining at {settings?.hotel_name}</h2>
                     </div>
                     <Link to="/dining" className="hidden sm:flex items-center gap-2 text-sm tracking-[0.15em] uppercase hover:gap-4 transition-all duration-200" style={{ color: "#c9a84c" }}>Explore Dining <ArrowRight size={14} /></Link>
                 </div>
@@ -17,10 +30,6 @@ export default function Dining() {
                     <div className="md:col-span-2 relative overflow-hidden group" style={{ backgroundColor: "#1c1917" }}>
                         <img src="../../../assets/home/aroureResturant.avif" alt="Aurore restaurant" className="w-full h-[500px] object-cover transition-all duration-700 group-hover:scale-105" style={{ opacity: "0.7" }} />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#0f0e0c]/90 via-[#0f0e0c]/30 to-transparent" />
-                        <div className="absolute top-6 right-6 flex items-center gap-2 px-3 py-1" style={{ backgroundColor: "rgba(15, 14, 12, 0.8)", border: "1px solid rgba(201, 168, 76, 0.3)" }}>
-                            <Star size={12} style={{ color: "#c9a84c" }} />
-                            <span className="text-[10px] tracking-[0.2em] uppercase" style={{ color: "#c9a84c" }}>2 Michelin Stars</span>
-                        </div>
                         <div className="absolute bottom-0 left-0 p-8">
                             <span className="text-[10px] tracking-[0.4em] uppercase" style={{ color: "#c9a84c" }}>Fine Dining</span>
                             <h3 className="text-4xl font-normal mt-1" style={{ fontFamily: "'Playfair Display', serif", color: "#f0ebe0" }}>Aurore</h3>
@@ -29,10 +38,6 @@ export default function Dining() {
                                 <div className="flex items-center gap-2">
                                     <Clock size={14} style={{ color: "#c9a84c" }} />
                                     <span className="text-xs" style={{ color: "#9a9080" }}>Tue-Sat · 7pm-10pm</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Users size={14} style={{ color: "#c9a84c" }} />
-                                    <span className="text-xs" style={{ color: "#9a9080" }}>24 seats</span>
                                 </div>
                             </div>
                         </div>

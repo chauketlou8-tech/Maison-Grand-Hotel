@@ -1,4 +1,4 @@
-export type settings = {
+export type Settings = {
     id: number;
     hotel_name: string;
     hotel_email: string;
