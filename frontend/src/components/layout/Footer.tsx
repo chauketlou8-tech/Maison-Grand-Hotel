@@ -25,16 +25,18 @@ export default function Footer() {
     ].filter(Boolean).join(", ") : "";
 
     return (
-        <footer className="py-16 px-8 md:px-20 border-t border-neutral-700 bg-black/95">
+        <footer className="py-16 px-8 md:px-20 border-t border-neutral-700 bg-black/95 scroll-hide">
             <div className="max-w-6xl mx-auto">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
                     <div className="md:col-span-2">
                         <p className="text-xl tracking-[0.2em] uppercase text-white mb-1 font-light" style={{ fontFamily: "'Playfair Display', serif" }}>
-                            Maison
+                            {settings?.hotel_name?.split(" ")[0] ?? "Maison"}
                         </p>
-                        <p className="text-[10px] tracking-[0.4em] uppercase text-neutral-400 mb-4">GRAND HÔTEL</p>
+                        <p className="text-[10px] tracking-[0.4em] uppercase text-neutral-400 mb-4">
+                            {settings?.hotel_name?.split(" ").slice(1).join(" ") || "Grand Hôtel"}
+                        </p>
                         <p className="text-sm text-neutral-400 font-light leading-relaxed max-w-xs">
-                            A century-old address on the Rue de la Paix, steps from the Place Vendôme. Forty-seven rooms, two restaurants, one uncompromising standard.
+                            A quiet address in {settings?.hotel_city ?? "Cape Town"}. {settings?.hotel_country ?? "South Africa"}. Rooms, suites, and a standard that doesn't announce itself.
                         </p>
                         <div className="flex gap-4 mt-6">
                             {["IG", "FB", "TW"].map((s) => (
@@ -52,6 +54,9 @@ export default function Footer() {
                                     {link}
                                 </Link>
                             ))}
+                            <Link to="/booking/find" className="text-sm text-neutral-400 hover:text-white transition-colors font-light">
+                                Find My Reservation
+                            </Link>
                         </div>
                     </div>
                     <div>
@@ -68,9 +73,9 @@ export default function Footer() {
                         © {new Date().getFullYear()} {settings?.hotel_name ?? "Maison Grand Hôtel"}. All rights reserved.
                     </p>
                     <div className="flex gap-6 text-xs text-neutral-500 font-light">
-                        <button className="hover:text-white transition-colors">Privacy Policy</button>
-                        <button className="hover:text-white transition-colors">Terms of Use</button>
-                        <button className="hover:text-white transition-colors">Cookie Settings</button>
+                        <Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+                        <Link to="/terms" className="hover:text-white transition-colors">Terms of Use</Link>
+                        <Link to="/cookies" className="hover:text-white transition-colors">Cookie Settings</Link>
                     </div>
                 </div>
             </div>

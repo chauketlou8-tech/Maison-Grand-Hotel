@@ -6,7 +6,6 @@ import enums.NotificationStatus;
 import enums.NotificationType;
 
 import javafx.application.Platform;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -16,7 +15,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
 import models.Notification;
-import models.Settings;
+import records.Settings;
 import utils.Conn;
 import utils.DateFormats;
 
@@ -308,7 +307,7 @@ public class Notifications extends VBox {
         if (ts == null) return "";
 
         DateTimeFormatter dateFmt = DateFormats.of(settings);
-        String timePattern = (settings != null && "12-hour".equalsIgnoreCase(settings.getTimeFormat())) ? "h:mm a" : "HH:mm";
+        String timePattern = (settings != null && "12-hour".equalsIgnoreCase(settings.timeFormat())) ? "h:mm a" : "HH:mm";
         DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern(timePattern);
 
         return ts.toLocalDateTime().format(dateFmt) + " · " + ts.toLocalDateTime().format(timeFmt);
@@ -352,6 +351,7 @@ public class Notifications extends VBox {
             case task_completed -> "#5ba8c9";
             case feedback_request -> "#c97ec9";
             case daily_report -> "#b8b06a";
+            case late_checkout -> "#d9543c";
         };
     }
 }

@@ -6,9 +6,8 @@ import About from "../pages/About";
 import Rooms from "../pages/Rooms";
 import Amenities from "../pages/Amenities";
 import Dining from "../pages/Dining";
-import { Booking } from "../pages/Booking";
-import { Success } from "../pages/Booking";
-import { Payment } from "../pages/Booking";
+import { Booking, BookingView, Success, FindBooking, Payment } from "../pages/Booking";
+import { CookieSettings, PrivacyPolicy, TermsOfUse } from "../pages/Footer";
             
 export default function AppRoutes() {
     return (
@@ -22,6 +21,11 @@ export default function AppRoutes() {
                 <Route path="/booking" element={ <Booking/> } />
                 <Route path="/booking/success" element={ <Success/> } />
                 <Route path="/booking/payment" element={ <Payment /> } />
+                <Route path="/booking/find" element={ <FindBooking/> } />
+                <Route path="/booking/:reservationid" element={ <BookingView /> } />
+                <Route path="/cookies" element={ <CookieSettings/> } />
+                <Route path="/privacy" element={ <PrivacyPolicy/> } />
+                <Route path="/terms" element={ <TermsOfUse/> } />
             </Routes>
         </PageLayout>
 )

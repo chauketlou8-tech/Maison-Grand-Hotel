@@ -19,7 +19,7 @@ import javafx.util.Duration;
 import models.Notification;
 import models.Reservation;
 import models.ServiceTask;
-import models.Settings;
+import records.Settings;
 import records.Payment;
 
 import java.time.LocalDateTime;
@@ -217,7 +217,7 @@ public class ActivityFeed extends VBox {
     }
 
     private DateTimeFormatter timeFormatter() {
-        String format = settings == null ? null : settings.getTimeFormat();
+        String format = settings == null ? null : settings.timeFormat();
 
         String pattern = "12-hour".equalsIgnoreCase(format) ? "h:mm a" : "HH:mm";
 
@@ -334,6 +334,7 @@ public class ActivityFeed extends VBox {
             case task_completed -> "#5ba8c9";
             case feedback_request -> "#c97ec9";
             case daily_report -> "#b8b06a";
+            case late_checkout -> "#d9543c";
         };
     }
 }

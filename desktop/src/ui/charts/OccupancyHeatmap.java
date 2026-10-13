@@ -18,7 +18,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import models.Room;
-import models.Settings;
+import records.Settings;
 import records.RoomHistory;
 
 import java.time.DayOfWeek;
@@ -190,7 +190,7 @@ public class OccupancyHeatmap extends VBox {
     }
 
     private void applyMode(Settings settings) {
-        String frequency = settings == null ? null : settings.getNightAuditFrequency();
+        String frequency = settings == null ? null : settings.nightAuditFrequency();
 
         Mode newMode;
         int newCols;

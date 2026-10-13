@@ -17,7 +17,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import models.Guest;
-import models.Settings;
+import records.Settings;
 import records.Payment;
 import data.PaymentData;
 import ui.records.PaymentRecord;

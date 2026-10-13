@@ -1,7 +1,7 @@
 package tasks;
 
 import models.Room;
-import models.Settings;
+import records.Settings;
 import utils.Conn;
 
 import java.io.IOException;
@@ -36,7 +36,7 @@ public class CaptureRoomHistoryJob {
 
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-        LocalTime auditTime = settings.getNightAuditTime().toLocalTime();
+        LocalTime auditTime = settings.nightAuditTime().toLocalTime();
 
         long now = System.currentTimeMillis();
 
@@ -72,7 +72,7 @@ public class CaptureRoomHistoryJob {
     private static void captureRoomHistory(Room[] rooms, Settings settings) throws SQLException {
         System.out.println("Running capture room history job...");
 
-        OffsetDateTime periodKey = computePeriodKey(settings.getNightAuditFrequency());
+        OffsetDateTime periodKey = computePeriodKey(settings.nightAuditFrequency());
 
         try (PreparedStatement ps = conn.prepareStatement("insert into roomhistory (roomid, status_date, status) values (?, ?, ?) on conflict (roomid, status_date) do update set status = excluded.status, updated_at = now()")) {
 
@@ -94,7 +94,7 @@ public class CaptureRoomHistoryJob {
 
         System.out.println("running the frequent room history job...");
 
-        OffsetDateTime periodKey = computePeriodKey(settings.getNightAuditFrequency());
+        OffsetDateTime periodKey = computePeriodKey(settings.nightAuditFrequency());
         long key = periodKey.toInstant().toEpochMilli();
 
         if (key != lastPeriodKey) {

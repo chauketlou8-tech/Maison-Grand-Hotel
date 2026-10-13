@@ -7,7 +7,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import models.Settings;
+import records.Settings;
 import models.User;
 
 import java.time.LocalTime;
@@ -45,8 +45,8 @@ public class Footer extends HBox {
         Label divider4 = new Label("·");
         divider4.getStyleClass().add("status-divider");
 
-        String hotelName = settings == null ? "" : settings.getHotelName();
-        String hotelCity = settings == null ? "" : settings.getHotelCity();
+        String hotelName = settings == null ? "" : settings.hotelName();
+        String hotelCity = settings == null ? "" : settings.hotelCity();
         String hotelText = (hotelCity == null || hotelCity.isBlank())
                 ? hotelName
                 : hotelName + " — " + hotelCity;
@@ -57,7 +57,7 @@ public class Footer extends HBox {
         Label divider5 = new Label("·");
         divider5.getStyleClass().add("status-divider");
 
-        String timePattern = (settings != null && "12-hour".equalsIgnoreCase(settings.getTimeFormat())) ? "h:mm a" : "HH:mm";
+        String timePattern = (settings != null && "12-hour".equalsIgnoreCase(settings.timeFormat())) ? "h:mm a" : "HH:mm";
         String d = LocalTime.now().format(DateTimeFormatter.ofPattern(timePattern));
         Label last_sync_label = new Label("Synced " + d);
         last_sync_label.getStyleClass().add("status-label");

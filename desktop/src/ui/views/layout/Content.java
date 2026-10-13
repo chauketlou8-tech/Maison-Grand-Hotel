@@ -8,7 +8,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.scene.layout.Priority;
 
-import models.Settings;
+import records.Settings;
 import records.Payment;
 import records.RoomHistory;
 import sockets.Client;

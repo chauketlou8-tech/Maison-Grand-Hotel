@@ -5,7 +5,7 @@ import enums.Role;
 import enums.RoomStatus;
 
 import models.Room;
-import models.Settings;
+import records.Settings;
 import models.User;
 
 import sockets.Server;
@@ -76,6 +76,7 @@ public class ServerRepository {
         NotifyLowOccupancy.run(settings);
         NotifyCheckOutReminder.run(settings);
         CreateDailyReport.run(settings);
+        ChargeLateCheckout.run(settings);
     }
 
     public static List<User> getUsers() throws SQLException {
@@ -156,7 +157,6 @@ public class ServerRepository {
                     rs.getInt("cancellation_window_hours"),
                     rs.getInt("advance_booking_limit_days"),
                     rs.getBoolean("pets_allowed"),
-                    rs.getBoolean("smoking_allowed"),
                     rs.getBoolean("children_allowed"),
                     rs.getBoolean("id_required"),
                     rs.getBigDecimal("vat_rate"),
@@ -166,8 +166,6 @@ public class ServerRepository {
                     rs.getBoolean("show_tax_breakdown"),
                     rs.getInt("payment_window_minutes"),
                     rs.getBoolean("auto_cancel_unpaid"),
-                    rs.getBoolean("require_full_prepayment"),
-                    rs.getBoolean("allow_deposit_payment"),
                     rs.getBoolean("notify_reservation_received"),
                     rs.getBoolean("notify_payment_confirmation"),
                     rs.getBoolean("notify_reservation_cancelled"),
@@ -178,7 +176,6 @@ public class ServerRepository {
                     rs.getBoolean("notify_staff_new_payment"),
                     rs.getBoolean("notify_staff_task_completed"),
                     rs.getBoolean("notify_staff_low_occupancy"),
-                    rs.getBoolean("notify_staff_payment_failure"),
                     rs.getTime("housekeeping_task_time"),
                     rs.getString("housekeeping_default_status"),
                     rs.getString("housekeeping_assignment"),
@@ -187,10 +184,14 @@ public class ServerRepository {
                     rs.getTime("night_audit_time"),
                     rs.getString("night_audit_frequency"),
                     rs.getBoolean("auto_generate_daily_report"),
-                    rs.getBoolean("email_daily_report"),
-                    rs.getString("report_recipient"),
                     rs.getString("date_format"),
                     rs.getString("time_format"),
+                    rs.getInt("grace_minutes"),
+                    rs.getInt("full_night_hours"),
+                    rs.getInt("escalate_hours"),
+                    rs.getBigDecimal("occupancy_threshold"),
+                    rs.getBigDecimal("extra_adult_fee"),
+                    rs.getBigDecimal("child_fee"),
                     rs.getTimestamp("created_at"),
                     rs.getTimestamp("updated_at")
             );

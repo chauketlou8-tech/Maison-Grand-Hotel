@@ -1,6 +1,6 @@
 package utils;
 
-import models.Settings;
+import records.Settings;
 
 import java.time.format.DateTimeFormatter;
 
@@ -11,7 +11,7 @@ public final class DateFormats {
     private DateFormats() {}
 
     public static DateTimeFormatter of(Settings settings) {
-        String pattern = settings == null ? null : settings.getDateFormat();
+        String pattern = settings == null ? null : settings.dateFormat();
 
         if (pattern == null || pattern.isBlank()) {
             return DEFAULT;

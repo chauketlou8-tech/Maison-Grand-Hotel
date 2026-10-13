@@ -13,9 +13,6 @@ import type { Settings } from "../../types/settings";
 import type { Room } from "../../types/Room";
 import type { RoomTeaser } from "../../types/RoomTeaser";
 
-const EXTRA_ADULT_FEE = 10;
-const CHILD_FEE = 20;
-
 export default function BookingForm() {
     const [settings, setSettings] = useState<Settings>(null);
     const [rooms, setRooms] = useState<Room[]>([]);
@@ -74,13 +71,14 @@ export default function BookingForm() {
 
     const packageTotal = packages.filter((p) => selectedPackages.includes(p.id)).reduce((s, p) => s + p.price, 0);
 
+    const extraAdultFee = settings ? Number(settings.extra_adult_fee) : 0;
+    const childFee = settings ? Number(settings.child_fee) : 0;
+
     const extraAdults = Math.max(adults - 1, 0);
-    const personSurchargePerNight = extraAdults * EXTRA_ADULT_FEE + children * CHILD_FEE;
+    const personSurchargePerNight = extraAdults * extraAdultFee + children * childFee;
     const personSurcharge = personSurchargePerNight * Math.max(nights, 1);
 
-    const subtotal = (room?.price ?? 0) * Math.max(nights, 1)
-        + packageTotal * Math.max(nights, 1)
-        + personSurcharge;
+    const subtotal = (room?.price ?? 0) * Math.max(nights, 1) + packageTotal * Math.max(nights, 1) + personSurcharge;
 
     const vatRate = settings ? Number(settings.vat_rate) : 0;
     const serviceRate = settings ? Number(settings.service_charge_rate) : 0;
@@ -109,9 +107,7 @@ export default function BookingForm() {
 
     const showBreakdown = !!(settings && !settings.prices_include_vat && settings.show_tax_breakdown);
 
-    const maxCapacity = rooms.length > 0
-        ? Math.max(...rooms.map((r) => r.capacity))
-        : 4;
+    const maxCapacity = rooms.length > 0 ? Math.max(...rooms.map((r) => r.capacity)) : 4;
 
     const adultOptions = Array.from({ length: maxCapacity }, (_, i) => i + 1);
     const childrenOptions = Array.from({ length: maxCapacity }, (_, i) => i);

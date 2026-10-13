@@ -17,13 +17,13 @@ public class Settings extends VBox {
     private final VBox contentPane;
     private final Map<String, Node> panels = new LinkedHashMap<>();
     private final Map<String, Button> navButtons = new LinkedHashMap<>();
-    private final models.Settings settings;
+    private final records.Settings settings;
 
     private final Map<String, TextField> textFields = new LinkedHashMap<>();
     private final Map<String, ComboBox<String>> comboFields = new LinkedHashMap<>();
     private final Map<String, CheckBox> checkFields = new LinkedHashMap<>();
 
-    public Settings(models.Settings settings) {
+    public Settings(records.Settings settings) {
         this.settings = settings;
 
         getStyleClass().add("guest-registry");
@@ -260,17 +260,17 @@ public class Settings extends VBox {
         VBox p = panel("Property", "Hotel identity and contact details used on guest communications.");
 
         VBox identity = section("Identity");
-        identity.getChildren().addAll(editableField("Hotel name", settings.getHotelName()));
+        identity.getChildren().addAll(editableField("Hotel name", settings.hotelName()));
 
         VBox contact = section("Contact");
         contact.getChildren().addAll(
-                editableField("Phone", settings.getHotelPhone()),
-                editableField("Email", settings.getHotelEmail()),
-                editableField("Street", settings.getHotelStreet()),
-                editableField("City", settings.getHotelCity()),
-                editableField("Province", settings.getHotelProvince()),
-                editableField("Postal code", settings.getHotelPostalCode()),
-                editableField("Country", settings.getHotelCountry())
+                editableField("Phone", settings.hotelPhone()),
+                editableField("Email", settings.hotelEmail()),
+                editableField("Street", settings.hotelStreet()),
+                editableField("City", settings.hotelCity()),
+                editableField("Province", settings.hotelProvince()),
+                editableField("Postal code", settings.hotelPostalCode()),
+                editableField("Country", settings.hotelCountry())
         );
 
         p.getChildren().addAll(identity, contact, footer());
@@ -282,29 +282,41 @@ public class Settings extends VBox {
 
         VBox times = section("Times");
         times.getChildren().addAll(
-                editableField("Check-in time",        String.valueOf(settings.getCheckInTime())),
-                editableField("Check-out time",       String.valueOf(settings.getCheckOutTime())),
-                editableField("Early check-in from",  settings.getEarlyCheckInTime() == null ? "" : String.valueOf(settings.getEarlyCheckInTime())),
-                editableField("Late check-out until", settings.getLateCheckOutTime() == null ? "" : String.valueOf(settings.getLateCheckOutTime()))
+                editableField("Check-in time",        String.valueOf(settings.checkInTime())),
+                editableField("Check-out time",       String.valueOf(settings.checkOutTime())),
+                editableField("Early check-in from",  settings.earlyCheckInTime() == null ? "" : String.valueOf(settings.earlyCheckInTime())),
+                editableField("Late check-out until", settings.lateCheckOutTime() == null ? "" : String.valueOf(settings.lateCheckOutTime()))
         );
 
         VBox rules = section("Stay Rules");
         rules.getChildren().addAll(
-                editableField("Minimum nights",               String.valueOf(settings.getMinNights())),
-                editableField("Maximum nights",               String.valueOf(settings.getMaxNights())),
-                editableField("Cancellation window (hours)",  String.valueOf(settings.getCancellationWindowHours())),
-                editableField("Advance booking limit (days)", String.valueOf(settings.getAdvanceBookingLimitDays()))
+                editableField("Minimum nights",               String.valueOf(settings.minNights())),
+                editableField("Maximum nights",               String.valueOf(settings.maxNights())),
+                editableField("Cancellation window (hours)",  String.valueOf(settings.cancellationWindowHours())),
+                editableField("Advance booking limit (days)", String.valueOf(settings.advanceBookingLimitDays()))
         );
 
         VBox policy = section("Policies");
         policy.getChildren().addAll(
-                toggle("Pets allowed",            settings.isPetsAllowed()),
-                toggle("Smoking allowed",         settings.isSmokingAllowed()),
-                toggle("Children allowed",        settings.isChildrenAllowed()),
-                toggle("ID required at check-in", settings.isIdRequired())
+                toggle("Pets allowed",            settings.petsAllowed()),
+                toggle("Children allowed",        settings.childrenAllowed()),
+                toggle("ID required at check-in", settings.idRequired())
         );
 
-        p.getChildren().addAll(times, rules, policy, footer());
+        VBox fees = section("Guest Fees");
+        fees.getChildren().addAll(
+                editableField("Extra adult fee (per night)", settings.extraAdultFee() == null ? "" : settings.extraAdultFee().toPlainString()),
+                editableField("Child fee (per night)",       settings.childFee() == null ? "" : settings.childFee().toPlainString())
+        );
+
+        VBox late = section("Late Checkout");
+        late.getChildren().addAll(
+                editableField("Grace period (minutes)",        String.valueOf(settings.graceMinutes())),
+                editableField("Full night after (hours)",      String.valueOf(settings.fullNightHours())),
+                editableField("Escalate after (hours)",        String.valueOf(settings.escalateHours()))
+        );
+
+        p.getChildren().addAll(times, rules, policy, fees, late, footer());
         return p;
     }
 
@@ -408,22 +420,18 @@ public class Settings extends VBox {
 
     private VBox buildTaxFeesPanel() {
         VBox p = panel("Tax & Fees", "Taxes and charges applied to bookings.");
-        p.setSpacing(16);
-        p.setAlignment(Pos.CENTER_LEFT);
-        p.setPadding(new Insets(20));
-        p.setMaxWidth(Double.MAX_VALUE);
 
         VBox taxes = section("Taxes");
         taxes.getChildren().addAll(
-                editableField("VAT rate (%)", settings.getVatRate() == null ? "" : settings.getVatRate().toPlainString()),
-                editableField("Service charge (%)", settings.getServiceChargeRate() == null ? "" : settings.getServiceChargeRate().toPlainString()),
-                editableField("Tourism levy (per room / night)", settings.getTourismLevy() == null ? "" : settings.getTourismLevy().toPlainString())
+                editableField("VAT rate (%)", settings.vatRate() == null ? "" : settings.vatRate().toPlainString()),
+                editableField("Service charge (%)", settings.serviceChargeRate() == null ? "" : settings.serviceChargeRate().toPlainString()),
+                editableField("Tourism levy (per room / night)", settings.tourismLevy() == null ? "" : settings.tourismLevy().toPlainString())
         );
 
         VBox display = section("Display");
         display.getChildren().addAll(
-                dropdownField("Prices shown to guests", settings.isPricesIncludeVat() ? "Including VAT" : "Excluding VAT", "Including VAT", "Excluding VAT"),
-                toggle("Show tax breakdown at checkout", settings.isShowTaxBreakdown())
+                dropdownField("Prices shown to guests", settings.pricesIncludeVat() ? "Including VAT" : "Excluding VAT", "Including VAT", "Excluding VAT"),
+                toggle("Show tax breakdown at checkout", settings.showTaxBreakdown())
         );
 
         p.getChildren().addAll(taxes, display, footer());
@@ -432,20 +440,14 @@ public class Settings extends VBox {
 
     private VBox buildPaymentsPanel() {
         VBox p = panel("Payments", "Payment provider configuration and processing rules.");
-        p.setSpacing(16);
-        p.setAlignment(Pos.CENTER_LEFT);
-        p.setPadding(new Insets(20));
-        p.setMaxWidth(Double.MAX_VALUE);
 
         VBox provider = section("Provider");
         provider.getChildren().addAll(readOnlyField("Provider", "Yoco"), readOnlyField("Currency", "ZAR"));
 
         VBox rules = section("Rules");
         rules.getChildren().addAll(
-                editableField("Payment window (minutes)", String.valueOf(settings.getPaymentWindowMinutes())),
-                dropdownField("Auto-cancel unpaid reservations", settings.isAutoCancelUnpaid() ? "Enabled" : "Disabled", "Enabled", "Disabled"),
-                toggle("Require full prepayment", settings.isRequireFullPrepayment()),
-                toggle("Allow deposit payment", settings.isAllowDepositPayment())
+                editableField("Payment window (minutes)", String.valueOf(settings.paymentWindowMinutes())),
+                dropdownField("Auto-cancel unpaid reservations", settings.autoCancelUnpaid() ? "Enabled" : "Disabled", "Enabled", "Disabled")
         );
 
         p.getChildren().addAll(provider, rules, footer());
@@ -454,52 +456,48 @@ public class Settings extends VBox {
 
     private VBox buildNotificationsPanel() {
         VBox p = panel("Notifications", "Which events trigger emails and in-app alerts.");
-        p.setSpacing(16);
-        p.setAlignment(Pos.CENTER_LEFT);
-        p.setPadding(new Insets(20));
-        p.setMaxWidth(Double.MAX_VALUE);
 
         VBox email = section("Guest Emails");
         email.getChildren().addAll(
-                toggle("Reservation received", settings.isNotifyReservationReceived()),
-                toggle("Payment confirmation", settings.isNotifyPaymentConfirmation()),
-                toggle("Reservation cancelled (non-payment)", settings.isNotifyReservationCancelled()),
-                toggle("Check-in reminder (24h before)", settings.isNotifyCheckinReminder()),
-                toggle("Check-out reminder (2h before)", settings.isNotifyCheckoutReminder()),
-                toggle("Post-stay feedback request", settings.isNotifyFeedbackRequest())
+                toggle("Reservation received", settings.notifyReservationReceived()),
+                toggle("Payment confirmation", settings.notifyPaymentConfirmation()),
+                toggle("Reservation cancelled (non-payment)", settings.notifyReservationCancelled()),
+                toggle("Check-in reminder (24h before)", settings.notifyCheckinReminder()),
+                toggle("Check-out reminder (2h before)", settings.notifyCheckoutReminder()),
+                toggle("Post-stay feedback request", settings.notifyFeedbackRequest())
         );
 
         VBox app = section("Staff Notifications");
         app.getChildren().addAll(
-                toggle("New reservation", settings.isNotifyStaffNewReservation()),
-                toggle("New payment received", settings.isNotifyStaffNewPayment()),
-                toggle("Service task completed", settings.isNotifyStaffTaskCompleted()),
-                toggle("Low occupancy alert", settings.isNotifyStaffLowOccupancy()),
-                toggle("Payment failure alert", settings.isNotifyStaffPaymentFailure())
+                toggle("New reservation", settings.notifyStaffNewReservation()),
+                toggle("New payment received", settings.notifyStaffNewPayment()),
+                toggle("Service task completed", settings.notifyStaffTaskCompleted()),
+                toggle("Low occupancy alert", settings.notifyStaffLowOccupancy())
         );
 
-        p.getChildren().addAll(email, app, footer());
+        VBox occupancy = section("Occupancy");
+        occupancy.getChildren().addAll(
+                editableField("Low occupancy threshold", settings.occupancyThreshold() == null ? "" : settings.occupancyThreshold().toPlainString())
+        );
+
+        p.getChildren().addAll(email, app, occupancy, footer());
         return p;
     }
 
     private VBox buildHousekeepingPanel() {
         VBox p = panel("Housekeeping", "Task generation and assignment rules.");
-        p.setSpacing(16);
-        p.setAlignment(Pos.CENTER_LEFT);
-        p.setPadding(new Insets(20));
-        p.setMaxWidth(Double.MAX_VALUE);
 
         VBox cleaning = section("Cleaning");
         cleaning.getChildren().addAll(
-                editableField("Auto-create task time", String.valueOf(settings.getHousekeepingTaskTime())),
-                dropdownField("Default task status", settings.getHousekeepingDefaultStatus(), "pending", "completed"),
-                dropdownField("Assignment", settings.getHousekeepingAssignment(), "Round-robin", "Manual", "By floor")
+                editableField("Auto-create task time", String.valueOf(settings.housekeepingTaskTime())),
+                dropdownField("Default task status", settings.housekeepingDefaultStatus(), "pending", "completed"),
+                dropdownField("Assignment", settings.housekeepingAssignment(), "Round-robin", "Manual", "By floor")
         );
 
         VBox inspection = section("Inspection");
         inspection.getChildren().addAll(
-                toggle("Auto-create inspection after checkout", settings.isAutoInspectionAfterCheckout()),
-                editableField("Damage report threshold (R)", settings.getDamageReportThreshold() == null ? "" : settings.getDamageReportThreshold().toPlainString())
+                toggle("Auto-create inspection after checkout", settings.autoInspectionAfterCheckout()),
+                editableField("Damage report threshold (R)", settings.damageReportThreshold() == null ? "" : settings.damageReportThreshold().toPlainString())
         );
 
         p.getChildren().addAll(cleaning, inspection, footer());
@@ -508,22 +506,16 @@ public class Settings extends VBox {
 
     private VBox buildNightAuditPanel() {
         VBox p = panel("Night Audit", "End-of-day rollover and automated reporting.");
-        p.setSpacing(16);
-        p.setAlignment(Pos.CENTER_LEFT);
-        p.setPadding(new Insets(20));
-        p.setMaxWidth(Double.MAX_VALUE);
 
         VBox schedule = section("Schedule");
         schedule.getChildren().addAll(
-                editableField("Night audit time", String.valueOf(settings.getNightAuditTime())),
-                dropdownField("Frequency", settings.getNightAuditFrequency(), "Daily", "Weekly", "Monthly")
+                editableField("Night audit time", String.valueOf(settings.nightAuditTime())),
+                dropdownField("Frequency", settings.nightAuditFrequency(), "Daily", "Weekly", "Monthly")
         );
 
         VBox reporting = section("Reporting");
         reporting.getChildren().addAll(
-                toggle("Auto-generate daily report", settings.isAutoGenerateDailyReport()),
-                toggle("Email report to management", settings.isEmailDailyReport()),
-                editableField("Report recipient", settings.getReportRecipient())
+                toggle("Auto-generate daily report", settings.autoGenerateDailyReport())
         );
 
         p.getChildren().addAll(schedule, reporting, footer());
@@ -538,8 +530,8 @@ public class Settings extends VBox {
                 readOnlyField("Currency", "ZAR (R)"),
                 readOnlyField("Timezone", "Africa/Johannesburg"),
                 readOnlyField("Language", "English (en-ZA)"),
-                dropdownField("Date format", settings.getDateFormat(), "DD/MM/YYYY", "MM/DD/YYYY", "YYYY-MM-DD"),
-                dropdownField("Time format", settings.getTimeFormat(), "24-hour", "12-hour")
+                dropdownField("Date format", settings.dateFormat(), "DD/MM/YYYY", "MM/DD/YYYY", "YYYY-MM-DD"),
+                dropdownField("Time format", settings.timeFormat(), "24-hour", "12-hour")
         );
 
         p.getChildren().addAll(locale, footer());
@@ -566,9 +558,15 @@ public class Settings extends VBox {
         String advanceLimitDays  = textFields.get("Advance booking limit (days)").getText();
 
         boolean petsAllowed      = checkFields.get("Pets allowed").isSelected();
-        boolean smokingAllowed   = checkFields.get("Smoking allowed").isSelected();
         boolean childrenAllowed  = checkFields.get("Children allowed").isSelected();
         boolean idRequired       = checkFields.get("ID required at check-in").isSelected();
+
+        String extraAdultFee     = textFields.get("Extra adult fee (per night)").getText();
+        String childFee          = textFields.get("Child fee (per night)").getText();
+
+        String graceMinutes      = textFields.get("Grace period (minutes)").getText();
+        String fullNightHours    = textFields.get("Full night after (hours)").getText();
+        String escalateHours     = textFields.get("Escalate after (hours)").getText();
 
         String vatRate           = textFields.get("VAT rate (%)").getText();
         String serviceChargeRate = textFields.get("Service charge (%)").getText();
@@ -578,8 +576,6 @@ public class Settings extends VBox {
 
         String paymentWindow     = textFields.get("Payment window (minutes)").getText();
         String autoCancelUnpaid  = comboFields.get("Auto-cancel unpaid reservations").getValue();
-        boolean fullPrepayment   = checkFields.get("Require full prepayment").isSelected();
-        boolean depositPayment   = checkFields.get("Allow deposit payment").isSelected();
 
         boolean notifyReservationReceived  = checkFields.get("Reservation received").isSelected();
         boolean notifyPaymentConfirmation  = checkFields.get("Payment confirmation").isSelected();
@@ -592,7 +588,8 @@ public class Settings extends VBox {
         boolean notifyStaffNewPayment     = checkFields.get("New payment received").isSelected();
         boolean notifyStaffTaskCompleted  = checkFields.get("Service task completed").isSelected();
         boolean notifyStaffLowOccupancy   = checkFields.get("Low occupancy alert").isSelected();
-        boolean notifyStaffPaymentFailure = checkFields.get("Payment failure alert").isSelected();
+
+        String occupancyThreshold = textFields.get("Low occupancy threshold").getText();
 
         String housekeepingTaskTime      = textFields.get("Auto-create task time").getText();
         String housekeepingDefaultStatus = comboFields.get("Default task status").getValue();
@@ -603,8 +600,6 @@ public class Settings extends VBox {
         String nightAuditTime      = textFields.get("Night audit time").getText();
         String nightAuditFrequency = comboFields.get("Frequency").getValue();
         boolean autoGenerateReport = checkFields.get("Auto-generate daily report").isSelected();
-        boolean emailDailyReport   = checkFields.get("Email report to management").isSelected();
-        String reportRecipient     = textFields.get("Report recipient").getText();
 
         String dateFormat = comboFields.get("Date format").getValue();
         String timeFormat = comboFields.get("Time format").getValue();
@@ -629,9 +624,13 @@ public class Settings extends VBox {
                              "cancellation_window_hours = ?, " +
                              "advance_booking_limit_days = ?, " +
                              "pets_allowed = ?, " +
-                             "smoking_allowed = ?, " +
                              "children_allowed = ?, " +
                              "id_required = ?, " +
+                             "extra_adult_fee = ?, " +
+                             "child_fee = ?, " +
+                             "grace_minutes = ?, " +
+                             "full_night_hours = ?, " +
+                             "escalate_hours = ?, " +
                              "vat_rate = ?, " +
                              "service_charge_rate = ?, " +
                              "tourism_levy = ?, " +
@@ -639,8 +638,6 @@ public class Settings extends VBox {
                              "show_tax_breakdown = ?, " +
                              "payment_window_minutes = ?, " +
                              "auto_cancel_unpaid = ?, " +
-                             "require_full_prepayment = ?, " +
-                             "allow_deposit_payment = ?, " +
                              "notify_reservation_received = ?, " +
                              "notify_payment_confirmation = ?, " +
                              "notify_reservation_cancelled = ?, " +
@@ -651,7 +648,7 @@ public class Settings extends VBox {
                              "notify_staff_new_payment = ?, " +
                              "notify_staff_task_completed = ?, " +
                              "notify_staff_low_occupancy = ?, " +
-                             "notify_staff_payment_failure = ?, " +
+                             "occupancy_threshold = ?, " +
                              "housekeeping_task_time = ?::time, " +
                              "housekeeping_default_status = ?, " +
                              "housekeeping_assignment = ?, " +
@@ -660,8 +657,6 @@ public class Settings extends VBox {
                              "night_audit_time = ?::time, " +
                              "night_audit_frequency = ?, " +
                              "auto_generate_daily_report = ?, " +
-                             "email_daily_report = ?, " +
-                             "report_recipient = ?, " +
                              "date_format = ?, " +
                              "time_format = ?, " +
                              "updated_at = now() " +
@@ -689,9 +684,15 @@ public class Settings extends VBox {
             ps.setInt(i++, Integer.parseInt(advanceLimitDays));
 
             ps.setBoolean(i++, petsAllowed);
-            ps.setBoolean(i++, smokingAllowed);
             ps.setBoolean(i++, childrenAllowed);
             ps.setBoolean(i++, idRequired);
+
+            ps.setBigDecimal(i++, new java.math.BigDecimal(extraAdultFee));
+            ps.setBigDecimal(i++, new java.math.BigDecimal(childFee));
+
+            ps.setInt(i++, Integer.parseInt(graceMinutes));
+            ps.setInt(i++, Integer.parseInt(fullNightHours));
+            ps.setInt(i++, Integer.parseInt(escalateHours));
 
             ps.setBigDecimal(i++, new java.math.BigDecimal(vatRate));
             ps.setBigDecimal(i++, new java.math.BigDecimal(serviceChargeRate));
@@ -702,8 +703,6 @@ public class Settings extends VBox {
 
             ps.setInt(i++, Integer.parseInt(paymentWindow));
             ps.setBoolean(i++, "Enabled".equalsIgnoreCase(autoCancelUnpaid));
-            ps.setBoolean(i++, fullPrepayment);
-            ps.setBoolean(i++, depositPayment);
 
             ps.setBoolean(i++, notifyReservationReceived);
             ps.setBoolean(i++, notifyPaymentConfirmation);
@@ -716,7 +715,8 @@ public class Settings extends VBox {
             ps.setBoolean(i++, notifyStaffNewPayment);
             ps.setBoolean(i++, notifyStaffTaskCompleted);
             ps.setBoolean(i++, notifyStaffLowOccupancy);
-            ps.setBoolean(i++, notifyStaffPaymentFailure);
+
+            ps.setBigDecimal(i++, new java.math.BigDecimal(occupancyThreshold));
 
             ps.setString(i++, blankToNull(housekeepingTaskTime));
             ps.setString(i++, housekeepingDefaultStatus);
@@ -727,8 +727,6 @@ public class Settings extends VBox {
             ps.setString(i++, blankToNull(nightAuditTime));
             ps.setString(i++, nightAuditFrequency);
             ps.setBoolean(i++, autoGenerateReport);
-            ps.setBoolean(i++, emailDailyReport);
-            ps.setString(i++, reportRecipient);
 
             ps.setString(i++, dateFormat);
             ps.setString(i, timeFormat);

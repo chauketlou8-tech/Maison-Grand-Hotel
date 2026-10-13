@@ -17,7 +17,7 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 import models.Reservation;
-import models.Settings;
+import records.Settings;
 import records.Payment;
 import services.EmailService;
 import utils.Conn;
@@ -176,7 +176,7 @@ public class ReservationRecord extends VBox {
     }
 
     private boolean withinCancellationWindow() {
-        if (settings == null || settings.getCancellationWindowHours() <= 0) {
+        if (settings == null || settings.cancellationWindowHours() <= 0) {
             return true;
         }
 
@@ -186,7 +186,7 @@ public class ReservationRecord extends VBox {
         }
 
         java.time.LocalDateTime checkIn = reservation.getCheckindate().toLocalDate().atStartOfDay();
-        java.time.LocalDateTime cutoff = checkIn.minusHours(settings.getCancellationWindowHours());
+        java.time.LocalDateTime cutoff = checkIn.minusHours(settings.cancellationWindowHours());
 
         return java.time.LocalDateTime.now().isBefore(cutoff);
     }
@@ -234,15 +234,15 @@ public class ReservationRecord extends VBox {
         slip.setMinWidth(595);
         slip.setMaxWidth(595);
 
-        Label hotel = new Label(settings == null ? "" : settings.getHotelName());
+        Label hotel = new Label(settings == null ? "" : settings.hotelName());
         hotel.setFont(Font.font("Georgia", FontWeight.BOLD, 20));
         hotel.setTextFill(Color.web("#1a1814"));
 
-        Label address = new Label(settings == null ? "" : settings.getHotelStreet() + ", " + settings.getHotelCity() + ", " + settings.getHotelProvince() + ", " + settings.getHotelPostalCode());
+        Label address = new Label(settings == null ? "" : settings.hotelStreet() + ", " + settings.hotelCity() + ", " + settings.hotelProvince() + ", " + settings.hotelPostalCode());
         address.setFont(Font.font("Georgia", 11));
         address.setTextFill(Color.web("#444444"));
 
-        Label contact = new Label(settings == null ? "" : settings.getHotelPhone() + " · " + settings.getHotelEmail());
+        Label contact = new Label(settings == null ? "" : settings.hotelPhone() + " · " + settings.hotelEmail());
         contact.setFont(Font.font("Georgia", 11));
         contact.setTextFill(Color.web("#444444"));
 
@@ -282,7 +282,7 @@ public class ReservationRecord extends VBox {
 
         Separator bottom = new Separator();
 
-        Label footer = new Label(settings == null ? "" : settings.getHotelName() + " · " + settings.getHotelPhone() + " · " + settings.getHotelEmail());
+        Label footer = new Label(settings == null ? "" : settings.hotelName() + " · " + settings.hotelPhone() + " · " + settings.hotelEmail());
         footer.setFont(Font.font("Georgia", 9));
         footer.setTextFill(Color.web("#666666"));
 
@@ -343,10 +343,10 @@ public class ReservationRecord extends VBox {
     }
 
     private String hotelFooter() {
-        String street = settings.getHotelStreet();
-        String city = settings.getHotelCity();
-        String province = settings.getHotelProvince();
-        String postalCode = settings.getHotelPostalCode();
+        String street = settings.hotelStreet();
+        String city = settings.hotelCity();
+        String province = settings.hotelProvince();
+        String postalCode = settings.hotelPostalCode();
 
         StringBuilder address = new StringBuilder();
 
@@ -369,10 +369,10 @@ public class ReservationRecord extends VBox {
             address.append(postalCode);
         }
 
-        return settings.getHotelName() + "\n" +
+        return settings.hotelName() + "\n" +
                 "Guest Services\n" +
-                settings.getHotelEmail() + "\n" +
-                settings.getHotelPhone() + "\n" +
+                settings.hotelEmail() + "\n" +
+                settings.hotelPhone() + "\n" +
                 address;
     }
 
@@ -456,13 +456,13 @@ public class ReservationRecord extends VBox {
             connection.setAutoCommit(true);
         }
 
-        if (settings == null || settings.isNotifyPaymentConfirmation()) {
+        if (settings == null || settings.notifyPaymentConfirmation()) {
             assert settings != null;
-            String emailSubject = settings.getHotelName() + " — Reservation Confirmation";
+            String emailSubject = settings.hotelName() + " — Reservation Confirmation";
 
             assert payment != null;
             String emailMessage = "Dear " + name + ",\n\n" +
-                    "We are delighted to confirm your reservation at " + settings.getHotelName() + ".\n\n" +
+                    "We are delighted to confirm your reservation at " + settings.hotelName() + ".\n\n" +
                     "Your payment has been received and your booking is now fully confirmed. We look forward to welcoming you.\n\n" +
                     "RESERVATION DETAILS\n" +
                     "─────────────────\n" +
@@ -482,9 +482,9 @@ public class ReservationRecord extends VBox {
                     base_url + "/booking/" + reservation.getReservationid() + "\n\n" +
                     "ARRIVAL INFORMATION\n" +
                     "─────────────────\n" +
-                    "Check-in begins at " + settings.getCheckInTime() + ". Please present your Reservation ID and a valid form of identification at reception.\n\n" +
+                    "Check-in begins at " + settings.checkInTime() + ". Please present your Reservation ID and a valid form of identification at reception.\n\n" +
                     "If your travel plans change or you have any special requests, please contact us ahead of your arrival and we will do our best to accommodate you.\n\n" +
-                    "We look forward to hosting you at " + settings.getHotelName() + ".\n\n" +
+                    "We look forward to hosting you at " + settings.hotelName() + ".\n\n" +
                     "Kind regards,\n\n" +
                     hotelFooter();
 
@@ -554,12 +554,12 @@ public class ReservationRecord extends VBox {
             connection.setAutoCommit(true);
         }
 
-        if (settings == null || settings.isNotifyReservationCancelled()) {
+        if (settings == null || settings.notifyReservationCancelled()) {
             assert settings != null;
-            String emailSubject = settings.getHotelName() + " — Reservation Cancelled";
+            String emailSubject = settings.hotelName() + " — Reservation Cancelled";
 
             String emailMessage = "Dear " + name + "\n\n" +
-                    "We regret to inform you that your reservation at " + settings.getHotelName() + " has been cancelled because the required payment was not received within the allocated payment period.\n\n" +
+                    "We regret to inform you that your reservation at " + settings.hotelName() + " has been cancelled because the required payment was not received within the allocated payment period.\n\n" +
                     "RESERVATION DETAILS\n" +
                     "─────────────────\n" +
                     "Reservation ID: " + reservation.getReservationid() + "\n" +
@@ -577,7 +577,7 @@ public class ReservationRecord extends VBox {
                     "If you believe this cancellation was made in error or you would still like to stay with us, you may make a new reservation through our booking system:\n" +
                     base_url + "/booking\n\n" +
                     "If you have any questions regarding this cancellation, please contact us and provide your Reservation ID.\n\n" +
-                    "We hope to welcome you to " + settings.getHotelName() + " in the future.\n\n" +
+                    "We hope to welcome you to " + settings.hotelName() + " in the future.\n\n" +
                     "Kind regards,\n\n" +
                     hotelFooter();
 

@@ -184,7 +184,7 @@ Room: ${getter}
 VIEW YOUR BOOKING
 ─────────────────
 To view your booking details at any time, visit:
-${base_url}/booking/${reservation.reservationid}
+${base_url}/bookings/${reservation.reservationid}
 
 PAYMENT INFORMATION
 ─────────────────
@@ -203,7 +203,7 @@ Guest Services
 ${settings.hotel_email}
 ${settings.hotel_phone}
 ${address}
-www.maisongrandhotel.co.za
+${base_url}
 `;
 
         await sendEmail(email, emailSubject, emailMessage, name);
@@ -219,4 +219,53 @@ www.maisongrandhotel.co.za
     });
 });
 
-export default book;
+const findBooking = asyncHandler(async (req: req, res: res, next: next) => {
+    const email: string = req.body.email;
+
+    const settings: Settings | null = getSettings();
+
+    if (email && settings) {
+        const result = await connection.query(`
+            select r.reservationid, r.checkindate, r.checkoutdate, r.requestedroomtype, r.numberofguests, g.firstname, g.lastname
+            from reservations r join guests g on r.guest_id = g.id
+            where lower(g.email) = lower($1) and r.reservationstatus in ('PENDING', 'PROCESSING', 'CONFIRMED')
+            order by r.checkindate desc
+        `, [email]);
+
+        if (result.rows.length > 0) {
+            const name = `${result.rows[0].firstname} ${result.rows[0].lastname}`;
+
+            const links = result.rows.map((r) => {
+                const checkIn = new Date(r.checkindate).toLocaleDateString("en-ZA", { day: "2-digit", month: "long", year: "numeric" });
+                const checkOut = new Date(r.checkoutdate).toLocaleDateString("en-ZA", { day: "2-digit", month: "long", year: "numeric" });
+
+                return `· ${r.reservationid}\n  ${r.requestedroomtype} · ${r.numberofguests} guest(s)\n  ${checkIn} → ${checkOut}\n  ${base_url}/booking/${r.reservationid}`;
+            }).join("\n\n");
+
+            const subject = `${settings.hotel_name} — Your Booking Links`;
+            const message = `Dear ${name},
+
+You asked us to resend the links to your reservations. Here they are:
+
+${links}
+
+If you have any questions, please contact us.
+
+Kind regards,
+${settings.hotel_name}
+${settings.hotel_email}
+${settings.hotel_phone}`;
+
+            await sendEmail(email, subject, message, name);
+        }
+    }
+
+    return Response.success(res, {
+        message: "If that email is on file, we've sent your booking links.",
+    });
+});
+
+export {
+    book,
+    findBooking
+}

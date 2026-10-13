@@ -4,7 +4,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import models.Settings;
+import records.Settings;
 import records.Payment;
 import data.PaymentData;
 
@@ -14,8 +14,8 @@ public class PaymentRecord extends VBox {
 
     public PaymentRecord(PaymentData data, Runnable close, Settings settings) {
 
-        String datePattern = javaPattern(settings == null ? null : settings.getDateFormat());
-        String timePattern = "12-hour".equalsIgnoreCase(settings == null ? null : settings.getTimeFormat()) ? "h:mm a" : "HH:mm";
+        String datePattern = javaPattern(settings == null ? null : settings.dateFormat());
+        String timePattern = "12-hour".equalsIgnoreCase(settings == null ? null : settings.timeFormat()) ? "h:mm a" : "HH:mm";
 
         DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern(datePattern);
         DateTimeFormatter TIMESTAMP_FMT = DateTimeFormatter.ofPattern(datePattern + " " + timePattern);

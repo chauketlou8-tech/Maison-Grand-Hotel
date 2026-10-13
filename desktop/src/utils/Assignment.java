@@ -1,6 +1,6 @@
 package utils;
 
-import models.Settings;
+import records.Settings;
 import repositories.ServerRepository;
 
 import java.io.IOException;
@@ -37,7 +37,7 @@ public final class Assignment {
         }
     }
 
-    private static final String assignment = settings.getHousekeepingAssignment();
+    private static final String assignment = settings.housekeepingAssignment();
 
     private Assignment() {}
 

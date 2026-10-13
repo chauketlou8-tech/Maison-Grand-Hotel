@@ -17,11 +17,12 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
 import data.BookingData;
-import models.Settings;
+import records.Settings;
 import utils.Assignment;
 import utils.Conn;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.*;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
@@ -252,15 +253,15 @@ public class BookingRecord extends VBox {
 
         Settings settings = data.getSettings();
 
-        Label hotel = new Label(settings == null ? "" : settings.getHotelName());
+        Label hotel = new Label(settings == null ? "" : settings.hotelName());
         hotel.setFont(Font.font("Georgia", FontWeight.BOLD, 20));
         hotel.setTextFill(Color.web("#1a1814"));
 
-        Label address = new Label(settings == null ? "" : settings.getHotelStreet() + ", " + settings.getHotelCity() + ", " + settings.getHotelProvince() + ", " + settings.getHotelPostalCode());
+        Label address = new Label(settings == null ? "" : settings.hotelStreet() + ", " + settings.hotelCity() + ", " + settings.hotelProvince() + ", " + settings.hotelPostalCode());
         address.setFont(Font.font("Georgia", 11));
         address.setTextFill(Color.web("#444444"));
 
-        Label contact = new Label(settings == null ? "" : settings.getHotelPhone() + " · " + settings.getHotelEmail());
+        Label contact = new Label(settings == null ? "" : settings.hotelPhone() + " · " + settings.hotelEmail());
         contact.setFont(Font.font("Georgia", 11));
         contact.setTextFill(Color.web("#444444"));
 
@@ -303,7 +304,7 @@ public class BookingRecord extends VBox {
 
         Separator bottom = new Separator();
 
-        Label footer = new Label(settings == null ? "" : settings.getHotelName() + " · " + settings.getHotelPhone() + " · " + settings.getHotelEmail());
+        Label footer = new Label(settings == null ? "" : settings.hotelName() + " · " + settings.hotelPhone() + " · " + settings.hotelEmail());
         footer.setFont(Font.font("Georgia", 9));
         footer.setTextFill(Color.web("#666666"));
 
@@ -344,8 +345,8 @@ public class BookingRecord extends VBox {
 
         if (settings != null) {
             LocalTime now = LocalTime.now();
-            LocalTime standardCheckIn = settings.getCheckInTime().toLocalTime();
-            LocalTime earliestEarly = settings.getEarlyCheckInTime() == null ? null : settings.getEarlyCheckInTime().toLocalTime();
+            LocalTime standardCheckIn = settings.checkInTime().toLocalTime();
+            LocalTime earliestEarly = settings.earlyCheckInTime() == null ? null : settings.earlyCheckInTime().toLocalTime();
 
             if (now.isBefore(standardCheckIn)) {
                 if (earliestEarly != null && now.isBefore(earliestEarly)) {
@@ -437,6 +438,24 @@ public class BookingRecord extends VBox {
             }
         }
 
+        BigDecimal due = null;
+
+        try (PreparedStatement statement = connection.prepareStatement("select due from payments where reservation_id = ? and paymentstatus = 'completed' limit 1")) {
+            statement.setObject(1, Objects.requireNonNull(data.getReservation()).getReservationid());
+
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    due = rs.getBigDecimal("due");
+                }
+            }
+        }
+
+        if (due != null && due.compareTo(BigDecimal.ZERO) > 0) {
+            if (!confirm(data.getGuestName() + " has an outstanding balance of R" + due + ". Continue with checkout?")) {
+                return;
+            }
+        }
+
         int index = inspectionIndex.getAndIncrement();
 
         connection.setAutoCommit(false);
@@ -471,12 +490,22 @@ public class BookingRecord extends VBox {
                 statement.executeUpdate();
             }
 
-            try (PreparedStatement statement = connection.prepareStatement("insert into servicetasks(service_id, room_id, assigned_to, scheduled_for, completed_at) values (2, ?, ?, ?, now())")) {
-                statement.setLong(1, data.getRoom().getRoomid());
-                statement.setObject(2, Assignment.pick("supervisors", index, data.getRoom().getFloornumber()), Types.BIGINT);
-                statement.setObject(3, OffsetDateTime.now(ZoneOffset.UTC).plusMinutes(20));
+            if (due != null && due.compareTo(BigDecimal.ZERO) > 0) {
+                try (PreparedStatement statement = connection.prepareStatement("update payments set amount = amount + due, due = 0, updated_at = now() where reservation_id = ? and paymentstatus = 'completed'")) {
+                    statement.setObject(1, Objects.requireNonNull(data.getReservation()).getReservationid());
 
-                statement.executeUpdate();
+                    statement.executeUpdate();
+                }
+            }
+
+            if (data.getSettings() != null && data.getSettings().autoInspectionAfterCheckout()) {
+                try (PreparedStatement statement = connection.prepareStatement("insert into servicetasks(service_id, room_id, assigned_to, scheduled_for, completed_at) values (2, ?, ?, ?, now())")) {
+                    statement.setLong(1, data.getRoom().getRoomid());
+                    statement.setObject(2, Assignment.pick("supervisors", index, data.getRoom().getFloornumber()), Types.BIGINT);
+                    statement.setObject(3, OffsetDateTime.now(ZoneOffset.UTC).plusMinutes(20));
+
+                    statement.executeUpdate();
+                }
             }
 
             try (PreparedStatement statement = connection.prepareStatement("insert into servicetasks(service_id, room_id, assigned_to, scheduled_for, completed_at) values (1, ?, ?, ?, now())")) {

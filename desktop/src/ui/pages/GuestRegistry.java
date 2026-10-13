@@ -14,7 +14,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import models.*;
-import models.Settings;
+import records.Settings;
 import records.Payment;
 import records.Address;
 import data.GuestRegistryData;

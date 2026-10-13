@@ -3,7 +3,7 @@ package data;
 import models.Guest;
 import models.Reservation;
 import models.Room;
-import models.Settings;
+import records.Settings;
 import records.Payment;
 import utils.DateFormats;
 

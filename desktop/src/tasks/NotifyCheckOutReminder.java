@@ -1,7 +1,7 @@
 package tasks;
 
 import enums.NotificationType;
-import models.Settings;
+import records.Settings;
 import utils.Conn;
 
 import java.io.IOException;
@@ -37,9 +37,9 @@ public class NotifyCheckOutReminder {
     }
 
     private static void notifyReminder(Settings settings) throws SQLException {
-        if (!settings.isNotifyCheckoutReminder()) return;
+        if (!settings.notifyCheckoutReminder()) return;
 
-        LocalTime checkOutTime = settings.getCheckOutTime().toLocalTime();
+        LocalTime checkOutTime = settings.checkOutTime().toLocalTime();
         LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
         LocalDateTime windowEnd = now.plusHours(1);
 

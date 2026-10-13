@@ -1,7 +1,7 @@
 package data;
 
 import models.Employee;
-import models.Settings;
+import records.Settings;
 import utils.DateFormats;
 
 import java.util.Objects;

@@ -12,7 +12,7 @@ import models.Notification;
 import models.Reservation;
 import models.Room;
 import models.ServiceTask;
-import models.Settings;
+import records.Settings;
 import records.Payment;
 import records.RoomHistory;
 import ui.charts.*;

@@ -1,7 +1,7 @@
 package data;
 
 import models.Guest;
-import models.Settings;
+import records.Settings;
 import records.Payment;
 import utils.DateFormats;
 

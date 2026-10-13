@@ -16,7 +16,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 import models.Notification;
-import models.Settings;
+import records.Settings;
 import models.User;
 import ui.views.login.LoginPage;
 
@@ -94,8 +94,8 @@ public class TopBar extends HBox {
         Label date_label = new Label();
         date_label.getStyleClass().add("header-date-label");
 
-        String datePattern = javaPattern(settings == null ? null : settings.getDateFormat());
-        String timePattern = (settings != null && "12-hour".equalsIgnoreCase(settings.getTimeFormat())) ? "h:mm:ss a" : "HH:mm:ss";
+        String datePattern = javaPattern(settings == null ? null : settings.dateFormat());
+        String timePattern = (settings != null && "12-hour".equalsIgnoreCase(settings.timeFormat())) ? "h:mm:ss a" : "HH:mm:ss";
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, " + datePattern + " " + timePattern);
 

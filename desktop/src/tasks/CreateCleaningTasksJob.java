@@ -1,6 +1,6 @@
 package tasks;
 
-import models.Settings;
+import records.Settings;
 import utils.Assignment;
 import utils.Conn;
 
@@ -45,7 +45,7 @@ public class CreateCleaningTasksJob {
             }
         }, 60, TimeUnit.SECONDS);
 
-        LocalTime taskTime = settings.getHousekeepingTaskTime().toLocalTime();
+        LocalTime taskTime = settings.housekeepingTaskTime().toLocalTime();
 
         LocalDateTime next = LocalDateTime.of(LocalDate.now(), taskTime);
 
@@ -69,9 +69,9 @@ public class CreateCleaningTasksJob {
     private static void createCleaningTasks() throws SQLException {
         System.out.println("Running create cleaning tasks job...");
 
-        LocalTime taskTime = settings.getHousekeepingTaskTime().toLocalTime();
-        String defaultStatus = settings.getHousekeepingDefaultStatus();
-        String assignment = settings.getHousekeepingAssignment();
+        LocalTime taskTime = settings.housekeepingTaskTime().toLocalTime();
+        String defaultStatus = settings.housekeepingDefaultStatus();
+        String assignment = settings.housekeepingAssignment();
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime target = LocalDateTime.of(now.toLocalDate(), taskTime);

@@ -1,6 +1,6 @@
 import javafx.stage.Stage;
 
-import models.Settings;
+import records.Settings;
 import models.User;
 
 import ui.views.login.LoginPage;

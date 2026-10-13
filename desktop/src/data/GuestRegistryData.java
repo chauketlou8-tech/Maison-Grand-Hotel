@@ -3,7 +3,7 @@ package data;
 import enums.BookingStatus;
 import models.Booking;
 import models.Guest;
-import models.Settings;
+import records.Settings;
 import records.Payment;
 import records.Address;
 import utils.DateFormats;

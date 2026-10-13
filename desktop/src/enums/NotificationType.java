@@ -9,5 +9,6 @@ public enum NotificationType {
     low_occupancy,
     task_completed,
     feedback_request,
-    daily_report
+    daily_report,
+    late_checkout
 }

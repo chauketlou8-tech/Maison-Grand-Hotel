@@ -1,7 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { CreditCard, Shield, ArrowRight, Lock, AlertCircle } from "lucide-react";
-//import pay from "../../services/pay";
 import isValidCardNumber from "../../utils/validateCard";
 
 export default function Payment() {

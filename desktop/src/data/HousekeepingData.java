@@ -2,7 +2,7 @@ package data;
 
 import models.Service;
 import models.ServiceTask;
-import models.Settings;
+import records.Settings;
 import utils.DateFormats;
 
 import java.sql.Timestamp;

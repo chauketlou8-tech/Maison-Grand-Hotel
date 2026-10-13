@@ -1,7 +1,7 @@
 package tasks;
 
 import enums.BookingStatus;
-import models.Settings;
+import records.Settings;
 import utils.Assignment;
 import utils.Conn;
 
@@ -40,7 +40,7 @@ public class CreateInspectionTasksJob {
 
         long weeklyDelay = nextSunday.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() - System.currentTimeMillis();
 
-        LocalTime checkInTime = settings.getCheckInTime().toLocalTime();
+        LocalTime checkInTime = settings.checkInTime().toLocalTime();
 
         LocalDateTime nextBeforeCheckIn = LocalDateTime.of(LocalDate.now(), checkInTime).minusHours(2);
 

@@ -4,7 +4,7 @@ import models.Booking;
 import models.Guest;
 import models.Reservation;
 import models.Room;
-import models.Settings;
+import records.Settings;
 import utils.DateFormats;
 
 import java.time.LocalDate;

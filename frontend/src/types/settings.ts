@@ -17,7 +17,6 @@ export type Settings = {
     cancellation_window_hours: number;
     advance_booking_limit_days: number;
     pets_allowed: boolean;
-    smoking_allowed: boolean;
     children_allowed: boolean;
     id_required: boolean;
     vat_rate: number;
@@ -27,8 +26,6 @@ export type Settings = {
     show_tax_breakdown: boolean;
     payment_window_minutes: number;
     auto_cancel_unpaid: boolean;
-    require_full_prepayment: boolean;
-    allow_deposit_payment: boolean;
     notify_reservation_received: boolean;
     notify_payment_confirmation: boolean;
     notify_reservation_cancelled: boolean;
@@ -39,7 +36,6 @@ export type Settings = {
     notify_staff_new_payment: boolean;
     notify_staff_task_completed: boolean;
     notify_staff_low_occupancy: boolean;
-    notify_staff_payment_failure: boolean;
     housekeeping_task_time: string;
     housekeeping_default_status: string;
     housekeeping_assignment: string;
@@ -48,10 +44,14 @@ export type Settings = {
     night_audit_time: string;
     night_audit_frequency: string;
     auto_generate_daily_report: boolean;
-    email_daily_report: boolean;
-    report_recipient: string;
     date_format: string;
     time_format: string;
+    grace_minutes: number;
+    full_night_hours: number;
+    escalate_hours: number;
+    occupancy_threshold: number;
+    extra_adult_fee: number;
+    child_fee: number;
     created_at: Date;
     updated_at: Date;
 };

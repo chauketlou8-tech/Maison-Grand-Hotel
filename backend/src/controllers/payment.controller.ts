@@ -1,7 +1,7 @@
 import asyncHandler from "../middleware/asyncHandler";
 
 import connection from "../config/connection";
-import { yoco_secret, yoco_webhook_secret, base_url } from "../config/env";
+import { yoco_secret, yoco_webhook_secret, base_url, success_url, payment_url } from "../config/env";
 
 import sendEmail from "../services/email.service";
 import { PaymentError } from "../errors";
@@ -20,7 +20,7 @@ import getSettings from "../sockets/settingsClient";
 const pay = asyncHandler(async (req: req, res: res) => {
     const { amount, guest_id, reservation_id } = req.body;
 
-    const response = await fetch("https://payments.yoco.com/api/checkouts", {
+    const response = await fetch(`${payment_url}`, {
         method: "POST",
         headers: {
             "Authorization": `Bearer ${yoco_secret}`,
@@ -29,7 +29,7 @@ const pay = asyncHandler(async (req: req, res: res) => {
         body: JSON.stringify({
             "amount": Math.round(amount * 100),
             "currency": "ZAR",
-            successUrl: "http://localhost:5173/booking/success",
+            successUrl: `${success_url}`,
         }),
     });
 
@@ -195,7 +195,7 @@ Guest Services
 ${settings.hotel_email}
 ${settings.hotel_phone}
 ${address}
-www.maisongrandhotel.co.za`;
+${base_url}`;
 
         await sendEmail(email, emailSubject, emailMessage, name);
     }

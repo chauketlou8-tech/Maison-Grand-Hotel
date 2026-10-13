@@ -33,7 +33,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import models.Settings;
+import records.Settings;
 
 public class Reservations extends VBox {
     private final TableView<ReservationsData> reservation_displayer;
@@ -249,15 +249,15 @@ public class Reservations extends VBox {
 
         Settings settings = data.getSettings();
 
-        Label hotel = new Label(settings == null ? "" : settings.getHotelName());
+        Label hotel = new Label(settings == null ? "" : settings.hotelName());
         hotel.setFont(Font.font("Georgia", FontWeight.BOLD, 20));
         hotel.setTextFill(Color.web("#1a1814"));
 
-        Label address = new Label(settings == null ? "" : settings.getHotelStreet() + ", " + settings.getHotelCity() + ", " + settings.getHotelProvince() + ", " + settings.getHotelPostalCode());
+        Label address = new Label(settings == null ? "" : settings.hotelStreet() + ", " + settings.hotelCity() + ", " + settings.hotelProvince() + ", " + settings.hotelPostalCode());
         address.setFont(Font.font("Georgia", 11));
         address.setTextFill(Color.web("#444444"));
 
-        Label contact = new Label(settings == null ? "" : settings.getHotelPhone() + " · " + settings.getHotelEmail());
+        Label contact = new Label(settings == null ? "" : settings.hotelPhone() + " · " + settings.hotelEmail());
         contact.setFont(Font.font("Georgia", 11));
         contact.setTextFill(Color.web("#444444"));
 
@@ -297,7 +297,7 @@ public class Reservations extends VBox {
 
         Separator bottom = new Separator();
 
-        Label footer = new Label(settings == null ? "" : settings.getHotelName() + " · " + settings.getHotelPhone() + " · " + settings.getHotelEmail());
+        Label footer = new Label(settings == null ? "" : settings.hotelName() + " · " + settings.hotelPhone() + " · " + settings.hotelEmail());
         footer.setFont(Font.font("Georgia", 9));
         footer.setTextFill(Color.web("#666666"));
 
@@ -316,15 +316,15 @@ public class Reservations extends VBox {
 
         Settings settings = allData.isEmpty() ? null : allData.getFirst().getSettings();
 
-        Label hotel = new Label(settings == null ? "" : settings.getHotelName());
+        Label hotel = new Label(settings == null ? "" : settings.hotelName());
         hotel.setFont(Font.font("Georgia", FontWeight.BOLD, 20));
         hotel.setTextFill(Color.web("#1a1814"));
 
-        Label address = new Label(settings == null ? "" : settings.getHotelStreet() + ", " + settings.getHotelCity() + ", " + settings.getHotelProvince() + ", " + settings.getHotelPostalCode());
+        Label address = new Label(settings == null ? "" : settings.hotelStreet() + ", " + settings.hotelCity() + ", " + settings.hotelProvince() + ", " + settings.hotelPostalCode());
         address.setFont(Font.font("Georgia", 11));
         address.setTextFill(Color.web("#444444"));
 
-        Label contact = new Label(settings == null ? "" : settings.getHotelPhone() + " · " + settings.getHotelEmail());
+        Label contact = new Label(settings == null ? "" : settings.hotelPhone() + " · " + settings.hotelEmail());
         contact.setFont(Font.font("Georgia", 11));
         contact.setTextFill(Color.web("#444444"));
 
@@ -376,7 +376,7 @@ public class Reservations extends VBox {
 
         Separator bottom = new Separator();
 
-        Label footer = new Label(settings == null ? "" : settings.getHotelName() + " · " + settings.getHotelPhone() + " · " + settings.getHotelEmail());
+        Label footer = new Label(settings == null ? "" : settings.hotelName() + " · " + settings.hotelPhone() + " · " + settings.hotelEmail());
         footer.setFont(Font.font("Georgia", 9));
         footer.setTextFill(Color.web("#666666"));
 

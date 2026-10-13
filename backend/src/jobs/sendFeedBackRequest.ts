@@ -2,6 +2,7 @@ import cron from "node-cron";
 import connection from "../config/connection";
 import type { Settings } from "../types/settings";
 import { logger } from "../config/logger";
+import { feedback_url } from "../config/env"
 import sendEmail from "../services/email.service";
 import getSettings from "../sockets/settingsClient";
 
@@ -34,7 +35,7 @@ Thank you for staying with us at ${settings.hotel_name}. We hope you enjoyed you
 
 If you have a moment, we would love to hear your thoughts — it helps us do better for every guest who follows.
 
-Leave a review: http://localhost:5173/feedback
+Leave a review: ${feedback_url}
 
 Kind regards,
 ${settings.hotel_name}

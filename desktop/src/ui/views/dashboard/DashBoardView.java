@@ -3,7 +3,7 @@ package ui.views.dashboard;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import models.Notification;
-import models.Settings;
+import records.Settings;
 import models.User;
 import ui.views.layout.Content;
 import ui.views.layout.Footer;

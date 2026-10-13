@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import { v4 as uuIdv4 } from "uuid";
 import bcrypt from "bcryptjs";
-import type {Room} from "../types/room";
+import type { Room } from "../types/room";
 import connection from "../config/connection";
 
 class HelperFunctions {

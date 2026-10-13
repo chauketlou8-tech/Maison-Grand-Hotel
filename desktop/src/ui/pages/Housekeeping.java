@@ -16,7 +16,7 @@ import javafx.scene.paint.Color;
 import models.Room;
 import models.Service;
 import models.ServiceTask;
-import models.Settings;
+import records.Settings;
 import repositories.ServerRepository;
 import utils.Conn;
 import data.HousekeepingData;
@@ -483,7 +483,7 @@ public class Housekeeping extends VBox {
     }
 
     private void notifyTaskCompleted(int taskId) throws SQLException {
-        if (settings == null || !settings.isNotifyStaffTaskCompleted()) return;
+        if (settings == null || !settings.notifyStaffTaskCompleted()) return;
 
         try (PreparedStatement statement = connection.prepareStatement(
                 "insert into notifications (type, title, message) values (?::notificationtype, ?, ?)")) {

@@ -1,10 +1,11 @@
 package tasks;
 
 import enums.NotificationType;
-import models.Settings;
+import records.Settings;
 import utils.Conn;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,8 +17,6 @@ import java.util.concurrent.TimeUnit;
 public class NotifyLowOccupancy {
 
     private static Connection conn;
-
-    private static final double THRESHOLD = 0.3;
 
     public static void run(Settings settings) throws IOException, SQLException {
         conn = Conn.getConnection();
@@ -36,7 +35,7 @@ public class NotifyLowOccupancy {
     }
 
     private static void checkOccupancy(Settings settings) throws SQLException {
-        if (!settings.isNotifyStaffLowOccupancy()) return;
+        if (!settings.notifyStaffLowOccupancy()) return;
 
         int occupied = 0;
         int total = 0;
@@ -58,9 +57,13 @@ public class NotifyLowOccupancy {
 
         if (total == 0) return;
 
+        BigDecimal threshold = settings.occupancyThreshold();
+
+        if (threshold == null) return;
+
         double occupancy = (double) occupied / total;
 
-        if (occupancy >= THRESHOLD) return;
+        if (BigDecimal.valueOf(occupancy).compareTo(threshold) >= 0) return;
 
         int pct = (int) Math.round(occupancy * 100);
 

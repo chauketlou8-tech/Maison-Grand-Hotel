@@ -21,7 +21,7 @@ import models.Guest;
 import models.Reservation;
 import models.Room;
 import data.BookingData;
-import models.Settings;
+import records.Settings;
 import ui.records.BookingRecord;
 
 import java.io.IOException;

@@ -18,7 +18,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import models.Employee;
 import data.EmployeeData;
-import models.Settings;
+import records.Settings;
 import ui.records.EmployeeRecord;
 
 import java.io.IOException;
