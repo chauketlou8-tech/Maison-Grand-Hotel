@@ -23,7 +23,7 @@ import models.Guest;
 import models.Reservation;
 import models.Room;
 import records.Payment;
-import data.ReservationsData;
+import ui.data.ReservationsData;
 import ui.records.ReservationRecord;
 
 import java.io.IOException;

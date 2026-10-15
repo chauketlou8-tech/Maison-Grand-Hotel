@@ -22,7 +22,7 @@ public class CreateInspectionTasksJob {
             connection = Conn.getConnection();
         }
 
-        catch (IOException | SQLException e) {
+        catch (SQLException | IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -78,7 +78,7 @@ public class CreateInspectionTasksJob {
 
         try (PreparedStatement roomsStmt = connection.prepareStatement(
                 "select r.roomid, r.floornumber from rooms r where r.roomstatus not in ('maintenance', 'closed') " +
-                    "and not exists (select 1 from servicetasks st where st.service_id = 2 and st.room_id = r.roomid and st.scheduled_for::date = ?::date)")) {
+                        "and not exists (select 1 from servicetasks st where st.service_id = 2 and st.room_id = r.roomid and st.scheduled_for::date = ?::date)")) {
 
             roomsStmt.setTimestamp(1, scheduledFor);
 
@@ -103,8 +103,8 @@ public class CreateInspectionTasksJob {
 
         try (PreparedStatement reservationsStmt = connection.prepareStatement(
                 "select r.room_id, rm.floornumber from reservations r join rooms rm on rm.roomid = r.room_id " +
-                    "where r.checkindate = ? and not exists (select 1 from servicetasks st where st.service_id = 2 and st.room_id = r.room_id and st.scheduled_for::date = ?::date)" +
-                    "and not exists (select 1 from bookings b where b.reservation_id = r.reservationid and b.booking_status = ?::bookingstatus)")) {
+                        "where r.checkindate = ? and not exists (select 1 from servicetasks st where st.service_id = 2 and st.room_id = r.room_id and st.scheduled_for::date = ?::date)" +
+                        "and not exists (select 1 from bookings b where b.reservation_id = r.reservationid and b.booking_status = ?::bookingstatus)")) {
 
             reservationsStmt.setDate(1, java.sql.Date.valueOf(LocalDate.now()));
             reservationsStmt.setDate(2, java.sql.Date.valueOf(LocalDate.now()));

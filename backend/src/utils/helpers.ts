@@ -2,7 +2,9 @@ import crypto from 'crypto';
 import { v4 as uuIdv4 } from "uuid";
 import bcrypt from "bcryptjs";
 import type { Room } from "../types/room";
+import type { Settings } from "../types/settings";
 import connection from "../config/connection";
+import redisClient from "../config/redisClient";
 
 class HelperFunctions {
 
@@ -70,18 +72,45 @@ class HelperFunctions {
     }
 
     public async getAvailableRooms() {
+        const client = await redisClient;
+
+        const rooms = await client.get("availableRooms");
+
+        if (rooms) return JSON.parse(rooms);
+
         const result = await connection.query(`select * from rooms where roomstatus = 'available'`);
-        return result.rows;
+        const availableRooms = result.rows;
+
+        await client.set("availableRooms", JSON.stringify(availableRooms));
+        return availableRooms;
     }
 
     public async getSettings() {
+        const client = await redisClient;
+
+        let settings: string | null | Settings = await client.get("settings");
+
+        if (settings) return JSON.parse(settings);
+
         const result = await connection.query(`select * from settings`);
-        return result.rows[0];
+        settings = result.rows[0]
+
+        await client.set("settings", JSON.stringify(settings));
+        return settings;
     }
 
     public async getRooms(): Promise<Room[]> {
+        const client = await redisClient;
+
+        let rooms: string | null | Room[] = await client.get("rooms");
+
+        if (rooms) return JSON.parse(rooms);
+
         const result = await connection.query(`select * from rooms`);
-        return result.rows;
+        rooms = result.rows;
+
+        await client.set("rooms", JSON.stringify(rooms));
+        return rooms;
     }
 }
 

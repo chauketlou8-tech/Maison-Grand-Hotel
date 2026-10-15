@@ -12,7 +12,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
 import models.Employee;
-import data.EmployeeData;
+import ui.data.EmployeeData;
 import utils.Conn;
 
 import java.io.IOException;
@@ -20,9 +20,7 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -79,7 +77,7 @@ public class EmployeeRecord extends VBox {
         addRow(personal, "Last name",     e.getLastname());
         addRow(personal, "Email",         e.getEmail());
         addRow(personal, "Phone",         e.getPhonenumber());
-        addRow(personal, "Date of birth", e.getDateofbirth() == null ? "" : ((java.sql.Date) e.getDateofbirth()).toLocalDate().format(DATE_FMT));
+        addRow(personal, "Date of birth", e.getDateofbirth() == null ? "" : e.getDateofbirth().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().format(DATE_FMT));
         addRow(personal, "Gender",        e.getGender() == null ? "" : e.getGender().name());
         addRow(personal, "Address ID",    String.valueOf(e.getAddress_id()));
 
@@ -88,7 +86,7 @@ public class EmployeeRecord extends VBox {
         addRow(work, "Role",        e.getJobposition());
         addRow(work, "Department",  e.getDepartment());
         addRow(work, "Salary",      e.getSalary() == null ? "" : String.valueOf(e.getSalary()));
-        addRow(work, "Hire date",   e.getHiredate() == null ? "" : ((java.sql.Date) e.getHiredate()).toLocalDate().format(DATE_FMT));
+        addRow(work, "Hire date",   e.getHiredate() == null ? "" : e.getHiredate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().format(DATE_FMT));
         addRow(work, "Status",      e.getEmploymentstatus() == null ? "" : e.getEmploymentstatus().name());
         addRow(work, "Created",     e.getCreated_at() == null ? "" : TIMESTAMP_FMT.format(e.getCreated_at().toLocalDateTime()));
         addRow(work, "Updated",     e.getUpdated_at() == null ? "" : TIMESTAMP_FMT.format(e.getUpdated_at().toLocalDateTime()));
@@ -244,7 +242,7 @@ public class EmployeeRecord extends VBox {
         Date hireDate           = Date.from(LocalDate.parse(editors.get("Hire date").getText(), DATE_FMT).atStartOfDay(ZoneId.systemDefault()).toInstant());
         EmploymentStatus status = EmploymentStatus.valueOf(editors.get("Status").getText().toUpperCase());
 
-        try (PreparedStatement statement = connection.prepareStatement("isert into employees (employeeid, firstname, lastname, email, phonenumber, address_id," +
+        try (PreparedStatement statement = connection.prepareStatement("insert into employees (employeeid, firstname, lastname, email, phonenumber, address_id," +
                 "dateofbirth, gender, jobposition, department, salary, hiredate, employmentstatus)" +
                 "values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
             statement.setString(1, employeeId);

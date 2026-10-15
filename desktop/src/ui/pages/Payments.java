@@ -19,7 +19,7 @@ import javafx.stage.StageStyle;
 import models.Guest;
 import records.Settings;
 import records.Payment;
-import data.PaymentData;
+import ui.data.PaymentData;
 import ui.records.PaymentRecord;
 
 import java.io.BufferedReader;

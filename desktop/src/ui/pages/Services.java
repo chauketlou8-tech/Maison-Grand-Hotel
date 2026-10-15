@@ -1,5 +1,7 @@
 package ui.pages;
 
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcons;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -11,7 +13,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import models.ServiceItem;
 import utils.Conn;
-import data.ServiceItemData;
+import ui.data.ServiceItemData;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -32,7 +34,7 @@ public class Services extends VBox {
     private boolean updateQueued = false;
     private ServiceItem[] pendingItems;
 
-    public Services() {
+    public Services() throws IOException {
         HBox button_row = new HBox();
         button_row.getStyleClass().add("registry-button-row");
         button_row.setAlignment(Pos.CENTER_LEFT);

@@ -9,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -248,7 +249,13 @@ public class Settings extends VBox {
         saveIcon.setFill(Color.web("#0a0908"));
         save.setGraphic(saveIcon);
 
-        save.setOnAction(_ -> save());
+        save.setOnAction(_ -> {
+            try {
+                save();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         HBox f = new HBox(save);
         f.setAlignment(Pos.CENTER_LEFT);
@@ -538,7 +545,7 @@ public class Settings extends VBox {
         return p;
     }
 
-    private void save() {
+    private void save() throws IOException {
         String hotelName         = textFields.get("Hotel name").getText();
         String hotelPhone        = textFields.get("Phone").getText();
         String hotelEmail        = textFields.get("Email").getText();

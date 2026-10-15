@@ -20,7 +20,7 @@ public final class Assignment {
             connection = Conn.getConnection();
         }
 
-        catch (IOException | SQLException e) {
+        catch (SQLException | IOException e) {
             throw new RuntimeException(e);
         }
     }

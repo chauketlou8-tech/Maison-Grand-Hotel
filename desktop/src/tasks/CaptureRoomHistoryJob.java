@@ -7,6 +7,7 @@ import utils.Conn;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -33,6 +34,8 @@ public class CaptureRoomHistoryJob {
 
     public static void run(Supplier<Room[]> roomsSupplier, Settings settings) throws IOException, SQLException {
         conn = Conn.getConnection();
+
+        preloadTodayStatus(settings);
 
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -69,12 +72,37 @@ public class CaptureRoomHistoryJob {
         }, 0, 60, TimeUnit.SECONDS);
     }
 
+    private static void preloadTodayStatus(Settings settings) throws SQLException {
+        OffsetDateTime periodKey = computePeriodKey(settings.nightAuditFrequency());
+
+        lastKnownStatus.clear();
+
+        try (PreparedStatement ps = conn.prepareStatement("select roomid, status from roomhistory where status_date = ?")) {
+            ps.setObject(1, periodKey);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    lastKnownStatus.put(rs.getLong("roomid"), rs.getString("status"));
+                }
+            }
+        }
+
+        lastPeriodKey = periodKey.toInstant().toEpochMilli();
+        changed = true;
+    }
+
     private static void captureRoomHistory(Room[] rooms, Settings settings) throws SQLException {
         System.out.println("Running capture room history job...");
 
         OffsetDateTime periodKey = computePeriodKey(settings.nightAuditFrequency());
 
-        try (PreparedStatement ps = conn.prepareStatement("insert into roomhistory (roomid, status_date, status) values (?, ?, ?) on conflict (roomid, status_date) do update set status = excluded.status, updated_at = now()")) {
+        try (PreparedStatement ps = conn.prepareStatement("""
+            insert into roomhistory (roomid, status_date, status)
+            values (?, ?, ?)
+            on conflict (roomid, status_date) do update
+            set status = excluded.status, updated_at = now()
+            where roomhistory.status <> excluded.status
+        """)) {
 
             for (Room room : rooms) {
                 ps.setLong(1, room.getRoomid());
@@ -103,7 +131,13 @@ public class CaptureRoomHistoryJob {
             changed = true;
         }
 
-        try (PreparedStatement ps = conn.prepareStatement("insert into roomhistory (roomid, status_date, status) values (?, ?, ?) on conflict (roomid, status_date) do update set status = excluded.status, updated_at = now()")) {
+        try (PreparedStatement ps = conn.prepareStatement("""
+            insert into roomhistory (roomid, status_date, status)
+            values (?, ?, ?)
+            on conflict (roomid, status_date) do update
+            set status = excluded.status, updated_at = now()
+            where roomhistory.status <> excluded.status
+        """)) {
 
             int count = 0;
 

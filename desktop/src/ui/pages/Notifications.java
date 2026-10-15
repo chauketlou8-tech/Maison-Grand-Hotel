@@ -47,7 +47,7 @@ public class Notifications extends VBox {
     private Notification[] pendingNotifications;
     private Settings pendingSettings;
 
-    private Connection connection = Conn.getConnection();
+    private final Connection connection = Conn.getConnection();
 
     public Notifications() throws SQLException, IOException {
         assert connection != null;
@@ -72,9 +72,9 @@ public class Notifications extends VBox {
         readBtn = new Button("Read");
         readBtn.getStyleClass().add("registry-button");
 
-        allBtn.setOnAction(e -> setFilter("All", allBtn));
-        unreadBtn.setOnAction(e -> setFilter("Unread", unreadBtn));
-        readBtn.setOnAction(e -> setFilter("Read", readBtn));
+        allBtn.setOnAction(_ -> setFilter("All", allBtn));
+        unreadBtn.setOnAction(_ -> setFilter("Unread", unreadBtn));
+        readBtn.setOnAction(_ -> setFilter("Read", readBtn));
 
         HBox filterGroup = new HBox(6, allBtn, unreadBtn, readBtn);
         filterGroup.setAlignment(Pos.CENTER_LEFT);
@@ -88,7 +88,7 @@ public class Notifications extends VBox {
         checkIcon.setFill(Color.web("#9a9080"));
         markAll.setGraphic(checkIcon);
 
-        markAll.setOnAction(e -> markAllRead());
+        markAll.setOnAction(_ -> markAllRead());
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -298,7 +298,7 @@ public class Notifications extends VBox {
 
         row.getChildren().addAll(dotColumn, content);
 
-        row.setOnMouseClicked(e -> markAsRead(n));
+        row.setOnMouseClicked(_ -> markAsRead(n));
 
         return row;
     }

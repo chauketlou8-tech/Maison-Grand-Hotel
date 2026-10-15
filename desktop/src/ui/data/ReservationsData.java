@@ -1,4 +1,4 @@
-package data;
+package ui.data;
 
 import models.Guest;
 import models.Reservation;

@@ -18,11 +18,13 @@ cron.schedule("*/2 * * * *", async () => {
             return;
         }
 
+        logger.info("running notify check in reminder...");
+
         const result = await connection.query(`
             select r.id, r.reservationid, r.requestedroomtype, r.numberofguests, (r.checkoutdate - r.checkindate) as nights,
-            g.id as guest_id, g.email, g.firstname, g.lastname from reservations r join guests g on r.guest_id = g.id
+                   g.id as guest_id, g.email, g.firstname, g.lastname from reservations r join guests g on r.guest_id = g.id
             where r.reservationstatus = 'CONFIRMED' and (r.checkindate + $1::time) between now() and now() + interval '12 hours'
-            and not exists (select 1 from notifications n where n.reservationid = r.id and n.type = 'checkin_reminder')
+              and not exists (select 1 from notifications n where n.reservationid = r.id and n.type = 'checkin_reminder')
         `, [settings.check_in_time]);
 
         for (const r of result.rows) {

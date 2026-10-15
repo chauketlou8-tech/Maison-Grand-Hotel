@@ -1,5 +1,7 @@
 package models;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -9,21 +11,52 @@ import enums.EmploymentStatus;
 
 public class Employee implements Serializable {
 
+    @SerializedName("id")
     private final long id;
+
+    @SerializedName("employeeid")
     private final String employeeid;
+
+    @SerializedName("firstname")
     private final String firstname;
+
+    @SerializedName("lastname")
     private final String lastname;
+
+    @SerializedName("email")
     private final String email;
+
+    @SerializedName("phonenumber")
     private final String phonenumber;
+
+    @SerializedName("address_id")
     private final int address_id;
+
+    @SerializedName("dateofbirth")
     private final Date dateofbirth;
+
+    @SerializedName("gender")
     private final Gender gender;
+
+    @SerializedName("jobposition")
     private final String jobposition;
+
+    @SerializedName("department")
     private final String department;
+
+    @SerializedName("salary")
     private final BigDecimal salary;
+
+    @SerializedName("hiredate")
     private final Date hiredate;
+
+    @SerializedName("employmentstatus")
     private final EmploymentStatus employmentstatus;
+
+    @SerializedName("created_at")
     private final Timestamp created_at;
+
+    @SerializedName("updated_at")
     private final Timestamp updated_at;
 
     public Employee(long id, String employeeid, String firstname, String lastname, String email, String phonenumber, int address_id, Date dateofbirth, Gender gender, String jobposition, String department, BigDecimal salary, Date hiredate, EmploymentStatus employmentstatus, Timestamp created_at, Timestamp updated_at) {

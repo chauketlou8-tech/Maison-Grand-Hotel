@@ -13,6 +13,7 @@ import sockets.Server;
 import tasks.*;
 
 import utils.Conn;
+
 import java.io.IOException;
 
 import java.sql.Connection;
@@ -27,8 +28,6 @@ public class ServerRepository {
     private static Connection conn;
 
     public static void connectDB() throws IOException, SQLException {
-        //connect to the database
-
         conn = Conn.getConnection();
         Settings settings = getSettings();
 

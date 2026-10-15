@@ -1,5 +1,6 @@
 package ui.pages;
 
+import config.ConnectJedis;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcons;
 import enums.RoomStatus;
@@ -16,9 +17,10 @@ import javafx.scene.paint.Color;
 import models.Booking;
 import models.Guest;
 import models.Room;
+import redis.clients.jedis.RedisClient;
 import utils.Assignment;
 import utils.Conn;
-import data.RoomData;
+import ui.data.RoomData;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -41,6 +43,7 @@ public class RoomManagement extends VBox {
     private static final AtomicInteger maintenanceIndex = new AtomicInteger();
 
     private final Connection connection = Conn.getConnection();
+    private final RedisClient client = ConnectJedis.connect();
 
     private final TableView<RoomData> table_view;
     private final VBox rack;
@@ -458,7 +461,7 @@ public class RoomManagement extends VBox {
             return;
         }
 
-        try (PreparedStatement statement = connection.prepareStatement("update rooms set roomstatus = ? where roomid = ?")) {
+        try (PreparedStatement statement = connection.prepareStatement("update rooms set roomstatus = ?, updated_at = now(); where roomid = ?")) {
 
             statement.setString(1, newStatus.name().toLowerCase());
             statement.setLong(2, roomId);
@@ -484,6 +487,9 @@ public class RoomManagement extends VBox {
                 break;
             }
         }
+
+        client.del("rooms");
+        client.del("availableRooms");
 
         selectedRoom = null;
         updateStatusButtons();

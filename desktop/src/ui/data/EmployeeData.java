@@ -1,4 +1,4 @@
-package data;
+package ui.data;
 
 import models.Employee;
 import records.Settings;
@@ -39,7 +39,7 @@ public class EmployeeData {
 
         this.salary = employee.getSalary() == null ? "—" : "R " + String.format("%,.2f", employee.getSalary());
 
-        this.startDate = employee.getHiredate() == null ? "—" : ((java.sql.Date) employee.getHiredate()).toLocalDate().format(DateFormats.of(settings));
+        this.startDate = employee.getHiredate() == null ? "—" : new java.sql.Date(employee.getHiredate().getTime()).toLocalDate().format(DateFormats.of(settings));
 
         this.status = employee.getEmploymentstatus() == null ? "—" : employee.getEmploymentstatus().name();
     }

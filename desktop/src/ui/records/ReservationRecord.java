@@ -1,9 +1,11 @@
 package ui.records;
 
+import config.ConnectJedis;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcons;
 import enums.NotificationType;
 import enums.ReservationStatus;
+import redis.clients.jedis.RedisClient;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -21,7 +23,7 @@ import records.Settings;
 import records.Payment;
 import services.EmailService;
 import utils.Conn;
-import data.ReservationsData;
+import ui.data.ReservationsData;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,6 +36,7 @@ import java.util.Properties;
 public class ReservationRecord extends VBox {
 
     private final Connection connection = Conn.getConnection();
+    private final RedisClient client = ConnectJedis.connect();
 
     private final ReservationsData data;
     private final Settings settings;
@@ -554,6 +557,9 @@ public class ReservationRecord extends VBox {
             connection.setAutoCommit(true);
         }
 
+        client.del("rooms");
+        client.del("availableRooms");
+
         if (settings == null || settings.notifyReservationCancelled()) {
             assert settings != null;
             String emailSubject = settings.hotelName() + " — Reservation Cancelled";
@@ -624,6 +630,9 @@ public class ReservationRecord extends VBox {
         finally {
             connection.setAutoCommit(true);
         }
+
+        client.del("rooms");
+        client.del("availableRooms");
 
         onClose();
     }

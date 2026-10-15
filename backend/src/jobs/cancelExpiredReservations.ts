@@ -4,12 +4,14 @@ import type { Notification } from "../types/notification";
 import type { Settings } from "../types/settings";
 import { logger } from "../config/logger";
 import sendEmail from "../services/email.service";
-import { base_url } from "../config/env"
-import getSettings from "../sockets/settingsClient"
+import { base_url } from "../config/env";
+import getSettings from "../sockets/settingsClient";
+import redisClient from "../config/redisClient";
 
 cron.schedule("* * * * *", async () => {
     try {
         const settings: Settings | null = getSettings();
+        const client = await redisClient;
 
         if (!settings) {
             logger.info("cron schedule skipped: settings not loaded yet");
@@ -21,7 +23,7 @@ cron.schedule("* * * * *", async () => {
             return;
         }
 
-        logger.info("cron schedule running...");
+        logger.info("running cancel expired reservation job...");
 
         const cancelledReservations = await connection.query(`
             update reservations set reservationstatus = 'CANCELLED'
@@ -34,6 +36,9 @@ cron.schedule("* * * * *", async () => {
             await connection.query(`
                 update rooms set roomstatus = 'available' where roomid = $1
             `, [reservation.room_id]);
+
+            await client.del("rooms");
+            await client.del("availableRooms");
 
             await connection.query(`
                 update payments set paymentstatus = 'failed' where reservation_id = $1

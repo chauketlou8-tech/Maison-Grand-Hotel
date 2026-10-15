@@ -16,6 +16,10 @@ const yoco_webhook_secret = process.env.YOCO_WEBHOOK_SECRET_KEY;
 const success_url = process.env.SUCCESS_URL;
 const payment_url = process.env.PAYMENT_URL;
 const feedback_url = process.env.FEEDBACK_URL;
+const redis_host = process.env.REDIS_HOST;
+const redis_username = process.env.REDIS_USERNAME;
+const redis_password = process.env.REDIS_PASSWORD;
+const redis_port = Number(process.env.REDIS_PORT);
 
 if (!node_env) {
     throw new Error('Missing environment environment');
@@ -56,6 +60,22 @@ if (!payment_url && node_env === "development") {
 if (!feedback_url && node_env === "development") {
     throw new Error("Missing success_url");
 }
+
+if (!redis_host && node_env === "development") {
+    throw new Error("Missing redis_host");
+}
+
+if (!redis_username && node_env === "development") {
+    throw new Error("Missing redis_username");
+}
+
+if (!redis_password && node_env === "development") {
+    throw new Error("Missing redis_password");
+}
+
+if (!redis_port && node_env === "development") {
+    throw new Error("Missing redis_port");
+}
     
 export {
     port,
@@ -69,4 +89,8 @@ export {
     success_url,
     payment_url,
     feedback_url,
+    redis_host,
+    redis_username,
+    redis_password,
+    redis_port,
 }

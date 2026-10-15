@@ -1,4 +1,4 @@
-package data;
+package ui.data;
 
 import enums.RoomStatus;
 import models.Booking;

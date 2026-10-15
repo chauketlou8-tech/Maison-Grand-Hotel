@@ -32,36 +32,58 @@ All components communicate with a shared PostgreSQL database, ensuring data cons
 ```
 mason-hotel/
 │
-├── frontend/
+├── frontend/                        # React + Vite guest-facing app
 │   ├── public/
 │   ├── src/
-│   ├── .env
+│   ├── .env                         # VITE_* vars (API URL, WS URL, Yoco redirect)
 │   ├── .gitignore
 │   ├── package.json
 │   ├── tsconfig.json
 │   ├── vite.config.ts
 │   └── README.md
 │
-├── backend/
+├── backend/                         # Node + Express API
 │   ├── src/
-│   ├── .env
+│   │   ├── config/                  # env, db, logger, email transporter
+│   │   ├── middleware/              # asyncHandler, errorHandler, validators
+│   │   ├── routes/
+│   │   ├── controllers/             # book, pay, settings, rooms
+│   │   ├── services/                # email.service
+│   │   ├── jobs/                    # cancelExpiredReservations, NotifyCheckInReminder, sendFeedBackRequest
+│   │   ├── sockets/                 # settingsClient, settingsSocket, websock
+│   │   ├── types/
+│   │   ├── utils/
+│   │   ├── errors/
+│   │   ├── app.ts
+│   │   └── server.ts
+│   ├── .env                         # DATABASE_URL, EMAIL_*, YOCO_*, BASE_URL, WS_PORT
 │   ├── .gitignore
 │   ├── package.json
 │   ├── tsconfig.json
 │   └── README.md
 │
-├── desktop/
+├── desktop/                         # JavaFX PMS (front-desk client)
 │   ├── src/
-│   ├── resources/
+│   │   ├── main/java/
+│   │   │   ├── ui/                  # views, pages, records, layout, charts
+│   │   │   ├── models/
+│   │   │   ├── data/
+│   │   │   ├── repositories/
+│   │   │   ├── sockets/
+│   │   │   ├── tasks/               # cron-style jobs
+│   │   │   ├── utils/
+│   │   │   ├── enums/
+│   │   │   └── App.java
+│   │   └── main/resources/          # css, icons, config/application.properties
 │   ├── .gitignore
 │   ├── pom.xml
 │   └── README.md
 │
-├── analytics/
+├── analytics/                       # Python reporting
 │   ├── data/
 │   ├── notebooks/
 │   ├── reports/
-│   ├── scripts/
+│   ├── scripts/                     # report_pdf.py, payment_pdf.py
 │   ├── visualizations/
 │   ├── requirements.txt
 │   ├── .gitignore
@@ -69,7 +91,7 @@ mason-hotel/
 │
 ├── database/
 │   ├── backups/
-│   ├── schema.sql
+│   ├── schema.sql                   # settings + all tables
 │   ├── seed.sql
 │   └── README.md
 │

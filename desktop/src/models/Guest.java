@@ -1,23 +1,50 @@
 package models;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Timestamp;
 
 public class Guest implements Serializable {
 
+    @SerializedName("id")
     private final long id;
+
+    @SerializedName("guestid")
     private final String guestid;
+
+    @SerializedName("firstname")
     private final String firstname;
+
+    @SerializedName("lastname")
     private final String lastname;
+
+    @SerializedName("email")
     private final String email;
+
+    @SerializedName("phonenumber")
     private final String phonenumber;
+
+    @SerializedName("address_id")
     private final long address_id;
+
+    @SerializedName("idnumber")
     private final String idnumber;
+
+    @SerializedName("dateofbirth")
     private final Date dateofbirth;
+
+    @SerializedName("nationality")
     private final String nationality;
+
+    @SerializedName("registrationdate")
     private final Date registrationdate;
+
+    @SerializedName("created_at")
     private final Timestamp created_at;
+
+    @SerializedName("updated_at")
     private final Timestamp updated_at;
 
     public Guest(

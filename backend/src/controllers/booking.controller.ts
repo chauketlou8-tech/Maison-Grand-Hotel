@@ -21,6 +21,7 @@ import { base_url } from "../config/env";
 import sendEmail from "../services/email.service";
 
 import getSettings from "../sockets/settingsClient";
+import redisClient from "../config/redisClient";
 
 const book = asyncHandler(async (req: req, res: res, next: next) => {
 
@@ -28,6 +29,7 @@ const book = asyncHandler(async (req: req, res: res, next: next) => {
     let { checkIn, checkOut, selectedRoom, dateOfBirth } = req.body;
 
     const settings: Settings | null = getSettings();
+    const client = await redisClient;
 
     checkIn = checkIn.split("T")[0];
     checkOut = checkOut.split("T")[0];
@@ -156,6 +158,9 @@ const book = asyncHandler(async (req: req, res: res, next: next) => {
             values($1, $2, $3, $4, $5)
         `, [notification.type, notification.title, notification.message, notification.reservation_id, notification.guest_id]);
     }
+
+    await client.del("rooms");
+    await client.del("availableRooms");
 
     if (settings && settings.notify_reservation_received) {
         const address = [

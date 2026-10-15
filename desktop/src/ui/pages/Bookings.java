@@ -20,7 +20,7 @@ import models.Booking;
 import models.Guest;
 import models.Reservation;
 import models.Room;
-import data.BookingData;
+import ui.data.BookingData;
 import records.Settings;
 import ui.records.BookingRecord;
 
@@ -36,6 +36,11 @@ public class Bookings extends VBox {
     private final TextField searchField;
     private final ComboBox<String> filterCombo;
     private final Label count;
+
+    private final VBox loadingState;
+    private final VBox emptyState;
+
+    private boolean dataLoaded = false;
 
     public Bookings() {
         HBox topRow = new HBox();
@@ -129,7 +134,6 @@ public class Bookings extends VBox {
         this.booking_displayer.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         this.booking_displayer.setMaxWidth(Double.MAX_VALUE);
         this.booking_displayer.setMaxHeight(Double.MAX_VALUE);
-        VBox.setVgrow(this.booking_displayer, Priority.ALWAYS);
 
         TableColumn<BookingData, String> bookingId = new TableColumn<>("Booking ID");
         TableColumn<BookingData, String> guestName = new TableColumn<>("Guest");
@@ -188,10 +192,76 @@ public class Bookings extends VBox {
             }
         });
 
-        getChildren().addAll(topRow, filter_row, this.booking_displayer);
+        // --- Loading state ---
+        ProgressIndicator spinner = new ProgressIndicator();
+        spinner.setPrefSize(48, 48);
+
+        Label loadingLabel = new Label("Loading bookings…");
+        loadingLabel.getStyleClass().add("guest-record-empty");
+
+        loadingState = new VBox(12, spinner, loadingLabel);
+        loadingState.setAlignment(Pos.CENTER);
+        loadingState.setMaxWidth(Double.MAX_VALUE);
+        loadingState.setMaxHeight(Double.MAX_VALUE);
+
+        // --- Empty state ---
+        FontAwesomeIcon emptyIcon = new FontAwesomeIcon();
+        emptyIcon.setIcon(FontAwesomeIcons.CALENDAR);
+        emptyIcon.setSize("26");
+        emptyIcon.setFill(Color.web("#3a3428"));
+
+        Label emptyLabel = new Label("No bookings");
+        emptyLabel.getStyleClass().add("guest-record-empty");
+
+        emptyState = new VBox(12, emptyIcon, emptyLabel);
+        emptyState.setAlignment(Pos.CENTER);
+        emptyState.setMaxWidth(Double.MAX_VALUE);
+        emptyState.setMaxHeight(Double.MAX_VALUE);
+
+        StackPane contentStack = new StackPane(loadingState, emptyState, booking_displayer);
+        contentStack.setMaxWidth(Double.MAX_VALUE);
+        contentStack.setMaxHeight(Double.MAX_VALUE);
+        VBox.setVgrow(contentStack, Priority.ALWAYS);
+
+        showLoading();
+
+        getChildren().addAll(topRow, filter_row, contentStack);
         VBox.setVgrow(this, Priority.ALWAYS);
         setMaxWidth(Double.MAX_VALUE);
         setMaxHeight(Double.MAX_VALUE);
+    }
+
+    private void showLoading() {
+        loadingState.setVisible(true);
+        loadingState.setManaged(true);
+
+        emptyState.setVisible(false);
+        emptyState.setManaged(false);
+
+        booking_displayer.setVisible(false);
+        booking_displayer.setManaged(false);
+    }
+
+    private void showEmpty() {
+        loadingState.setVisible(false);
+        loadingState.setManaged(false);
+
+        emptyState.setVisible(true);
+        emptyState.setManaged(true);
+
+        booking_displayer.setVisible(false);
+        booking_displayer.setManaged(false);
+    }
+
+    private void showTable() {
+        loadingState.setVisible(false);
+        loadingState.setManaged(false);
+
+        emptyState.setVisible(false);
+        emptyState.setManaged(false);
+
+        booking_displayer.setVisible(true);
+        booking_displayer.setManaged(true);
     }
 
     public void setData(Booking[] bookings, Room[] rooms, Guest[] guests, Reservation[] reservations, Settings settings) {
@@ -217,9 +287,11 @@ public class Bookings extends VBox {
         statuses.sort(String::compareTo);
 
         Platform.runLater(() -> {
-            if (newData.equals(allData)) return;
+            dataLoaded = true;
 
-            allData.setAll(newData);
+            if (!newData.equals(allData)) {
+                allData.setAll(newData);
+            }
 
             if (!statuses.equals(filterCombo.getItems())) {
                 String current = filterCombo.getValue();
@@ -239,6 +311,11 @@ public class Bookings extends VBox {
     }
 
     private void applyFilters() {
+        if (!dataLoaded) {
+            showLoading();
+            return;
+        }
+
         String query = searchField.getText() == null ? "" : searchField.getText().trim().toLowerCase();
         String status = filterCombo.getValue() == null ? "All" : filterCombo.getValue();
 
@@ -255,15 +332,20 @@ public class Bookings extends VBox {
             filtered.add(d);
         }
 
-        if (filtered.equals(booking_displayer.getItems())) {
-            count.setText(filtered.size() + (filtered.size() == 1 ? " booking" : " bookings"));
-            return;
+        if (filtered.isEmpty()) {
+            showEmpty();
         }
 
-        filteredData.setAll(filtered);
+        else {
+            showTable();
 
-        if (booking_displayer.getItems() != filteredData) {
-            booking_displayer.setItems(filteredData);
+            if (!filtered.equals(booking_displayer.getItems())) {
+                filteredData.setAll(filtered);
+
+                if (booking_displayer.getItems() != filteredData) {
+                    booking_displayer.setItems(filteredData);
+                }
+            }
         }
 
         count.setText(filtered.size() + (filtered.size() == 1 ? " booking" : " bookings"));

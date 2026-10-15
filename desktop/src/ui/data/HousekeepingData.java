@@ -1,4 +1,4 @@
-package data;
+package ui.data;
 
 import models.Service;
 import models.ServiceTask;

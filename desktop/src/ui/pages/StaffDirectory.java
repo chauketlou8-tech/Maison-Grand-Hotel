@@ -17,7 +17,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import models.Employee;
-import data.EmployeeData;
+import ui.data.EmployeeData;
 import records.Settings;
 import ui.records.EmployeeRecord;
 

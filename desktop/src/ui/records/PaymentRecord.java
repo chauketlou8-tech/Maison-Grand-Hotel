@@ -6,7 +6,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import records.Settings;
 import records.Payment;
-import data.PaymentData;
+import ui.data.PaymentData;
 
 import java.time.format.DateTimeFormatter;
 

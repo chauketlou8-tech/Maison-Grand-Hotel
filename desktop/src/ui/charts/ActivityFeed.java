@@ -21,6 +21,7 @@ import models.Reservation;
 import models.ServiceTask;
 import records.Settings;
 import records.Payment;
+import records.RoomHistory;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -134,8 +135,8 @@ public class ActivityFeed extends VBox {
         return box;
     }
 
-    public void setData(Notification[] notifications, Reservation[] reservations, Payment[] payments, ServiceTask[] serviceTasks, Settings settings) {
-        if (notifications == null || reservations == null || payments == null || serviceTasks == null) return;
+    public void setData(Notification[] notifications, Reservation[] reservations, Payment[] payments, RoomHistory[] roomHistory, ServiceTask[] serviceTasks, Settings settings) {
+        if (notifications == null || reservations == null || payments == null || roomHistory == null || serviceTasks == null) return;
 
         this.settings = settings;
 
@@ -149,8 +150,8 @@ public class ActivityFeed extends VBox {
         for (Reservation r : reservations) {
             if (r.getCheckindate() == null) continue;
 
-            Date created_at = r.getCreated_at();
-            LocalDateTime when = toLocalDateTime(created_at);
+            Date updated_at = r.getUpdated_at();
+            LocalDateTime when = toLocalDateTime(updated_at);
 
             events.add(new Event("#4a9d6a", "Reservation received · " + r.getRequestedroomtype() + " room", when));
         }
@@ -158,7 +159,7 @@ public class ActivityFeed extends VBox {
         for (Payment p : payments) {
             if (!"completed".equals(p.paymentstatus())) continue;
 
-            LocalDateTime when = toLocalDateTime(p.created_at());
+            LocalDateTime when = toLocalDateTime(p.updated_at());
 
             events.add(new Event("#c9a84c", "Payment R" + String.format("%,.2f", p.amount()) + " received", when));
         }
@@ -166,6 +167,14 @@ public class ActivityFeed extends VBox {
         for (Notification n : notifications) {
             LocalDateTime when = toLocalDateTime(n.getUpdated_at());
             events.add(new Event(colorForNotification(n.getType()), n.getTitle() + " — " + n.getMessage(), when));
+        }
+
+        for (RoomHistory rh : roomHistory) {
+            if (rh.status_date() == null) continue;
+
+            LocalDateTime when = rh.updated_at().toLocalDateTime();
+
+            events.add(new Event(colorForStatus(rh.status()), "Room " + rh.roomid() + " · " + rh.status(), when));
         }
 
         for (ServiceTask st : serviceTasks) {
@@ -320,6 +329,18 @@ public class ActivityFeed extends VBox {
         if (seconds < 3600) return (seconds / 60) + "m ago";
         if (seconds < 86400) return (seconds / 3600) + "h " + ((seconds % 3600) / 60) + "m";
         return (seconds / 86400) + "d ago";
+    }
+
+    private String colorForStatus(String status) {
+        if (status == null) return "#9a9080";
+        return switch (status) {
+            case "available" -> "#4a9d6a";
+            case "occupied" -> "#c9a84c";
+            case "closed" -> "#d07a3c";
+            case "maintenance" -> "#a84c4c";
+            case "reserved" -> "#8a7ec9";
+            default -> "#9a9080";
+        };
     }
 
     private String colorForNotification(NotificationType type) {

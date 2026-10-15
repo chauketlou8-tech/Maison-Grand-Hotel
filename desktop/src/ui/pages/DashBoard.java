@@ -183,7 +183,7 @@ public class DashBoard extends VBox {
 
             if (this.occupancy_chart != null) {
                 this.occupancy_chart.setRooms(rooms);
-                this.activity.setData(notifications, reservations, payments, serviceTasks, settings);
+                this.activity.setData(notifications, reservations, payments, roomHistory, serviceTasks, settings);
             }
         });
     }

@@ -1,10 +1,12 @@
 package ui.records;
 
+import config.ConnectJedis;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcons;
 import enums.BookingStatus;
 import enums.ReservationStatus;
 import enums.RoomStatus;
+import redis.clients.jedis.RedisClient;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -16,7 +18,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
-import data.BookingData;
+import ui.data.BookingData;
 import records.Settings;
 import utils.Assignment;
 import utils.Conn;
@@ -34,6 +36,7 @@ public class BookingRecord extends VBox {
     private static final AtomicInteger inspectionIndex = new AtomicInteger();
 
     private final Connection connection = Conn.getConnection();
+    private final RedisClient client = ConnectJedis.connect();
     private final BookingData data;
     private final Runnable onClose;
 
@@ -426,6 +429,9 @@ public class BookingRecord extends VBox {
             connection.setAutoCommit(true);
         }
 
+        client.del("rooms");
+        client.del("roomHistory");
+
         this.onClose.run();
     }
 
@@ -527,6 +533,9 @@ public class BookingRecord extends VBox {
         finally {
             connection.setAutoCommit(true);
         }
+
+        client.del("rooms");
+        client.del("roomHistory");
 
         this.onClose.run();
     }

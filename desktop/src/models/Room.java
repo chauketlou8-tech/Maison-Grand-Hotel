@@ -1,18 +1,34 @@
 package models;
 
 import enums.RoomStatus;
+import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
 public class Room implements Serializable {
 
+    @SerializedName("roomid")
     private final long roomid;
+
+    @SerializedName("roomnumber")
     private final int roomnumber;
+
+    @SerializedName("floornumber")
     private final int floornumber;
+
+    @SerializedName("roomtype")
     private final String roomtype;
+
+    @SerializedName("price")
     private final float price;
+
+    @SerializedName("capacity")
     private final int capacity;
+
+    @SerializedName("roomstatus")
     private final RoomStatus roomstatus;
+
+    @SerializedName("description")
     private final String description;
 
     public Room(long roomid, int roomnumber, int floornumber, String roomtype, float price, int capacity, RoomStatus roomstatus, String description) {

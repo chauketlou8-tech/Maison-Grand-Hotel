@@ -1,5 +1,6 @@
 package ui.pages;
 
+import config.ConnectJedis;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcons;
 import enums.NotificationType;
@@ -18,8 +19,9 @@ import models.Service;
 import models.ServiceTask;
 import records.Settings;
 import repositories.ServerRepository;
+import redis.clients.jedis.RedisClient;
 import utils.Conn;
-import data.HousekeepingData;
+import ui.data.HousekeepingData;
 
 import java.io.IOException;
 import java.sql.*;
@@ -47,6 +49,7 @@ public class Housekeeping extends VBox {
 
     private final Connection connection = Conn.getConnection();
     private final Settings settings = ServerRepository.getSettings();
+    private final RedisClient client = ConnectJedis.connect();
 
     public Housekeeping() throws SQLException, IOException {
         assert(connection != null);
@@ -483,7 +486,7 @@ public class Housekeeping extends VBox {
     }
 
     private void notifyTaskCompleted(int taskId) throws SQLException {
-        if (settings == null || !settings.notifyStaffTaskCompleted()) return;
+        if (!settings.notifyStaffTaskCompleted()) return;
 
         try (PreparedStatement statement = connection.prepareStatement(
                 "insert into notifications (type, title, message) values (?::notificationtype, ?, ?)")) {
@@ -520,6 +523,9 @@ public class Housekeeping extends VBox {
 
             statement.executeUpdate();
         }
+
+        client.del("rooms");
+        client.del("availableRooms");
     }
 
     private void markCleaned(int taskId) throws IOException, SQLException {

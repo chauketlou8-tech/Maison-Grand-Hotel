@@ -17,7 +17,7 @@ import models.*;
 import records.Settings;
 import records.Payment;
 import records.Address;
-import data.GuestRegistryData;
+import ui.data.GuestRegistryData;
 
 import java.util.HashMap;
 import java.util.Map;
