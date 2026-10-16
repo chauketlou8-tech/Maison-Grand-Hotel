@@ -306,8 +306,163 @@ export default function BookingForm() {
     if (!room) {
         return (
             <section className="py-16 px-8 md:px-20 bg-[#0f0e0c]">
-                <div className="max-w-6xl mx-auto flex items-center justify-center py-20">
-                    <Loader2 size={24} className="animate-spin text-[#c9a84c]" />
+                <div className="max-w-6xl mx-auto">
+                    <div className="grid lg:grid-cols-3 gap-10 animate-pulse">
+                        <div className="lg:col-span-2 flex flex-col gap-8">
+                            {/* 1. Choose Your Room */}
+                            <div>
+                                <div className="h-8 w-64 bg-[#1a1814] mb-5" />
+                                <div className="grid sm:grid-cols-2 gap-3">
+                                    {[1, 2, 3, 4].map((n) => (
+                                        <div key={n} className="p-5 border border-[#c9a84c]/15">
+                                            <div className="flex justify-between items-start gap-2">
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-2 mb-2">
+                                                        <div className="h-4 w-16 bg-[#1a1814]" />
+                                                        <div className="h-4 w-32 bg-[#1a1814]" />
+                                                    </div>
+                                                    <div className="h-3 w-24 bg-[#1a1814] mt-2" />
+                                                </div>
+                                                <div className="text-right">
+                                                    <div className="h-4 w-16 bg-[#1a1814] mb-1" />
+                                                    <div className="h-3 w-10 bg-[#1a1814] ml-auto" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* 2. Dates & Guests */}
+                            <div>
+                                <div className="h-8 w-56 bg-[#1a1814] mb-5" />
+                                <div className="grid gap-4 sm:grid-cols-4">
+                                    {[1, 2, 3, 4].map((n) => (
+                                        <div key={n}>
+                                            <div className="h-3 w-20 bg-[#1a1814] mb-2" />
+                                            <div className="h-12 w-full bg-[#1a1814] border border-[#c9a84c]/15" />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* 3. Add-ons */}
+                            <div>
+                                <div className="h-8 w-40 bg-[#1a1814] mb-5" />
+                                <div className="flex flex-col gap-3">
+                                    {[1, 2, 3].map((n) => (
+                                        <div key={n} className="p-5 border border-[#c9a84c]/15">
+                                            <div className="flex items-start justify-between gap-4">
+                                                <div className="flex-1">
+                                                    <div className="h-4 w-40 bg-[#1a1814] mb-3" />
+                                                    <div className="h-3 w-56 bg-[#1a1814] mb-1" />
+                                                    <div className="h-3 w-48 bg-[#1a1814] mb-1" />
+                                                    <div className="h-3 w-52 bg-[#1a1814]" />
+                                                </div>
+                                                <div className="h-4 w-20 bg-[#1a1814]" />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* 4. Your Details */}
+                            <div>
+                                <div className="h-8 w-48 bg-[#1a1814] mb-5" />
+
+                                <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                                    {[1, 2].map((n) => (
+                                        <div key={n}>
+                                            <div className="h-3 w-24 bg-[#1a1814] mb-2" />
+                                            <div className="h-12 w-full bg-[#1a1814] border border-[#c9a84c]/15" />
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                                    {[1, 2].map((n) => (
+                                        <div key={n}>
+                                            <div className="h-3 w-16 bg-[#1a1814] mb-2" />
+                                            <div className="h-12 w-full bg-[#1a1814] border border-[#c9a84c]/15" />
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                                    {[1, 2].map((n) => (
+                                        <div key={n}>
+                                            <div className="h-3 w-24 bg-[#1a1814] mb-2" />
+                                            <div className="h-12 w-full bg-[#1a1814] border border-[#c9a84c]/15" />
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                                    {[1, 2].map((n) => (
+                                        <div key={n}>
+                                            <div className="h-3 w-20 bg-[#1a1814] mb-2" />
+                                            <div className="h-12 w-full bg-[#1a1814] border border-[#c9a84c]/15" />
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="grid sm:grid-cols-3 gap-4 mb-4">
+                                    {[1, 2, 3].map((n) => (
+                                        <div key={n}>
+                                            <div className="h-3 w-20 bg-[#1a1814] mb-2" />
+                                            <div className="h-12 w-full bg-[#1a1814] border border-[#c9a84c]/15" />
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div>
+                                    <div className="h-3 w-32 bg-[#1a1814] mb-2" />
+                                    <div className="h-24 w-full bg-[#1a1814] border border-[#c9a84c]/15" />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Summary panel */}
+                        <div className="lg:col-span-1">
+                            <div className="sticky top-28 bg-[#1a1814] border border-[#c9a84c]/15 p-7">
+                                <div className="h-3 w-40 bg-[#0f0e0c] mb-5" />
+
+                                <div className="flex flex-col gap-3 mb-6 pb-6 border-b border-[#c9a84c]/15">
+                                    {[1, 2, 3, 4, 5].map((n) => (
+                                        <div key={n} className="flex justify-between">
+                                            <div className="h-3 w-16 bg-[#0f0e0c]" />
+                                            <div className="h-3 w-24 bg-[#0f0e0c]" />
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="flex flex-col gap-3 mb-6 pb-6 border-b border-[#c9a84c]/15">
+                                    {[1, 2, 3].map((n) => (
+                                        <div key={n} className="flex justify-between">
+                                            <div className="h-3 w-24 bg-[#0f0e0c]" />
+                                            <div className="h-3 w-20 bg-[#0f0e0c]" />
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="flex justify-between items-baseline mb-6">
+                                    <div className="h-3 w-20 bg-[#0f0e0c]" />
+                                    <div className="h-7 w-32 bg-[#0f0e0c]" />
+                                </div>
+
+                                <div className="h-14 w-full bg-[#0f0e0c] mb-3" />
+
+                                <div className="h-3 w-56 bg-[#0f0e0c] mx-auto mb-6" />
+
+                                <div className="mt-6 pt-6 border-t border-[#c9a84c]/15 flex flex-col gap-3">
+                                    <div className="h-3 w-32 bg-[#0f0e0c]" />
+                                    <div className="h-3 w-40 bg-[#0f0e0c]" />
+                                    <div className="h-3 w-48 bg-[#0f0e0c]" />
+                                    <div className="h-3 w-full bg-[#0f0e0c]" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
         );
@@ -371,7 +526,7 @@ export default function BookingForm() {
                             <div className={`grid gap-4 ${settings?.children_allowed ? "sm:grid-cols-4" : "sm:grid-cols-3"}`}>
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Check-in</label>
-                                    <input type="date" value={formatDate(checkIn)} min={formatDate(new Date())} max={maxCheckInDate()} onChange={(e) => setCheckIn(new Date(e.target.value))} className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.checkIn ? "border-red-500" : "border-[#c9a84c]/15"}`} />
+                                    <input id="checkIn" type="date" value={formatDate(checkIn)} min={formatDate(new Date())} max={maxCheckInDate()} onChange={(e) => setCheckIn(new Date(e.target.value))} className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.checkIn ? "border-red-500" : "border-[#c9a84c]/15"}`} />
 
                                     {
                                         errors.checkIn &&
@@ -381,7 +536,7 @@ export default function BookingForm() {
 
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Check-out</label>
-                                    <input type="date" value={formatDate(checkOut)} min={formatDate(checkIn)} onChange={(e) => setCheckOut(new Date(e.target.value))} className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.checkOut ? "border-red-500" : "border-[#c9a84c]/15"}`} />
+                                    <input id="checkOut" type="date" value={formatDate(checkOut)} min={formatDate(checkIn)} onChange={(e) => setCheckOut(new Date(e.target.value))} className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.checkOut ? "border-red-500" : "border-[#c9a84c]/15"}`} />
 
                                     {
                                         errors.checkOut &&
@@ -393,7 +548,7 @@ export default function BookingForm() {
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Adults</label>
 
                                     <div className="relative">
-                                        <select value={adults} onChange={(e) => setAdults(Number(e.target.value))} className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] focus:outline-none focus:border-[#c9a84c] transition-colors appearance-none cursor-pointer">
+                                        <select id="adults" value={adults} onChange={(e) => setAdults(Number(e.target.value))} className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] focus:outline-none focus:border-[#c9a84c] transition-colors appearance-none cursor-pointer">
                                             {adultOptions.map((n) => (<option key={n}>{n}</option>))}
                                         </select>
 
@@ -406,7 +561,7 @@ export default function BookingForm() {
                                         <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Children</label>
 
                                         <div className="relative">
-                                            <select value={children} onChange={(e) => setChildren(Number(e.target.value))} className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] focus:outline-none focus:border-[#c9a84c] transition-colors appearance-none cursor-pointer">
+                                            <select id="children" value={children} onChange={(e) => setChildren(Number(e.target.value))} className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] focus:outline-none focus:border-[#c9a84c] transition-colors appearance-none cursor-pointer">
                                                 {childrenOptions.map((n) => (<option key={n}>{n}</option>))}
                                             </select>
 
@@ -457,13 +612,13 @@ export default function BookingForm() {
                             <div className="grid sm:grid-cols-2 gap-4 mb-4">
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">First Name</label>
-                                    <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Jean" className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.firstName ? "border-red-500" : "border-[#c9a84c]/15"}`} />
+                                    <input id="firstName" type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Jean" className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.firstName ? "border-red-500" : "border-[#c9a84c]/15"}`} />
                                     {errors.firstName && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.firstName}</p>}
                                 </div>
 
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Last Name</label>
-                                    <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Dupont" className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.lastName ? "border-red-500" : "border-[#c9a84c]/15"}`} />
+                                    <input id="lastName" type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Dupont" className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.lastName ? "border-red-500" : "border-[#c9a84c]/15"}`} />
                                     {errors.lastName && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.lastName}</p>}
                                 </div>
                             </div>
@@ -471,61 +626,61 @@ export default function BookingForm() {
                             <div className="grid sm:grid-cols-2 gap-4 mb-4">
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Email</label>
-                                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="jean@example.com" className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.email ? "border-red-500" : "border-[#c9a84c]/15"}`} />
+                                    <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="jean@example.com" className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.email ? "border-red-500" : "border-[#c9a84c]/15"}`} />
                                     {errors.email && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.email}</p>}
                                 </div>
 
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Phone</label>
-                                    <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+27 21 000 0000" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
+                                    <input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+27 21 000 0000" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
                                 </div>
                             </div>
 
                             <div className="grid sm:grid-cols-2 gap-4 mb-4">
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">ID Number {settings?.id_required ? "" : "(optional)"}</label>
-                                    <input type="text" value={idNumber} onChange={(e) => { setIdNumber(e.target.value); const dob = extractDOB(e.target.value); if (dob) setDateOfBirth(dob); }} placeholder="ID Number" className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.idNumber ? "border-red-500" : "border-[#c9a84c]/15"}`} />
+                                    <input id="idNumber" type="text" value={idNumber} onChange={(e) => { setIdNumber(e.target.value); const dob = extractDOB(e.target.value); if (dob) setDateOfBirth(dob); }} placeholder="ID Number" className={`w-full bg-[#1a1814] border px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors ${errors.idNumber ? "border-red-500" : "border-[#c9a84c]/15"}`} />
                                     {errors.idNumber && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.idNumber}</p>}
                                 </div>
 
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Nationality</label>
-                                    <input type="text" value={nationality} onChange={(e) => setNationality(e.target.value)} placeholder="South African" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
+                                    <input id="nationality" type="text" value={nationality} onChange={(e) => setNationality(e.target.value)} placeholder="South African" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
                                 </div>
                             </div>
 
                             <div className="grid sm:grid-cols-2 gap-4 mb-4">
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Street</label>
-                                    <input type="text" value={address.street} onChange={(e) => setAddress({...address, street: e.target.value})} placeholder="123 Main St" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
+                                    <input id="street" type="text" value={address.street} onChange={(e) => setAddress({...address, street: e.target.value})} placeholder="123 Main St" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
                                 </div>
 
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">City</label>
-                                    <input type="text" value={address.city} onChange={(e) => setAddress({...address, city: e.target.value})} placeholder="Cape Town" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
+                                    <input id="city" type="text" value={address.city} onChange={(e) => setAddress({...address, city: e.target.value})} placeholder="Cape Town" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
                                 </div>
                             </div>
 
                             <div className="grid sm:grid-cols-3 gap-4 mb-4">
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Province</label>
-                                    <input type="text" value={address.province} onChange={(e) => setAddress({...address, province: e.target.value})} placeholder="Western Cape" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
+                                    <input id="province" type="text" value={address.province} onChange={(e) => setAddress({...address, province: e.target.value})} placeholder="Western Cape" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
                                 </div>
 
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Country</label>
-                                    <input type="text" value={address.country} onChange={(e) => setAddress({...address, country: e.target.value})} placeholder="South Africa" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
+                                    <input id="country" type="text" value={address.country} onChange={(e) => setAddress({...address, country: e.target.value})} placeholder="South Africa" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
                                 </div>
 
                                 <div>
                                     <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Postal Code</label>
-                                    <input type="text" value={address.postalCode} onChange={(e) => setAddress({...address, postalCode: e.target.value})} placeholder="7700" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
+                                    <input id="postalCode" type="text" value={address.postalCode} onChange={(e) => setAddress({...address, postalCode: e.target.value})} placeholder="7700" className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors" />
                                 </div>
                             </div>
 
                             <div>
                                 <label className="block text-[10px] tracking-[0.3em] uppercase text-[#9a9080] mb-2">Special Requests</label>
-                                <textarea rows={3} value={requests} onChange={(e) => setRequests(e.target.value)} placeholder="Dietary requirements, occasion arrangements, floor preference..." className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors resize-none" />
+                                <textarea id="requests" rows={3} value={requests} onChange={(e) => setRequests(e.target.value)} placeholder="Dietary requirements, occasion arrangements, floor preference..." className="w-full bg-[#1a1814] border border-[#c9a84c]/15 px-4 py-3 text-sm text-[#f0ebe0] placeholder:text-[#9a9080]/40 focus:outline-none focus:border-[#c9a84c] transition-colors resize-none" />
                             </div>
                         </div>
                     </div>
@@ -614,7 +769,7 @@ export default function BookingForm() {
                                 <span className="text-2xl text-[#c9a84c] font-light font-display">R{nights > 0 ? total.toLocaleString() : room.price}</span>
                             </div>
 
-                            <button type="submit" disabled={isLoading} className="w-full py-4 bg-[#c9a84c] text-[#0f0e0c] text-sm tracking-[0.2em] uppercase font-medium hover:bg-[#c9a84c]/90 transition-colors mb-3 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                            <button id="submit" type="submit" disabled={isLoading} className="w-full py-4 bg-[#c9a84c] text-[#0f0e0c] text-sm tracking-[0.2em] uppercase font-medium hover:bg-[#c9a84c]/90 transition-colors mb-3 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
                                 {
                                     isLoading ?
                                         <div className="flex items-center gap-2">

@@ -150,8 +150,7 @@ public class ActivityFeed extends VBox {
         for (Reservation r : reservations) {
             if (r.getCheckindate() == null) continue;
 
-            Date updated_at = r.getUpdated_at();
-            LocalDateTime when = toLocalDateTime(updated_at);
+            LocalDateTime when = toLocalDateTime(r.getCreated_at());
 
             events.add(new Event("#4a9d6a", "Reservation received · " + r.getRequestedroomtype() + " room", when));
         }
@@ -165,7 +164,7 @@ public class ActivityFeed extends VBox {
         }
 
         for (Notification n : notifications) {
-            LocalDateTime when = toLocalDateTime(n.getUpdated_at());
+            LocalDateTime when = toLocalDateTime(n.getCreated_at());
             events.add(new Event(colorForNotification(n.getType()), n.getTitle() + " — " + n.getMessage(), when));
         }
 
@@ -185,7 +184,7 @@ public class ActivityFeed extends VBox {
             }
 
             else {
-                when = toLocalDateTime(st.getUpdated_at());
+                when = toLocalDateTime(st.getCreated_at());
             }
 
             String verb = "completed".equalsIgnoreCase(st.getStatus()) ? "completed" : "created";

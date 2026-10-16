@@ -8,7 +8,6 @@ import { PaymentError } from "../errors";
 
 import Response from "../utils/response";
 import HelperFunctions from "../utils/helpers";
-import redisClient from "../config/redisClient";
 
 import type { req, res, next } from "../types/express";
 import type { Notification } from "../types/notification";
@@ -20,8 +19,6 @@ import getSettings from "../sockets/settingsClient";
 
 const pay = asyncHandler(async (req: req, res: res) => {
     const { amount, guest_id, reservation_id } = req.body;
-
-    const client = await redisClient;
 
     const response = await fetch(`${payment_url}`, {
         method: "POST",
@@ -55,7 +52,6 @@ const yocoWebhook = asyncHandler(async (req: req, res: res, next: next) => {
     //@ts-ignore
     const rawBody = req.rawBody;
     const settings: Settings | null = getSettings();
-    const client = await redisClient;
 
     if (!HelperFunctions.isValidSignature(rawBody, req.headers, yoco_webhook_secret!)) {
         return next(new PaymentError("Invalid Signature", 401));
@@ -91,7 +87,7 @@ const yocoWebhook = asyncHandler(async (req: req, res: res, next: next) => {
 
     const payment: Payment = paymentResult.rows[0];
 
-    if (payment.paymentstatus === "succeeded") {
+    if (payment.paymentstatus === "completed" || payment.paymentstatus === "succeeded") {
         return Response.success(res, {
             message: "Payment already processed"
         });

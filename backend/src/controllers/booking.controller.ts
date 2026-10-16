@@ -16,7 +16,7 @@ import type { Guest } from "../types/guest";
 import type { Reservation } from "../types/reservation";
 import type { Notification } from "../types/notification";
 
-import { base_url } from "../config/env";
+import { base_url, node_env } from "../config/env";
 
 import sendEmail from "../services/email.service";
 
@@ -211,7 +211,9 @@ ${address}
 ${base_url}
 `;
 
-        await sendEmail(email, emailSubject, emailMessage, name);
+        if (node_env != "development") {
+            await sendEmail(email, emailSubject, emailMessage, name);
+        }
     }
 
     return Response.success(res, {

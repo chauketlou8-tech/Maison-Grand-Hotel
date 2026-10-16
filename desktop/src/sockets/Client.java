@@ -7,11 +7,14 @@ import records.Address;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
 public class Client {
     private final ObjectOutputStream out;
     private final ObjectInputStream in;
+
+    private final LinkedBlockingQueue<String> outQueue = new LinkedBlockingQueue<>();
 
     private final Consumer<Room[]> setRooms;
     private final Consumer<Notification[]> setNotifications;
@@ -63,6 +66,8 @@ public class Client {
 
         this.out.writeObject("Connecting to the server...");
         this.out.flush();
+
+        new Thread(this::writeLoop).start();
     }
 
     public void listen() {
@@ -118,8 +123,7 @@ public class Client {
                     this.setEmployees.accept((Employee[]) response);
                 }
 
-                out.writeObject("Received response from server...");
-                out.flush();
+                outQueue.offer("Received response from server...");
             }
 
             catch (IOException e) {
@@ -128,6 +132,18 @@ public class Client {
 
             catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private void writeLoop() {
+        while (true) {
+            try {
+                String message = outQueue.take();
+                out.writeObject(message);
+                out.flush();
+            } catch (IOException | InterruptedException e) {
+                break;
             }
         }
     }

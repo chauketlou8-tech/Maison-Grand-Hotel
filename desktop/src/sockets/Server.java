@@ -37,14 +37,26 @@ public class Server {
 
             out.flush();
 
-            while (!server.isClosed()) {
-                Object message = in.readObject();
+            Thread reader = new Thread(() -> {
+                try {
+                    while (!server.isClosed()) {
+                        Object message = in.readObject();
 
-                if (message instanceof String str) {
-                    if (str.equals("Connecting to the server...")) {
-                        System.out.println("Client connected...");
+                        if (message instanceof String str) {
+                            if (str.equals("Connecting to the server...")) {
+                                System.out.println("Client connected...");
+                            }
+                        }
                     }
+                } catch (IOException | ClassNotFoundException e) {
+                    System.out.println("Reader ended: " + e.getMessage());
                 }
+            });
+
+            reader.start();
+
+            while (!server.isClosed()) {
+                System.out.println("Sending to client...");
 
                 Room[] rooms = this.getRooms().toArray(new Room[0]);
                 Notification[] notifications = this.getNotifications().toArray(new Notification[0]);

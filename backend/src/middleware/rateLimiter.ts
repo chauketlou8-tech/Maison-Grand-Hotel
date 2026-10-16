@@ -2,7 +2,7 @@ import rateLimit from "express-rate-limit";
 
 export const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 100,
+    max: 10000,
     standardHeaders: true,
     legacyHeaders: false,
     message: { success: false, message: "Too many requests, please try again later." },
@@ -10,7 +10,7 @@ export const globalLimiter = rateLimit({
 
 export const findBookingLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 3,
+    max: 10,
     standardHeaders: true,
     legacyHeaders: false,
     message: { success: false, message: "Too many requests, please try again later." },
@@ -18,7 +18,7 @@ export const findBookingLimiter = rateLimit({
 
 export const bookLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 5,
+    max: 5000,
     standardHeaders: true,
     legacyHeaders: false,
     message: { success: false, message: "Too many requests, please try again later." },
@@ -26,7 +26,7 @@ export const bookLimiter = rateLimit({
 
 export const payLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 10,
+    max: 10000,
     standardHeaders: true,
     legacyHeaders: false,
     message: { success: false, message: "Too many requests, please try again later." },
