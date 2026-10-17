@@ -1,4 +1,4 @@
-package tasks;
+package jobs;
 
 import enums.NotificationType;
 import records.Settings;

@@ -10,7 +10,6 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -45,51 +44,34 @@ public class TopBar extends HBox {
         HBox left_header_panel = new HBox();
         left_header_panel.getStyleClass().add("header-left-panel");
         left_header_panel.setAlignment(Pos.CENTER_LEFT);
-        left_header_panel.setSpacing(20);
+        left_header_panel.setSpacing(14);
         left_header_panel.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(left_header_panel, Priority.ALWAYS);
+
+        FontAwesomeIcon mark = new FontAwesomeIcon();
+        mark.setIcon(FontAwesomeIcons.HOTEL);
+        mark.setSize("18");
+        mark.setFill(Color.web("#c9a84c"));
+
+        VBox greetings_header = new VBox();
+        greetings_header.getStyleClass().add("greetings-header");
+        greetings_header.setAlignment(Pos.CENTER_LEFT);
+
+        Label greetings_label = new Label(this.getGreetings() + ", " + this.getName());
+        greetings_label.getStyleClass().add("greetings-label");
+
+        Label name_label = new Label("Maison Grand Hotel");
+        name_label.getStyleClass().add("header-name-label");
+
+        greetings_header.getChildren().addAll(greetings_label, name_label);
+
+        left_header_panel.getChildren().addAll(mark, greetings_header);
 
         HBox right_header_panel = new HBox();
         right_header_panel.getStyleClass().add("header-right-panel");
         right_header_panel.setAlignment(Pos.CENTER_RIGHT);
         right_header_panel.setSpacing(16);
         right_header_panel.setMaxWidth(Double.MAX_VALUE);
-
-        VBox greetings_header = new VBox();
-        greetings_header.getStyleClass().add("greetings-header");
-        greetings_header.setAlignment(Pos.CENTER_LEFT);
-
-        Label divider = new Label("|");
-        divider.getStyleClass().add("header-divider");
-
-        HBox search_bar = new HBox();
-        search_bar.getStyleClass().add("search-bar");
-        search_bar.setAlignment(Pos.CENTER_LEFT);
-        search_bar.setSpacing(10);
-
-        Label greetings_label = new Label(this.getGreetings());
-        greetings_label.getStyleClass().add("greetings-label");
-
-        Label name_label = new Label(this.getName().toUpperCase());
-        name_label.getStyleClass().add("header-name-label");
-
-        greetings_header.getChildren().addAll(greetings_label, name_label);
-
-        FontAwesomeIcon search = new FontAwesomeIcon();
-        search.setIcon(FontAwesomeIcons.SEARCH);
-        search.setSize("13");
-        search.setFill(Color.web("#6a6058"));
-
-        TextField search_input = new TextField();
-        search_input.setPromptText("Search guest, booking, room…");
-        search_input.getStyleClass().add("search-input");
-        search_input.setPrefHeight(30);
-        search_input.setMinHeight(30);
-        search_input.setMaxHeight(30);
-
-        search_bar.getChildren().addAll(search, search_input);
-
-        left_header_panel.getChildren().addAll(greetings_header, divider, search_bar);
 
         Label date_label = new Label();
         date_label.getStyleClass().add("header-date-label");

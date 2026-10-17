@@ -41,9 +41,7 @@ public class EmployeeRecord extends VBox {
     private final Button cancelBtn;
     private final Button closeBtn;
 
-    private final Connection connection = Conn.getConnection();
-
-    public EmployeeRecord(EmployeeData data, Runnable close) throws SQLException, IOException {
+    public EmployeeRecord(EmployeeData data, Runnable close) {
 
         getStyleClass().add("booking-record");
         setSpacing(12);
@@ -77,7 +75,7 @@ public class EmployeeRecord extends VBox {
         addRow(personal, "Last name",     e.getLastname());
         addRow(personal, "Email",         e.getEmail());
         addRow(personal, "Phone",         e.getPhonenumber());
-        addRow(personal, "Date of birth", e.getDateofbirth() == null ? "" : e.getDateofbirth().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().format(DATE_FMT));
+        addRow(personal, "Date of birth", e.getDateofbirth() == null ? "" : new java.sql.Date(e.getDateofbirth().getTime()).toLocalDate().format(DATE_FMT));
         addRow(personal, "Gender",        e.getGender() == null ? "" : e.getGender().name());
         addRow(personal, "Address ID",    String.valueOf(e.getAddress_id()));
 
@@ -86,7 +84,7 @@ public class EmployeeRecord extends VBox {
         addRow(work, "Role",        e.getJobposition());
         addRow(work, "Department",  e.getDepartment());
         addRow(work, "Salary",      e.getSalary() == null ? "" : String.valueOf(e.getSalary()));
-        addRow(work, "Hire date",   e.getHiredate() == null ? "" : e.getHiredate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().format(DATE_FMT));
+        addRow(work, "Hire date",   e.getHiredate() == null ? "" : new java.sql.Date(e.getHiredate().getTime()).toLocalDate().format(DATE_FMT));
         addRow(work, "Status",      e.getEmploymentstatus() == null ? "" : e.getEmploymentstatus().name());
         addRow(work, "Created",     e.getCreated_at() == null ? "" : TIMESTAMP_FMT.format(e.getCreated_at().toLocalDateTime()));
         addRow(work, "Updated",     e.getUpdated_at() == null ? "" : TIMESTAMP_FMT.format(e.getUpdated_at().toLocalDateTime()));
@@ -242,28 +240,32 @@ public class EmployeeRecord extends VBox {
         Date hireDate           = Date.from(LocalDate.parse(editors.get("Hire date").getText(), DATE_FMT).atStartOfDay(ZoneId.systemDefault()).toInstant());
         EmploymentStatus status = EmploymentStatus.valueOf(editors.get("Status").getText().toUpperCase());
 
-        try (PreparedStatement statement = connection.prepareStatement("insert into employees (employeeid, firstname, lastname, email, phonenumber, address_id," +
-                "dateofbirth, gender, jobposition, department, salary, hiredate, employmentstatus)" +
-                "values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-            statement.setString(1, employeeId);
-            statement.setString(2, firstName);
-            statement.setString(3, lastName);
-            statement.setString(4, email);
-            statement.setString(5, phone);
-            statement.setInt(6, addressId);
-            statement.setDate(7, new java.sql.Date(dateOfBirth.getTime()));
-            statement.setString(8, gender.toString());
-            statement.setString(9, role);
-            statement.setString(10, department);
-            statement.setBigDecimal(11, salary);
-            statement.setDate(12, new java.sql.Date(hireDate.getTime()));
-            statement.setString(13, status.toString());
+        try (Connection connection = Conn.getConnection();
+             PreparedStatement statement = connection.prepareStatement(
+                     "update employees set firstname = ?, lastname = ?, email = ?, phonenumber = ?, address_id = ?, " +
+                             "dateofbirth = ?, gender = ?::gender, jobposition = ?, department = ?, salary = ?, hiredate = ?, " +
+                             "employmentstatus = ?::employmentstatus where employeeid = ?")) {
+            statement.setString(1, firstName);
+            statement.setString(2, lastName);
+            statement.setString(3, email);
+            statement.setString(4, phone);
+            statement.setInt(5, addressId);
+            statement.setDate(6, new java.sql.Date(dateOfBirth.getTime()));
+            statement.setString(7, gender.toString());
+            statement.setString(8, role);
+            statement.setString(9, department);
+            statement.setBigDecimal(10, salary);
+            statement.setDate(11, new java.sql.Date(hireDate.getTime()));
+            statement.setString(12, status.toString());
+            statement.setString(13, employeeId);
 
-            statement.execute();
+            statement.executeUpdate();
         }
 
-        catch (SQLException e) {
+        catch (SQLException | IOException e) {
             throw new RuntimeException(e);
         }
+
+        closeBtn.fire();
     }
 }

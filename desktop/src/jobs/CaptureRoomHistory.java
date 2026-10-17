@@ -1,4 +1,4 @@
-package tasks;
+package jobs;
 
 import models.Room;
 import records.Settings;
@@ -23,7 +23,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-public class CaptureRoomHistoryJob {
+public class CaptureRoomHistory {
 
     private static final Map<Long, String> lastKnownStatus = new HashMap<>();
     private static long lastPeriodKey = 0;

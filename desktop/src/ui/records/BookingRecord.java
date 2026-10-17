@@ -35,12 +35,10 @@ public class BookingRecord extends VBox {
 
     private static final AtomicInteger inspectionIndex = new AtomicInteger();
 
-    private final Connection connection = Conn.getConnection();
-    private final RedisClient client = ConnectJedis.connect();
     private final BookingData data;
     private final Runnable onClose;
 
-    public BookingRecord(BookingData data, Runnable onClose) throws IOException, SQLException {
+    public BookingRecord(BookingData data, Runnable onClose) {
         this.data = data;
         this.onClose = onClose;
         getStyleClass().add("booking-record");
@@ -143,7 +141,7 @@ public class BookingRecord extends VBox {
                     this.checkIn();
                 }
 
-                catch (SQLException ex) {
+                catch (SQLException | IOException ex) {
                     throw new RuntimeException(ex);
                 }
             });
@@ -159,7 +157,7 @@ public class BookingRecord extends VBox {
                     this.checkOut();
                 }
 
-                catch (SQLException ex) {
+                catch (SQLException | IOException ex) {
                     throw new RuntimeException(ex);
                 }
             });
@@ -335,7 +333,7 @@ public class BookingRecord extends VBox {
         return row + 1;
     }
 
-    private void checkIn() throws SQLException {
+    private void checkIn() throws SQLException, IOException {
         LocalDate checkInDate = data.getCheckInDate();
 
         if (checkInDate != null && !checkInDate.equals(LocalDate.now())) {
@@ -385,6 +383,8 @@ public class BookingRecord extends VBox {
             }
         }
 
+        Connection connection = Conn.getConnection();
+
         connection.setAutoCommit(false);
 
         try {
@@ -427,15 +427,17 @@ public class BookingRecord extends VBox {
 
         finally {
             connection.setAutoCommit(true);
+            connection.close();
         }
 
+        RedisClient client = ConnectJedis.connect();
         client.del("rooms");
         client.del("roomHistory");
 
         this.onClose.run();
     }
 
-    private void checkOut() throws SQLException {
+    private void checkOut() throws SQLException, IOException {
         LocalDate checkOutDate = data.getCheckOutDate();
 
         if (checkOutDate != null && checkOutDate.isAfter(LocalDate.now())) {
@@ -443,6 +445,8 @@ public class BookingRecord extends VBox {
                 return;
             }
         }
+
+        Connection connection = Conn.getConnection();
 
         BigDecimal due = null;
 
@@ -458,6 +462,7 @@ public class BookingRecord extends VBox {
 
         if (due != null && due.compareTo(BigDecimal.ZERO) > 0) {
             if (!confirm(data.getGuestName() + " has an outstanding balance of R" + due + ". Continue with checkout?")) {
+                connection.close();
                 return;
             }
         }
@@ -532,8 +537,10 @@ public class BookingRecord extends VBox {
 
         finally {
             connection.setAutoCommit(true);
+            connection.close();
         }
 
+        RedisClient client = ConnectJedis.connect();
         client.del("rooms");
         client.del("roomHistory");
 

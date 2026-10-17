@@ -20,7 +20,7 @@ The desktop application is the internal hotel management system used by hotel st
 
 This desktop application serves as the primary tool for hotel staff to manage all aspects of hotel operations. It connects directly to the shared PostgreSQL database, providing real-time access to guest information, room status, reservations, and financial data.
 
-The application is designed with an intuitive user interface using JavaFX, making it easy for staff to perform daily tasks efficiently.
+The application is designed with an intuitive user interface using JavaFX, making it easy for staff to perform daily jobs efficiently.
 
 ---
 

@@ -11,7 +11,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import models.Room;
@@ -228,6 +230,20 @@ public class Housekeeping extends VBox {
 
         table.getColumns().addAll(room, type, floor, description, lastCleaned, actions);
 
+        table.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+            Node target = (Node) event.getTarget();
+
+            while (target != null && !(target instanceof TableRow)) {
+                target = target.getParent();
+            }
+
+            boolean clickedRow = target != null && ((TableRow<?>) target).getItem() != null;
+
+            if (!clickedRow) {
+                table.getSelectionModel().clearSelection();
+            }
+        });
+
         return table;
     }
 
@@ -291,6 +307,20 @@ public class Housekeeping extends VBox {
 
         table.getColumns().addAll(name, assignedTo, notes, done);
 
+        table.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+            Node target = (Node) event.getTarget();
+
+            while (target != null && !(target instanceof TableRow)) {
+                target = target.getParent();
+            }
+
+            boolean clickedRow = target != null && ((TableRow<?>) target).getItem() != null;
+
+            if (!clickedRow) {
+                table.getSelectionModel().clearSelection();
+            }
+        });
+
         return table;
     }
 
@@ -349,6 +379,20 @@ public class Housekeeping extends VBox {
         });
 
         table.getColumns().addAll(room, type, floor, description, lastCleaned, action);
+
+        table.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+            Node target = (Node) event.getTarget();
+
+            while (target != null && !(target instanceof TableRow)) {
+                target = target.getParent();
+            }
+
+            boolean clickedRow = target != null && ((TableRow<?>) target).getItem() != null;
+
+            if (!clickedRow) {
+                table.getSelectionModel().clearSelection();
+            }
+        });
 
         return table;
     }

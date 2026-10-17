@@ -56,7 +56,6 @@ public class Server {
             reader.start();
 
             while (!server.isClosed()) {
-                System.out.println("Sending to client...");
 
                 Room[] rooms = this.getRooms().toArray(new Room[0]);
                 Notification[] notifications = this.getNotifications().toArray(new Notification[0]);

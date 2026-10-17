@@ -1355,7 +1355,32 @@
 
 .notification-list {
     -fx-background-color: transparent;
+    -fx-background-insets: 0;
     -fx-padding: 0;
+}
+
+.notification-list .virtual-flow,
+.notification-list .clipped-container,
+.notification-list .sheet {
+    -fx-background-color: transparent;
+}
+
+.notification-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-text-fill: #f0eade;
+}
+
+.notification-list .list-cell:filled:selected,
+.notification-list .list-cell:filled:selected:hover,
+.notification-list .list-cell:filled:hover {
+    -fx-background-color: transparent;
+}
+
+.notification-list .list-cell:filled:focus {
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(201,168,76,0.4);
+    -fx-border-width: 1 0 1 0;
 }
 
 .notification-row {

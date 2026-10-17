@@ -6,10 +6,10 @@ import enums.NotificationStatus;
 import enums.NotificationType;
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -28,10 +28,19 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Notifications extends VBox {
 
-    private final VBox list;
+    private final ExecutorService dbPool = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "notifications-db");
+        t.setDaemon(true);
+        return t;
+    });
+
+    private final ObservableList<Notification> items = FXCollections.observableArrayList();
+
     private final Label countLabel;
 
     private final Button allBtn;
@@ -47,11 +56,7 @@ public class Notifications extends VBox {
     private Notification[] pendingNotifications;
     private Settings pendingSettings;
 
-    private final Connection connection = Conn.getConnection();
-
-    public Notifications() throws SQLException, IOException {
-        assert connection != null;
-
+    public Notifications() {
         getStyleClass().addAll("guest-registry", "notifications-page");
         setSpacing(0);
         setMaxWidth(Double.MAX_VALUE);
@@ -98,23 +103,32 @@ public class Notifications extends VBox {
 
         topRow.getChildren().addAll(filterGroup, markAll, spacer, countLabel);
 
-        list = new VBox(0);
+        ListView<Notification> list = new ListView<>(items);
         list.getStyleClass().add("notification-list");
-        list.setFillWidth(true);
+        list.setPlaceholder(emptyState());
+        list.setCellFactory(_ -> new NotificationCell());
         list.setMaxWidth(Double.MAX_VALUE);
+        list.setMaxHeight(Double.MAX_VALUE);
+        VBox.setVgrow(list, Priority.ALWAYS);
 
-        ScrollPane scroll = new ScrollPane(list);
-        scroll.getStyleClass().add("activity-scroll");
-        scroll.setFitToWidth(true);
-        scroll.setFitToHeight(true);
-        scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scroll.setMaxWidth(Double.MAX_VALUE);
-        scroll.setMaxHeight(Double.MAX_VALUE);
-        VBox.setVgrow(scroll, Priority.ALWAYS);
-
-        getChildren().addAll(topRow, scroll);
+        getChildren().addAll(topRow, list);
         VBox.setVgrow(this, Priority.ALWAYS);
+    }
+
+    private VBox emptyState() {
+        VBox emptyState = new VBox(10);
+        emptyState.setAlignment(Pos.CENTER);
+
+        FontAwesomeIcon emptyIcon = new FontAwesomeIcon();
+        emptyIcon.setIcon(FontAwesomeIcons.BELL);
+        emptyIcon.setSize("26");
+        emptyIcon.setFill(Color.web("#3a3428"));
+
+        Label emptyLabel = new Label("No notifications");
+        emptyLabel.getStyleClass().add("notification-empty");
+
+        emptyState.getChildren().addAll(emptyIcon, emptyLabel);
+        return emptyState;
     }
 
     public void setData(Notification[] notifications, Settings settings) {
@@ -195,148 +209,103 @@ public class Notifications extends VBox {
     private void renderList() {
         if (notifications == null) return;
 
-        list.getChildren().clear();
-
         List<Notification> filtered = new ArrayList<>();
+        int unread = 0;
 
         for (Notification n : notifications) {
-            boolean unread = n.getStatus() == NotificationStatus.unread;
+            boolean isUnread = n.getStatus() == NotificationStatus.unread;
+            if (isUnread) unread++;
 
-            if ("Unread".equals(activeFilter) && !unread) continue;
-            if ("Read".equals(activeFilter) && unread) continue;
+            if ("Unread".equals(activeFilter) && !isUnread) continue;
+            if ("Read".equals(activeFilter) && isUnread) continue;
 
             filtered.add(n);
         }
 
         filtered.sort(Comparator.comparing(Notification::getCreated_at, Comparator.nullsLast(Comparator.naturalOrder())).reversed());
 
-        if (filtered.isEmpty()) {
-            VBox emptyState = new VBox(10);
-            emptyState.setAlignment(Pos.CENTER);
-            emptyState.setMaxWidth(Double.MAX_VALUE);
-            emptyState.setMaxHeight(Double.MAX_VALUE);
-            VBox.setVgrow(emptyState, Priority.ALWAYS);
-
-            FontAwesomeIcon emptyIcon = new FontAwesomeIcon();
-            emptyIcon.setIcon(FontAwesomeIcons.BELL);
-            emptyIcon.setSize("26");
-            emptyIcon.setFill(Color.web("#3a3428"));
-
-            Label emptyLabel = new Label("No notifications");
-            emptyLabel.getStyleClass().add("notification-empty");
-
-            emptyState.getChildren().addAll(emptyIcon, emptyLabel);
-            list.getChildren().add(emptyState);
+        if (listDiffers(filtered, items)) {
+            items.setAll(filtered);
         }
 
+        int shown = filtered.size();
+        String label;
+
+        if ("All".equals(activeFilter)) {
+            label = shown + (shown == 1 ? " notification" : " notifications") + " · " + unread + " unread";
+        }
+        else if ("Unread".equals(activeFilter)) {
+            label = shown + (shown == 1 ? " unread notification" : " unread notifications");
+        }
         else {
-            for (Notification n : filtered) {
-                list.getChildren().add(notificationRow(n));
+            label = shown + (shown == 1 ? " read notification" : " read notifications");
+        }
+
+        countLabel.setText(label);
+    }
+
+    private boolean listDiffers(List<Notification> incoming, ObservableList<Notification> current) {
+        if (incoming.size() != current.size()) {
+            return true;
+        }
+
+        for (int i = 0; i < incoming.size(); i++) {
+            Notification a = incoming.get(i);
+            Notification b = current.get(i);
+
+            if (a.getNotificationid() != b.getNotificationid()) {
+                return true;
+            }
+
+            if (a.getStatus() != b.getStatus()) {
+                return true;
             }
         }
 
-        int total = notifications.length;
-        int unread = 0;
-
-        for (Notification n : notifications) {
-            if (n.getStatus() == NotificationStatus.unread) unread++;
-        }
-
-        countLabel.setText(total + (total == 1 ? " notification" : " notifications") + " · " + unread + " unread");
-    }
-
-    private HBox notificationRow(Notification n) {
-        boolean unread = n.getStatus() == NotificationStatus.unread;
-
-        HBox row = new HBox(14);
-        row.getStyleClass().add("notification-row");
-        row.setAlignment(Pos.CENTER_LEFT);
-        row.setMaxWidth(Double.MAX_VALUE);
-        row.setMinWidth(Region.USE_PREF_SIZE);
-
-        if (unread) {
-            row.getStyleClass().add("notification-row-unread");
-        }
-
-        StackPane dotColumn = new StackPane();
-        dotColumn.setMinWidth(8);
-        dotColumn.setPrefWidth(8);
-        dotColumn.setMaxWidth(8);
-
-        if (unread) {
-            Circle dot = new Circle(4);
-            dot.getStyleClass().add("notification-dot");
-            dot.setFill(Color.web(colorForType(n.getType())));
-            dotColumn.getChildren().add(dot);
-        }
-
-        VBox content = new VBox(4);
-        content.setMaxWidth(Double.MAX_VALUE);
-        HBox.setHgrow(content, Priority.ALWAYS);
-
-        HBox titleRow = new HBox(8);
-        titleRow.setAlignment(Pos.CENTER_LEFT);
-        titleRow.setMaxWidth(Double.MAX_VALUE);
-
-        Label title = new Label(n.getTitle() == null ? "" : n.getTitle());
-        title.getStyleClass().add("notification-title");
-
-        Region titleSpacer = new Region();
-        HBox.setHgrow(titleSpacer, Priority.ALWAYS);
-
-        Label time = new Label(formatTimestamp(n.getCreated_at()));
-        time.getStyleClass().add("notification-time");
-
-        titleRow.getChildren().addAll(title, titleSpacer, time);
-
-        Label message = new Label(n.getMessage() == null ? "" : n.getMessage());
-        message.getStyleClass().add("notification-message");
-        message.setMaxWidth(Double.MAX_VALUE);
-        message.setWrapText(true);
-
-        content.getChildren().addAll(titleRow, message);
-
-        row.getChildren().addAll(dotColumn, content);
-
-        row.setOnMouseClicked(_ -> markAsRead(n));
-
-        return row;
-    }
-
-    private String formatTimestamp(Timestamp ts) {
-        if (ts == null) return "";
-
-        DateTimeFormatter dateFmt = DateFormats.of(settings);
-        String timePattern = (settings != null && "12-hour".equalsIgnoreCase(settings.timeFormat())) ? "h:mm a" : "HH:mm";
-        DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern(timePattern);
-
-        return ts.toLocalDateTime().format(dateFmt) + " · " + ts.toLocalDateTime().format(timeFmt);
+        return false;
     }
 
     private void markAsRead(Notification n) {
-        try (PreparedStatement statement = connection.prepareStatement("update notifications set status = ?::notificationstatus, updated_at = now() where notificationid = ?")) {
-            statement.setObject(1, NotificationStatus.read.name(), java.sql.Types.OTHER);
-            statement.setLong(2, n.getNotificationid());
-
-            statement.execute();
+        if (n.getStatus() == NotificationStatus.read) {
+            return;
         }
 
-        catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        dbPool.submit(() -> {
+            try (Connection connection = Conn.getConnection();
+                 PreparedStatement statement = connection.prepareStatement("update notifications set status = ?::notificationstatus, updated_at = now() where notificationid = ?")) {
+                statement.setObject(1, NotificationStatus.read.name(), java.sql.Types.OTHER);
+                statement.setLong(2, n.getNotificationid());
+
+                statement.execute();
+            }
+
+            catch (SQLException | IOException e) {
+                Platform.runLater(() -> showError("Could not mark notification as read", e));
+            }
+        });
     }
 
     private void markAllRead() {
-        try (PreparedStatement statement = connection.prepareStatement("update notifications set status = ?::notificationstatus, updated_at = now() where status = ?::notificationstatus")) {
-            statement.setObject(1, NotificationStatus.read.name(), java.sql.Types.OTHER);
-            statement.setObject(2, NotificationStatus.unread.name(), java.sql.Types.OTHER);
+        dbPool.submit(() -> {
+            try (Connection connection = Conn.getConnection();
+                 PreparedStatement statement = connection.prepareStatement("update notifications set status = ?::notificationstatus, updated_at = now() where status = ?::notificationstatus")) {
+                statement.setObject(1, NotificationStatus.read.name(), java.sql.Types.OTHER);
+                statement.setObject(2, NotificationStatus.unread.name(), java.sql.Types.OTHER);
 
-            statement.execute();
-        }
+                statement.execute();
+            }
 
-        catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+            catch (SQLException | IOException e) {
+                Platform.runLater(() -> showError("Could not mark all notifications as read", e));
+            }
+        });
+    }
+
+    private void showError(String message, Exception e) {
+        Alert alert = new Alert(Alert.AlertType.ERROR, message + "\n\n" + e.getMessage(), ButtonType.OK);
+        alert.setHeaderText(null);
+        alert.initOwner(this.getScene() == null ? null : this.getScene().getWindow());
+        alert.showAndWait();
     }
 
     private String colorForType(NotificationType type) {
@@ -353,5 +322,94 @@ public class Notifications extends VBox {
             case daily_report -> "#b8b06a";
             case late_checkout -> "#d9543c";
         };
+    }
+
+    private String formatTimestamp(Timestamp ts) {
+        if (ts == null) return "";
+
+        Settings s = this.settings;
+        DateTimeFormatter dateFmt = DateFormats.of(s);
+        String timePattern = (s != null && "12-hour".equalsIgnoreCase(s.timeFormat())) ? "h:mm a" : "HH:mm";
+        DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern(timePattern);
+
+        return ts.toLocalDateTime().format(dateFmt) + " · " + ts.toLocalDateTime().format(timeFmt);
+    }
+
+    private class NotificationCell extends ListCell<Notification> {
+
+        private final StackPane dotColumn = new StackPane();
+        private final Circle dot = new Circle(4);
+        private final Label title = new Label();
+        private final Label time = new Label();
+        private final Label message = new Label();
+        private final HBox root = new HBox(14);
+
+        NotificationCell() {
+            dotColumn.setMinWidth(8);
+            dotColumn.setPrefWidth(8);
+            dotColumn.setMaxWidth(8);
+
+            dot.getStyleClass().add("notification-dot");
+
+            title.getStyleClass().add("notification-title");
+            time.getStyleClass().add("notification-time");
+            message.getStyleClass().add("notification-message");
+            message.setWrapText(true);
+            message.setMaxWidth(Double.MAX_VALUE);
+
+            Region titleSpacer = new Region();
+            HBox.setHgrow(titleSpacer, Priority.ALWAYS);
+            HBox titleRow = new HBox(8);
+            titleRow.setAlignment(Pos.CENTER_LEFT);
+            titleRow.setMaxWidth(Double.MAX_VALUE);
+            titleRow.getChildren().addAll(title, titleSpacer, time);
+
+            VBox content = new VBox(4);
+            content.setMaxWidth(Double.MAX_VALUE);
+            HBox.setHgrow(content, Priority.ALWAYS);
+            content.getChildren().addAll(titleRow, message);
+
+            root.getStyleClass().add("notification-row");
+            root.setAlignment(Pos.CENTER_LEFT);
+            root.setMaxWidth(Double.MAX_VALUE);
+            root.setMinWidth(Region.USE_PREF_SIZE);
+            root.getChildren().addAll(dotColumn, content);
+
+            setOnMouseClicked(_ -> {
+                Notification n = getItem();
+                if (n != null) markAsRead(n);
+            });
+        }
+
+        @Override
+        protected void updateItem(Notification n, boolean empty) {
+            super.updateItem(n, empty);
+
+            if (empty || n == null) {
+                setText(null);
+                setGraphic(null);
+                return;
+            }
+
+            boolean unread = n.getStatus() == NotificationStatus.unread;
+
+            root.getStyleClass().remove("notification-row-unread");
+            if (unread) {
+                root.getStyleClass().add("notification-row-unread");
+            }
+
+            dotColumn.getChildren().clear();
+            if (unread) {
+                dot.setFill(Color.web(colorForType(n.getType())));
+                dotColumn.getChildren().add(dot);
+            }
+
+            title.setText(n.getTitle() == null ? "" : n.getTitle());
+            message.setText(n.getMessage() == null ? "" : n.getMessage());
+            time.setText(formatTimestamp(n.getCreated_at()));
+
+            setText(null);
+            setGraphic(root);
+        }
     }
 }

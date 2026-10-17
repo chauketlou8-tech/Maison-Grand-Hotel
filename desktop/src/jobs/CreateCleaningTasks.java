@@ -1,4 +1,4 @@
-package tasks;
+package jobs;
 
 import records.Settings;
 import utils.Assignment;
@@ -23,15 +23,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class CreateCleaningTasksJob {
+public class CreateCleaningTasks {
 
     private static Settings settings;
 
     private static Connection conn;
 
     public static void run(Settings settings) throws IOException, SQLException {
-        CreateCleaningTasksJob.settings = settings;
-        CreateCleaningTasksJob.conn = Conn.getConnection();
+        CreateCleaningTasks.settings = settings;
+        CreateCleaningTasks.conn = Conn.getConnection();
 
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -67,7 +67,7 @@ public class CreateCleaningTasksJob {
     }
 
     private static void createCleaningTasks() throws SQLException {
-        System.out.println("Running create cleaning tasks job...");
+        System.out.println("Running create cleaning jobs job...");
 
         LocalTime taskTime = settings.housekeepingTaskTime().toLocalTime();
         String defaultStatus = settings.housekeepingDefaultStatus();
@@ -98,7 +98,7 @@ public class CreateCleaningTasksJob {
         }
 
         if (occupiedRoomIds.isEmpty()) {
-            System.out.println("Created 0 cleaning tasks for " + target.toLocalDate() + ".");
+            System.out.println("Created 0 cleaning jobs for " + target.toLocalDate() + ".");
             return;
         }
 
@@ -125,7 +125,7 @@ public class CreateCleaningTasksJob {
 
             statement.executeBatch();
 
-            System.out.println("Created " + occupiedRoomIds.size() + " cleaning tasks for " + target.toLocalDate() + " using " + assignment + ".");
+            System.out.println("Created " + occupiedRoomIds.size() + " cleaning jobs for " + target.toLocalDate() + " using " + assignment + ".");
         }
     }
 }

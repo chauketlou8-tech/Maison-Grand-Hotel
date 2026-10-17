@@ -461,7 +461,7 @@ public class RoomManagement extends VBox {
             return;
         }
 
-        try (PreparedStatement statement = connection.prepareStatement("update rooms set roomstatus = ?, updated_at = now(); where roomid = ?")) {
+        try (PreparedStatement statement = connection.prepareStatement("update rooms set roomstatus = ?, updated_at = now() where roomid = ?")) {
 
             statement.setString(1, newStatus.name().toLowerCase());
             statement.setLong(2, roomId);

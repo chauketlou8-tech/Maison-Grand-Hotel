@@ -10,7 +10,7 @@ import models.User;
 
 import sockets.Server;
 
-import tasks.*;
+import jobs.*;
 
 import utils.Conn;
 
@@ -60,7 +60,7 @@ public class ServerRepository {
         socketThread.setDaemon(true);
         socketThread.start();
 
-        CaptureRoomHistoryJob.run(() -> {
+        CaptureRoomHistory.run(() -> {
             try {
                 return ServerRepository.getRooms().toArray(new Room[0]);
             }
@@ -70,12 +70,13 @@ public class ServerRepository {
             }
         }, settings);
 
-        CreateCleaningTasksJob.run(settings);
-        CreateInspectionTasksJob.run(settings);
+        CreateCleaningTasks.run(settings);
+        CreateInspectionTasks.run(settings);
         NotifyLowOccupancy.run(settings);
         NotifyCheckOutReminder.run(settings);
         CreateDailyReport.run(settings);
         ChargeLateCheckout.run(settings);
+        DeleteOldNotifications.run();
     }
 
     public static List<User> getUsers() throws SQLException {

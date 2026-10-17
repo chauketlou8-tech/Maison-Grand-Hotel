@@ -150,17 +150,35 @@ public class ActivityFeed extends VBox {
         for (Reservation r : reservations) {
             if (r.getCheckindate() == null) continue;
 
-            LocalDateTime when = toLocalDateTime(r.getCreated_at());
+            LocalDateTime created = toLocalDateTime(r.getCreated_at());
 
-            events.add(new Event("#4a9d6a", "Reservation received · " + r.getRequestedroomtype() + " room", when));
+            if (created != null && !created.equals(LocalDateTime.MIN)) {
+                events.add(new Event("#4a7cc9", "Reservation received · " + r.getRequestedroomtype() + " room", created));
+            }
+
+            if (r.getReservationstatus() != null) {
+                switch (r.getReservationstatus()) {
+                    case CONFIRMED -> events.add(new Event("#4a9d6a", "Reservation confirmed · " + r.getRequestedroomtype() + " room", toLocalDateTime(r.getUpdated_at())));
+                    case CANCELLED -> events.add(new Event("#a84c4c", "Reservation cancelled · " + r.getRequestedroomtype() + " room", toLocalDateTime(r.getUpdated_at())));
+                    case REJECTED -> events.add(new Event("#a84c4c", "Reservation rejected · " + r.getRequestedroomtype() + " room", toLocalDateTime(r.getUpdated_at())));
+                }
+            }
         }
 
         for (Payment p : payments) {
-            if (!"completed".equals(p.paymentstatus())) continue;
+            LocalDateTime created = toLocalDateTime(p.created_at());
 
-            LocalDateTime when = toLocalDateTime(p.updated_at());
+            if (created != null && !created.equals(LocalDateTime.MIN)) {
+                events.add(new Event("#9a9080", "Payment started · R" + String.format("%,.2f", p.amount()), created));
+            }
 
-            events.add(new Event("#c9a84c", "Payment R" + String.format("%,.2f", p.amount()) + " received", when));
+            if ("completed".equalsIgnoreCase(p.paymentstatus())) {
+                LocalDateTime completed = toLocalDateTime(p.updated_at());
+
+                if (completed != null && !completed.equals(LocalDateTime.MIN)) {
+                    events.add(new Event("#c9a84c", "Payment complete · R" + String.format("%,.2f", p.amount()), completed));
+                }
+            }
         }
 
         for (Notification n : notifications) {
@@ -177,19 +195,15 @@ public class ActivityFeed extends VBox {
         }
 
         for (ServiceTask st : serviceTasks) {
-            LocalDateTime when;
+            LocalDateTime created = toLocalDateTime(st.getCreated_at());
+
+            if (created != null && !created.equals(LocalDateTime.MIN)) {
+                events.add(new Event("#4a7cc9", "Task created · Service #" + st.getService_id(), created));
+            }
 
             if ("completed".equalsIgnoreCase(st.getStatus()) && st.getCompleted_at() != null) {
-                when = st.getCompleted_at().toLocalDateTime();
+                events.add(new Event("#5ba8c9", "Task completed · Service #" + st.getService_id(), st.getCompleted_at().toLocalDateTime()));
             }
-
-            else {
-                when = toLocalDateTime(st.getCreated_at());
-            }
-
-            String verb = "completed".equalsIgnoreCase(st.getStatus()) ? "completed" : "created";
-
-            events.add(new Event("#4a7cc9", "Task " + verb + " · Service #" + st.getService_id(), when));
         }
 
         events.sort(Comparator.comparing(Event::when).reversed());

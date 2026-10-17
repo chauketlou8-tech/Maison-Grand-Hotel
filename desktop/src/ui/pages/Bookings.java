@@ -11,6 +11,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
@@ -164,6 +165,20 @@ public class Bookings extends VBox {
         status.setCellValueFactory(new PropertyValueFactory<>("status"));
 
         this.booking_displayer.getColumns().addAll(bookingId, guestName, roomNumber, roomType, checkIn, checkOut, nights, guests, reference, total, packages, requests, status);
+
+        booking_displayer.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+            Node target = (Node) event.getTarget();
+
+            while (target != null && !(target instanceof TableRow)) {
+                target = target.getParent();
+            }
+
+            boolean clickedRow = target instanceof TableRow && ((TableRow<?>) target).getItem() != null;
+
+            if (!clickedRow) {
+                booking_displayer.getSelectionModel().clearSelection();
+            }
+        });
 
         booking_displayer.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {

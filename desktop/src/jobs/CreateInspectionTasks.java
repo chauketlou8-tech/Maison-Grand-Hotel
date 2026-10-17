@@ -1,4 +1,4 @@
-package tasks;
+package jobs;
 
 import enums.BookingStatus;
 import records.Settings;
@@ -13,7 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class CreateInspectionTasksJob {
+public class CreateInspectionTasks {
 
     private static final Connection connection;
 
@@ -72,7 +72,7 @@ public class CreateInspectionTasksJob {
     }
 
     private static void createWeeklyInspectionTasks() throws SQLException {
-        System.out.println("Creating weekly inspection tasks...");
+        System.out.println("Creating weekly inspection jobs...");
 
         Timestamp scheduledFor = Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC));
 

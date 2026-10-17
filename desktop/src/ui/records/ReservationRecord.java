@@ -35,13 +35,10 @@ import java.util.Properties;
 
 public class ReservationRecord extends VBox {
 
-    private final Connection connection = Conn.getConnection();
-    private final RedisClient client = ConnectJedis.connect();
-
     private final ReservationsData data;
     private final Settings settings;
 
-    public ReservationRecord(ReservationsData data) throws IOException, SQLException {
+    public ReservationRecord(ReservationsData data) {
         this.data = data;
         this.settings = data.getSettings();
         getStyleClass().add("booking-record");
@@ -143,7 +140,7 @@ public class ReservationRecord extends VBox {
                     this.rejectReservation();
                 }
 
-                catch (SQLException ex) {
+                catch (SQLException | IOException ex) {
                     throw new RuntimeException(ex);
                 }
             });
@@ -408,6 +405,8 @@ public class ReservationRecord extends VBox {
         String base_url = properties.getProperty("base.url");
         String guest_email = data.getGuestEmail();
 
+        Connection connection = Conn.getConnection();
+
         connection.setAutoCommit(false);
 
         try {
@@ -457,6 +456,7 @@ public class ReservationRecord extends VBox {
 
         finally {
             connection.setAutoCommit(true);
+            connection.close();
         }
 
         if (settings == null || settings.notifyPaymentConfirmation()) {
@@ -516,6 +516,8 @@ public class ReservationRecord extends VBox {
         String base_url = properties.getProperty("base.url");
         String guest_email = data.getGuestEmail();
 
+        Connection connection = Conn.getConnection();
+
         connection.setAutoCommit(false);
 
         try {
@@ -555,8 +557,10 @@ public class ReservationRecord extends VBox {
 
         finally {
             connection.setAutoCommit(true);
+            connection.close();
         }
 
+        RedisClient client = ConnectJedis.connect();
         client.del("rooms");
         client.del("availableRooms");
 
@@ -601,8 +605,10 @@ public class ReservationRecord extends VBox {
         onClose();
     }
 
-    private void rejectReservation() throws SQLException {
+    private void rejectReservation() throws SQLException, IOException {
         Reservation reservation = data.reservation();
+
+        Connection connection = Conn.getConnection();
 
         connection.setAutoCommit(false);
 
@@ -629,8 +635,10 @@ public class ReservationRecord extends VBox {
 
         finally {
             connection.setAutoCommit(true);
+            connection.close();
         }
 
+        RedisClient client = ConnectJedis.connect();
         client.del("rooms");
         client.del("availableRooms");
 

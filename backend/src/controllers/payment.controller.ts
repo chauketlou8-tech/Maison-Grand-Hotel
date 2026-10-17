@@ -94,7 +94,7 @@ const yocoWebhook = asyncHandler(async (req: req, res: res, next: next) => {
     }
 
     const results = await connection.query(`
-        update payments set paymentstatus = $1, transactionreference = $2, paymentdate = NOW(), paymentmethod = $3 where id = $4
+        update payments set paymentstatus = $1, transactionreference = $2, paymentdate = now(), paymentmethod = $3, updated_at = now() where id = $4
         returning *
     `, ["completed", event.id, paymentMethod, payment.id]);
 
