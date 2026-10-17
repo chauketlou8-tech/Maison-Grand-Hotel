@@ -72,7 +72,7 @@ class User:
             else:
                 self.id = int(id)
                 f = open("userCount", "w")
-                f.write(id+1)
+                f.write(str(id+1))
 
         if browser is None:
             self.playwright = sync_playwright().start()
