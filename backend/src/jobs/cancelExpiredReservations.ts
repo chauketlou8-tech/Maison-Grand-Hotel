@@ -4,7 +4,7 @@ import type { Notification } from "../types/notification";
 import type { Settings } from "../types/settings";
 import { logger } from "../config/logger";
 import sendEmail from "../services/email.service";
-import { base_url } from "../config/env";
+import { base_url, node_env } from "../config/env";
 import getSettings from "../sockets/settingsClient";
 import redisClient from "../config/redisClient";
 
@@ -123,7 +123,9 @@ ${settings.hotel_email}
 ${settings.hotel_phone}
 ${address}`;
 
-            await sendEmail(guest.email, emailSubject, emailMessage, name);
+            if (node_env != "development") {
+                await sendEmail(guest.email, emailSubject, emailMessage, name);
+            }
         }
     }
 

@@ -3,24 +3,14 @@ from playwright.sync_api import sync_playwright
 from User import User
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from multiprocessing import Process, Manager
 
-def main():
+def create_user(rooms, errors, success_users, failed_users):
     with sync_playwright() as p:
-        browser = p.chromium.launch()
+        browser = p.chromium.launch(headless = True)
+        user = User(browser=browser)
 
-        users = [User(browser=browser) for _ in range(1000)]
-        rooms = ["KI", "EX", "QU", "DE", "SU", "ST", "DO", "PE", "SI", "FA"]
-
-        glob_errors = []
-        success_users = []
-        failed_users = []
-
-        headers = ["ID", "URL", "TIMES", "ERRORS"]
-
-        wb = Workbook()
-        ws = wb.active
-
-        for user in users:
+        try:
             user.getPage(
                 "booking",
                 room=rooms[user.id % len(rooms)],
@@ -42,18 +32,49 @@ def main():
                 checkOut="2026-11-06",
             )
 
+            record = {
+                "id": user.id,
+                "url": user.url,
+                "times": user.times,
+                "errors": user.errors,
+            }
+
             if len(user.errors) != 0:
-                glob_errors.append(user.errors[0])
-                failed_users.append(user)
+                errors.append(user.errors[0])
+                failed_users.append(record)
             else:
-                success_users.append(user)
+                success_users.append(record)
 
             print(f"user {user.id} done!!")
 
+        finally:
+            browser.close()
+
+def main():
+    with Manager() as manager:
+        glob_errors = manager.list()
+        success_users = manager.list()
+        failed_users = manager.list()
+
+        rooms = ["KI", "EX", "QU", "DE", "SU", "ST", "DO", "PE", "SI", "FA"]
+
+        processes = []
+        for _ in range(50):
+            p = Process(target=create_user, args=(rooms, glob_errors, success_users, failed_users, ))
+            processes.append(p)
+            p.start()
+
+        for p in processes:
+            p.join()
 
         print("Errors: ", len(glob_errors), glob_errors)
         print("Successes: ", len(success_users), success_users)
         print("Failed users: ", len(failed_users), failed_users)
+
+        headers = ["ID", "URL", "TIMES", "ERRORS"]
+
+        wb = Workbook()
+        ws = wb.active
 
         for col_num, header in enumerate(headers, start=1):
             cell = ws.cell(row=1, column=col_num)
@@ -63,16 +84,14 @@ def main():
             cell.fill = PatternFill("solid", fgColor="4472C4")
             cell.alignment = Alignment(horizontal="center")
 
-        users = success_users + failed_users
+        records = list(success_users) + list(failed_users)
+        data = [[] for _ in range(len(records))]
 
-        data = [[] for _ in range(len(users))]
-        print(data)
-
-        for i, user in enumerate(users, start=1):
-            data[i-1].append(user.id)
-            data[i-1].append(user.url)
-            data[i-1].append(user.times[0] if len(user.times) != 0 else "")
-            data[i-1].append(user.times[0] if len(user.errors) != 0 else "")
+        for i, rec in enumerate(records, start=1):
+            data[i-1].append(rec["id"])
+            data[i-1].append(rec["url"])
+            data[i-1].append(rec["times"][0] if len(rec["times"]) != 0 else "")
+            data[i-1].append(rec["errors"][0] if len(rec["errors"]) != 0 else "")
 
         for row in data:
             ws.append(row)
@@ -97,11 +116,11 @@ def main():
 
             ws.column_dimensions[column_letter].width = max_length + 2
 
-        wb.save("report1000.xlsx")
+        wb.save("report50Con.xlsx")
         print("saved!")
 
-
-        browser.close()
+        file = open("userCount", "w")
+        file.write("1")
 
 if __name__ == "__main__":
     main()

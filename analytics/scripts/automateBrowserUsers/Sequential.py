@@ -100,8 +100,9 @@ def main():
         wb.save("report1000.xlsx")
         print("saved!")
 
-
         browser.close()
+        file = open("userCount", "w")
+        file.write("1")
 
 if __name__ == "__main__":
     main()

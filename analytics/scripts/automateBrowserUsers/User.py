@@ -21,8 +21,6 @@ class User:
         page: The current tab (recreated per getPage call).
         url: The URL being acted on in the current call.
     """
-    #Global shared id for every user
-    id = 1
 
     def __init__(self, browser=None):
         """
@@ -53,8 +51,28 @@ class User:
 
         self.times = []
         self.errors = []
-        self.id = User.id
-        User.id += 1
+
+        try:
+            file = open("userCount", "r")
+            id = int(file.readline().strip())
+
+            self.id = id
+            id += 1
+
+            file = open("userCount", "w")
+            file.write(str(id))
+        except:
+            f = open("userCount", "r")
+            id = f.readline().strip()
+
+            if not id:
+                self.id = 1
+                f = open("userCount", "w")
+                f.write("1")
+            else:
+                self.id = int(id)
+                f = open("userCount", "w")
+                f.write(id+1)
 
         if browser is None:
             self.playwright = sync_playwright().start()
@@ -161,7 +179,7 @@ class User:
         self.page.goto(self.url)
         self.page.wait_for_selector("h2:has-text('Choose Your Room')", timeout=30000)
 
-        self.page.wait_for_selector(f'button:has-text("{room}")', timeout=20000)
+        self.page.wait_for_selector(f'button:has-text("{room}"):not([disabled])',timeout=30000)
         self.page.click(f'button:has-text("{room}")')
 
         self.page.fill("#firstName", firstName)
