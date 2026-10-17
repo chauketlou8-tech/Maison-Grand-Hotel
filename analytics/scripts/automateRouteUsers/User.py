@@ -32,6 +32,7 @@ class User:
         self.amenities_url = self.base_url + "/amenities"
         self.dining_url = self.base_url + "/dining"
         self.book_url = self.base_url + "/booking"
+        self.findBooking_url = self.base_url + "/booking/find"
 
         self.pages = {
             "home": self.base_url,
@@ -40,6 +41,7 @@ class User:
             "amenities": self.amenities_url,
             "dining": self.dining_url,
             "booking": self.book_url,
+            "findBooking": self.findBooking_url,
         }
 
         self.times = []

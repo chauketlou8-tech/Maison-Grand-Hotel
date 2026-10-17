@@ -45,7 +45,7 @@ const book = asyncHandler(async (req: req, res: res, next: next) => {
     const availableRooms: Room[] = result.rows;
 
     if (!availableRooms.length) {
-        return next(new RoomError("Room is not available.", 404));
+        return next(new RoomError(`${selectedRoom} room is not available.`, 404));
     }
 
     const suitableRoom = availableRooms.find((room: Room) => room.capacity >= guests);
@@ -263,7 +263,9 @@ ${settings.hotel_name}
 ${settings.hotel_email}
 ${settings.hotel_phone}`;
 
-            await sendEmail(email, subject, message, name);
+            if (node_env != "development") {
+                await sendEmail(email, subject, message, name);
+            }
         }
     }
 

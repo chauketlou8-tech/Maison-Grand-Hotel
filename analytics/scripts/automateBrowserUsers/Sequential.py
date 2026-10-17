@@ -8,20 +8,24 @@ def main():
     with sync_playwright() as p:
         browser = p.chromium.launch()
 
-        users = [User(browser=browser) for _ in range(1000)]
+        users = [User(browser=browser) for _ in range(2)]
         rooms = ["KI", "EX", "QU", "DE", "SU", "ST", "DO", "PE", "SI", "FA"]
 
         glob_errors = []
         success_users = []
         failed_users = []
+        records = []
 
-        headers = ["ID", "URL", "TIMES", "ERRORS"]
+        headers = ["ID", "URLS", "TIMES", "ERRORS"]
 
         wb = Workbook()
         ws = wb.active
 
         for user in users:
-            user.getPage(
+            user_urls = []
+            user_times = []
+
+            returned_url = user.getPage(
                 "booking",
                 room=rooms[user.id % len(rooms)],
                 firstName=f"TestUserFirst{user.id}",
@@ -42,14 +46,40 @@ def main():
                 checkOut="2026-11-06",
             )
 
+            if returned_url:
+                user_urls.append(returned_url)
+                if len(user.times) != 0:
+                    user_times.append(user.times[-1])
+
+            if len(user.errors) == 0:
+                find_url = user.getPage(
+                    "findBooking",
+                    email=f"user{user.id}@gmail.com",
+                )
+                if find_url:
+                    user_urls.append(find_url)
+                    if len(user.times) != 0:
+                        user_times.append(user.times[-1])
+
             if len(user.errors) != 0:
                 glob_errors.append(user.errors[0])
                 failed_users.append(user)
+                records.append({
+                    "id": user.id,
+                    "urls": user_urls if user_urls else [user.url],
+                    "times": user_times,
+                    "errors": [user.errors[0]],
+                })
             else:
                 success_users.append(user)
+                records.append({
+                    "id": user.id,
+                    "urls": user_urls,
+                    "times": user_times,
+                    "errors": [],
+                })
 
             print(f"user {user.id} done!!")
-
 
         print("Errors: ", len(glob_errors), glob_errors)
         print("Successes: ", len(success_users), success_users)
@@ -58,49 +88,36 @@ def main():
         for col_num, header in enumerate(headers, start=1):
             cell = ws.cell(row=1, column=col_num)
             cell.value = header
-
             cell.font = Font(bold=True, color="FFFFFF")
             cell.fill = PatternFill("solid", fgColor="4472C4")
             cell.alignment = Alignment(horizontal="center")
 
-        users = success_users + failed_users
-
-        data = [[] for _ in range(len(users))]
-        print(data)
-
-        for i, user in enumerate(users, start=1):
-            data[i-1].append(user.id)
-            data[i-1].append(user.url)
-            data[i-1].append(user.times[0] if len(user.times) != 0 else "")
-            data[i-1].append(user.times[0] if len(user.errors) != 0 else "")
-
-        for row in data:
-            ws.append(row)
+        for rec in records:
+            ws.append([
+                rec["id"],
+                ", ".join(str(u) for u in rec["urls"]),
+                ", ".join(str(t) for t in rec["times"]),
+                ", ".join(str(e) for e in rec["errors"]),
+            ])
 
         thin = Side(style="thin")
         for row in ws.iter_rows():
             for cell in row:
-                cell.border = Border(
-                    left=thin,
-                    right=thin,
-                    top=thin,
-                    bottom=thin
-                )
+                cell.border = Border(left=thin, right=thin, top=thin, bottom=thin)
 
         for column in ws.columns:
             max_length = 0
             column_letter = column[0].column_letter
-
             for cell in column:
                 if cell.value:
                     max_length = max(max_length, len(str(cell.value)))
-
             ws.column_dimensions[column_letter].width = max_length + 2
 
-        wb.save("report1000.xlsx")
+        wb.save("reportWithgetBookingSeq.xlsx")
         print("saved!")
 
         browser.close()
+
         file = open("userCount", "w")
         file.write("1")
 

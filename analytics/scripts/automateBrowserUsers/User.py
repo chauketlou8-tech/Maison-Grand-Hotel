@@ -39,6 +39,7 @@ class User:
         self.amenities_url = self.base_url + "/amenities"
         self.dining_url = self.base_url + "/dining"
         self.book_url = self.base_url + "/booking"
+        self.findBooking_url = self.base_url + "/booking/find"
 
         self.pages = {
             "home": self.base_url,
@@ -47,6 +48,7 @@ class User:
             "amenities": self.amenities_url,
             "dining": self.dining_url,
             "booking": self.book_url,
+            "findBooking": self.findBooking_url,
         }
 
         self.times = []
@@ -140,6 +142,15 @@ class User:
 
                 return url
 
+            elif page.lower() == "findBooking":
+                self.getFindBookingPage(email)
+                self.times.append((time.time() - startTime) * 1000)
+
+                url = self.page.url
+                self.close()
+
+                return url
+
             self.page.goto(self.url)
             self.page.wait_for_load_state("networkidle")
 
@@ -202,6 +213,21 @@ class User:
         self.page.fill("#checkOut", checkOut)
 
         self.page.click("#submit")
+
+    def getFindBookingPage(self, email):
+        """
+        Open the find-booking page, submit an email, and wait for the response.
+
+        Args:
+            email (str): Email address to search bookings for.
+        """
+        self.page.goto(self.url)
+        self.page.wait_for_selector("h1:has-text('Lost your confirmation?')", timeout=30000)
+
+        self.page.fill('input[type="email"]', email)
+        self.page.click('button[type="submit"]')
+
+        self.page.wait_for_selector("p:has-text('If that email is on file')", timeout=15000)
 
     def close(self):
         self.page.close()
