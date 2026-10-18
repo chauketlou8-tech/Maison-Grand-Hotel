@@ -187,6 +187,10 @@ public class RoomManagement extends VBox {
         this.table_view.setMaxWidth(Double.MAX_VALUE);
         this.table_view.setMaxHeight(Double.MAX_VALUE);
 
+        Label placeholder = new Label("No rooms found matching your filters.");
+        placeholder.getStyleClass().add("guest-record-empty");
+        this.table_view.setPlaceholder(placeholder);
+
         TableColumn<RoomData, Number> roomNumber = new TableColumn<>("Room");
         TableColumn<RoomData, String> type = new TableColumn<>("Type");
         TableColumn<RoomData, Number> floor = new TableColumn<>("Floor");
@@ -368,6 +372,14 @@ public class RoomManagement extends VBox {
 
     private void renderRack() {
         rack.getChildren().clear();
+
+        if (filtered.isEmpty()) {
+            Label noData = new Label("No rooms found matching your filters.");
+            noData.getStyleClass().add("guest-record-empty");
+            VBox.setMargin(noData, new Insets(40, 0, 0, 0));
+            rack.getChildren().add(noData);
+            return;
+        }
 
         java.util.TreeMap<Integer, java.util.List<RoomData>> byFloor = new java.util.TreeMap<>(java.util.Comparator.reverseOrder());
 

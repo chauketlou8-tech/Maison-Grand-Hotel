@@ -6,6 +6,7 @@ import About from "../pages/About";
 import Rooms from "../pages/Rooms";
 import Amenities from "../pages/Amenities";
 import Dining from "../pages/Dining";
+import FeedBack from "../pages/FeedBack";
 import { Booking, BookingView, Success, FindBooking, Payment } from "../pages/Booking";
 import { CookieSettings, PrivacyPolicy, TermsOfUse } from "../pages/Footer";
             
@@ -26,6 +27,7 @@ export default function AppRoutes() {
                 <Route path="/cookies" element={ <CookieSettings/> } />
                 <Route path="/privacy" element={ <PrivacyPolicy/> } />
                 <Route path="/terms" element={ <TermsOfUse/> } />
+                <Route path="/feedback" element={ <FeedBack/> } />
             </Routes>
         </PageLayout>
 )
