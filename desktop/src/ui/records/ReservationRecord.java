@@ -531,6 +531,11 @@ public class ReservationRecord extends VBox {
                 statement.execute();
             }
 
+            try (PreparedStatement statement = connection.prepareStatement("update roomhistory set status = 'available', updated_at = now() where roomid = ? and status_date = date_trunc('day', now() at time zone 'Africa/Johannesburg') at time zone 'UTC'")){
+                statement.setLong(1, data.getRoomId());
+                statement.execute();
+            }
+
             try (PreparedStatement statement = connection.prepareStatement("insert into notifications (type, title, message, reservationid, guestid, payment_id) values (?::notificationtype, ?, ?, ?, ?, ?)")) {
                 statement.setString(1, NotificationType.reservation_cancelled.name());
                 statement.setString(2, "Reservation Cancellation notification");

@@ -214,6 +214,9 @@ class User:
 
         self.page.click("#submit")
 
+        self.page.wait_for_url(lambda url: "yoco.com" in url, timeout=15000)
+        self.page.wait_for_load_state("networkidle")
+
     def getFindBookingPage(self, email):
         """
         Open the find-booking page, submit an email, and wait for the response.

@@ -77,6 +77,8 @@ public class ServerRepository {
         CreateDailyReport.run(settings);
         ChargeLateCheckout.run(settings);
         DeleteOldNotifications.run();
+        DeleteOldBookings.run();
+        DeleteOldReservations.run();
     }
 
     public static List<User> getUsers() throws SQLException {

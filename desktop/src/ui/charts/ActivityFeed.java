@@ -202,7 +202,7 @@ public class ActivityFeed extends VBox {
             }
 
             if ("completed".equalsIgnoreCase(st.getStatus()) && st.getCompleted_at() != null) {
-                events.add(new Event("#5ba8c9", "Task completed · Service #" + st.getService_id(), st.getCompleted_at().toLocalDateTime()));
+                events.add(new Event("#5ba8c9", "Task completed · Service #" + st.getService_id() + "by " + st.getScheduled_for(), st.getCompleted_at().toLocalDateTime()));
             }
         }
 

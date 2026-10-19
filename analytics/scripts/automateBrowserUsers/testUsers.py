@@ -8,7 +8,7 @@ def main():
     with sync_playwright() as p:
         browser = p.chromium.launch()
 
-        users = [User(browser=browser) for _ in range(2)]
+        users = [User(browser=browser) for _ in range(6)]
         rooms = ["KI", "EX", "QU", "DE", "SU", "ST", "DO", "PE", "SI", "FA"]
 
         glob_errors = []
@@ -81,39 +81,39 @@ def main():
 
             print(f"user {user.id} done!!")
 
-        print("Errors: ", len(glob_errors), glob_errors)
-        print("Successes: ", len(success_users), success_users)
-        print("Failed users: ", len(failed_users), failed_users)
+        # print("Errors: ", len(glob_errors), glob_errors)
+        # print("Successes: ", len(success_users), success_users)
+        # print("Failed users: ", len(failed_users), failed_users)
+        #
+        # for col_num, header in enumerate(headers, start=1):
+        #     cell = ws.cell(row=1, column=col_num)
+        #     cell.value = header
+        #     cell.font = Font(bold=True, color="FFFFFF")
+        #     cell.fill = PatternFill("solid", fgColor="4472C4")
+        #     cell.alignment = Alignment(horizontal="center")
+        #
+        # for rec in records:
+        #     ws.append([
+        #         rec["id"],
+        #         ", ".join(str(u) for u in rec["urls"]),
+        #         ", ".join(str(t) for t in rec["times"]),
+        #         ", ".join(str(e) for e in rec["errors"]),
+        #     ])
+        #
+        # thin = Side(style="thin")
+        # for row in ws.iter_rows():
+        #     for cell in row:
+        #         cell.border = Border(left=thin, right=thin, top=thin, bottom=thin)
+        #
+        # for column in ws.columns:
+        #     max_length = 0
+        #     column_letter = column[0].column_letter
+        #     for cell in column:
+        #         if cell.value:
+        #             max_length = max(max_length, len(str(cell.value)))
+        #     ws.column_dimensions[column_letter].width = max_length + 2
 
-        for col_num, header in enumerate(headers, start=1):
-            cell = ws.cell(row=1, column=col_num)
-            cell.value = header
-            cell.font = Font(bold=True, color="FFFFFF")
-            cell.fill = PatternFill("solid", fgColor="4472C4")
-            cell.alignment = Alignment(horizontal="center")
-
-        for rec in records:
-            ws.append([
-                rec["id"],
-                ", ".join(str(u) for u in rec["urls"]),
-                ", ".join(str(t) for t in rec["times"]),
-                ", ".join(str(e) for e in rec["errors"]),
-            ])
-
-        thin = Side(style="thin")
-        for row in ws.iter_rows():
-            for cell in row:
-                cell.border = Border(left=thin, right=thin, top=thin, bottom=thin)
-
-        for column in ws.columns:
-            max_length = 0
-            column_letter = column[0].column_letter
-            for cell in column:
-                if cell.value:
-                    max_length = max(max_length, len(str(cell.value)))
-            ws.column_dimensions[column_letter].width = max_length + 2
-
-        wb.save("reportWithgetBooking.xlsx")
+        #wb.save("reportWithgetBookingSeq.xlsx")
         print("saved!")
 
         browser.close()

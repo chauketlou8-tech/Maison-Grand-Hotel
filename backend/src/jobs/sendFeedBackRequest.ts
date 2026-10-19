@@ -22,13 +22,15 @@ cron.schedule("*/15 * * * *", async () => {
         logger.info("running send feedback request...");
 
         const result = await connection.query(`
-            select b.booking_id, b.reservation_id, g.id as guest_id, g.email, g.firstname, g.lastname from bookings b join guests g on b.guest_id = g.id
-            where b.booking_status = 'CHECKED_OUT' and b.updated_at <= now() - interval '2 hours'
+            select b.booking_id, r.id as reservation_db_id, g.id as guest_id, g.email, g.firstname, g.lastname
+            from bookings b
+                     join guests g on b.guest_id = g.id
+                     join reservations r on b.reservation_id = r.reservationid
+            where b.booking_status = 'CHECKED_OUT'
+              and b.updated_at <= now() - interval '2 HOURS'
               and not exists (
                 select 1 from notifications n
-                where n.reservationid = (
-                    select r.id from reservations r where r.reservationid = b.reservation_id
-                )
+                where n.reservationid = r.id
                   and n.type = 'feedback_request'
             )
         `);
@@ -50,12 +52,12 @@ ${settings.hotel_name}
 ${settings.hotel_email}
 ${settings.hotel_phone}`;
 
-            await sendEmail(r.email, subject, message, name);
-
             await connection.query(`
                 insert into notifications (type, title, message, reservationid, guestid)
                 values ($1::notificationtype, $2, $3, $4, $5)
-            `, ["feedback_request", `Feedback Request — ${name}`, `Feedback request sent to ${name}.`, r.reservation_id, r.guest_id]);
+            `, ["feedback_request", `Feedback Request — ${name}`, `Feedback request sent to ${name}.`, r.reservation_db_id, r.guest_id]);
+
+            await sendEmail(r.email, subject, message, name);
         }
     }
 

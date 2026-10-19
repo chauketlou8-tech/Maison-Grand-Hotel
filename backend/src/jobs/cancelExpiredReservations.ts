@@ -37,6 +37,10 @@ cron.schedule("* * * * *", async () => {
                 update rooms set roomstatus = 'available' where roomid = $1
             `, [reservation.room_id]);
 
+            await connection.query(`
+                update roomhistory set status = 'available', updated_at = now() where roomid = $1 and status_date = date_trunc('day', now() at time zone 'Africa/Johannesburg') at time zone 'UTC'
+            `, [reservation.room_id]);
+
             await client.del("rooms");
             await client.del("availableRooms");
 
